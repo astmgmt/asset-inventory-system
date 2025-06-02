@@ -4,9 +4,9 @@ use Illuminate\Support\Facades\Route;
 
 //ADDED FOR ROLE-BASED ROUTE IMPORTS
 use App\Http\Controllers\Auth\CustomAuthenticatedSessionController;
-use App\Http\Livewire\Dashboard\SuperAdminDashboard;
-use App\Http\Livewire\Dashboard\AdminDashboard;
-use App\Http\Livewire\Dashboard\UserDashboard;
+use App\Livewire\Dashboard\SuperAdminDashboard;
+use App\Livewire\Dashboard\AdminDashboard;
+use App\Livewire\Dashboard\UserDashboard;
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,6 +26,11 @@ Route::middleware([
     Route::get('/dashboard/superadmin', [SuperAdminDashboard::class,'render'])->name('dashboard.superadmin');
     Route::get('/dashboard/admin', [AdminDashboard::class, 'render'])->name('dashboard.admin');
     Route::get('/dashboard/user', [UserDashboard::class, 'render'])->name('dashboard.user');
+    
+
+    // Route::get('/dashboard/superadmin', SuperAdminDashboard::class)->name('dashboard.superadmin');
+    // Route::get('/dashboard/admin', AdminDashboard::class)->name('dashboard.admin');
+    //Route::get('/dashboard/user', UserDashboard::class)->name('dashboard.user');
 });
 
 

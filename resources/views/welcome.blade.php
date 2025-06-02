@@ -33,13 +33,26 @@
             @if (Route::has('login'))
                 <nav class="flex items-center justify-end gap-4">
                     @auth
+                        <!-- Dashboard Link -->
                         <a
                             href="{{ url('/dashboard') }}"
                             class="inline-block px-5 py-1.5 border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] rounded-sm text-sm leading-normal"
                         >
                             Dashboard
                         </a>
+
+                        <!-- Logout Button (POST form) -->
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button
+                                type="submit"
+                                class="inline-block px-5 py-1.5 text-[#1b1b18] border border-transparent hover:border-[#19140035] rounded-sm text-sm leading-normal"
+                            >
+                                Logout
+                            </button>
+                        </form>
                     @else
+                        <!-- Login Link -->
                         <a
                             href="{{ route('login') }}"
                             class="inline-block px-5 py-1.5 text-[#1b1b18] border border-transparent hover:border-[#19140035] rounded-sm text-sm leading-normal"
@@ -49,9 +62,11 @@
                         </a>
 
                         @if (Route::has('register'))
+                            <!-- Register Link -->
                             <a
                                 href="{{ route('register') }}"
-                                class="inline-block px-5 py-1.5 border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] rounded-sm text-sm leading-normal">
+                                class="inline-block px-5 py-1.5 border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] rounded-sm text-sm leading-normal"
+                            >
                                 Register
                             </a>
                         @endif
@@ -59,6 +74,7 @@
                 </nav>
             @endif
         </header>
+
         <div class="flex items-center justify-center w-full transition-opacity opacity-100 duration-750 lg:grow starting:opacity-0">
             <main class="flex max-w-[335px] w-full flex-col-reverse lg:max-w-4xl lg:flex-row">
                 <div class="text-[13px] leading-[20px] flex-1 p-6 pb-12 lg:p-20 bg-white shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] rounded-bl-lg rounded-br-lg lg:rounded-tl-lg lg:rounded-br-none">

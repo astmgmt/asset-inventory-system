@@ -8,4 +8,9 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    server: {
+        host: 'localhost',
+        port: 5173,
+        // Remove https: true unless you have valid certificates
+    },
 });

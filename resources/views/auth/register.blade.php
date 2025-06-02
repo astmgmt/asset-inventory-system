@@ -14,6 +14,12 @@
                 <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
             </div>
 
+            <!-- ADDED Username -->
+            <div class="mt-4">
+                <x-label for="username" value="Username" />
+                <x-input id="username" class="block mt-1 w-full" type="text" name="username" required autofocus />
+            </div>
+
             <div class="mt-4">
                 <x-label for="email" value="{{ __('Email') }}" />
                 <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
@@ -28,6 +34,25 @@
                 <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
                 <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
             </div>
+
+            <!-- ADDED CONTACT NUMBER -->
+            <div class="mt-4">
+                <x-label for="contact_number" value="Contact Number" />
+                <x-input id="contact_number" class="block mt-1 w-full" type="text" name="contact_number" />
+            </div>
+
+            <!-- ADDED ADDRESS -->
+            <div class="mt-4">
+                <x-label for="address" value="Address" />
+                <x-input id="address" class="block mt-1 w-full" type="text" name="address" />
+            </div>
+
+            <!-- ADDED PROFILE PHOTO -->
+            <div class="mt-4">
+                <x-label for="profile_photo" value="Profile Photo" />
+                <x-input id="profile_photo" class="block mt-1 w-full" type="file" name="profile_photo" />
+            </div>
+
 
             @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
                 <div class="mt-4">
