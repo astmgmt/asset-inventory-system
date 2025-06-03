@@ -5,10 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Asset Management Inventory</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Add Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
     @vite('resources/css/app.css')   
     @livewireStyles
 </head>
-<body>
+<body x-data="{ darkMode: localStorage.getItem('theme') === 'dark' }"
+      x-init="
+          localStorage.getItem('theme') === 'dark' ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
+          window.dispatchEvent(new CustomEvent('theme-changed', { detail: darkMode }));
+          $watch('darkMode', value => {
+              localStorage.setItem('theme', value ? 'dark' : 'light');
+              document.documentElement.classList.toggle('dark', value);
+              window.dispatchEvent(new CustomEvent('theme-changed', { detail: value }));
+          });
+      "
+      :class="{ 'dark': darkMode }">
+
     <aside class="sidebar">
         <div class="sidebar-header">
             <h1>Asset Management Inventory</h1>
@@ -73,7 +88,24 @@
                     </div>
                 </div>
                 <a href="#" class="btn btn-edit-profile"><i class="fas fa-user-edit"></i> Edit Profile</a>
-                <a href="#" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                <form method="POST" action="{{ route('logout') }}" x-data>
+                    @csrf
+                    <button 
+                        type="submit" 
+                        class="btn btn-logout"                        
+                    >
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+
+
+                <!-- Theme Toggle Button -->
+                <button @click="darkMode = !darkMode"
+                        class="btn btn-logout"
+                        title="Toggle Mode"
+                        style="background-color: transparent; color: inherit; border: none; cursor: pointer;font-size: 1.5rem; border: 1px solid #b3b3b3;">
+                    <i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
+                </button>
             </div>
         </header>
 

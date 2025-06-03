@@ -176,7 +176,7 @@ body {
 }
 
 .btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     text-decoration: none;
@@ -185,11 +185,23 @@ body {
     padding: 0.5rem 1rem;
     transition: background-color 0.2s ease;
     white-space: nowrap;
+
+    /* Normalize styles between <a> and <button> */
+    font-size: inherit;
+    font-family: inherit;
+    line-height: 1.5;
+    border: none;
+    background: none;
+    appearance: none;
+    box-sizing: border-box;
 }
 
 .btn-logout {
     background-color: #ef4444;
     color: white;
+    border: 1px solid #ef4444;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .btn-logout:hover {
@@ -197,16 +209,17 @@ body {
 }
 
 .btn-edit-profile {
-    background-color: #1e40af; /* Darker, professional blue */
+    background-color: #1e40af;
     color: white;
     border: 1px solid #1e40af;
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .btn-edit-profile:hover {
-    background-color: #1e3a8a; /* Slightly darker on hover */
+    background-color: #1e3a8a;
     border-color: #1e3a8a;
 }
+
 
 /* Main Content */
 .main-content-area {
@@ -226,7 +239,8 @@ body {
     border: 1px solid var(--border);
 }
 
-.content-card h2 {
+.content-card h2,
+.content-card h3 {
     color: var(--primary);
     font-size: 1.5rem;
     margin-top: 0;
@@ -251,6 +265,32 @@ body {
     margin-top: auto;
 }
 
+/* === New styles for two-column charts layout === */
+
+/* Container for the two cards */
+.charts-row {
+    margin-top: 1em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem; /* space between cards */
+    margin-bottom: 2rem;
+}
+
+/* Each chart card */
+.chart-card {
+    flex: 1 1 100%; /* full width by default */
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* On screens 768px and wider: two columns */
+@media (min-width: 768px) {
+    .chart-card {
+        flex: 1 1 calc(50% - 1.5rem); /* two equal columns with gap */
+        max-width: calc(50% - 1.5rem);
+    }
+}
+
 /* Responsive */
 @media (min-width: 768px) {
     body {
@@ -267,4 +307,143 @@ body {
     .header h1 {
         font-size: 2.25rem;
     }
+}
+
+/* === Dark Mode Support === */
+.dark body {
+    background-color: var(--primary-dark);
+    color: var(--accent-light);
+}
+
+.dark .header {
+    background-color: #2d3748;
+    color: #f7fafc;
+    border-color: #4a5568;
+}
+
+.dark .user-profile i {
+    color: #e2e8f0;
+}
+
+.dark .user-details {
+    color: #f1f5f9;
+}
+.dark .user-name {
+    color: #f1f5f9;
+}
+
+.dark .user-role {
+    color: #cbd5e0;
+}
+
+.dark .content-card {
+    background-color: #2d3748;
+    border-color: #4a5568;
+}
+
+.dark .content-card h2,
+.dark .content-card h3 {
+    color: #e2e8f0;
+    border-color: #4a5568;
+}
+
+.dark .content-card p {
+    color: #e2e8f0;
+}
+
+.dark .footer {
+    border-color: #4a5568;
+    color: #cbd5e0;
+}
+
+.dark .btn-edit-profile {
+    background-color: white;
+    color: #3b82f6;
+}
+
+.dark .btn-edit-profile:hover {
+    background-color: #ebf6f9;
+    color: #4d4d4d;
+}
+
+.dark .btn-logout {
+    background-color: #ffb3b3;
+    border-color: #ffb3b3;
+    color: #990000;
+}
+
+.dark .btn-logout:hover {
+    background-color: #ffcccc;
+    color: #4d4d4d;
+}
+
+.dark .sidebar {
+    background: linear-gradient(180deg, #0f172a 0%, #0a0f1a 100%);
+    border-right: 1px solid #334155;
+}
+
+.dark .sidebar-header h1,
+.dark .sidebar-header p {
+    color: #e2e8f0;
+}
+
+.dark .nav-link-button,
+.dark .sidebar-nav a {
+    color: #cbd5e1;
+}
+
+.dark .nav-link-button:hover,
+.dark .sidebar-nav a:hover {
+    background-color: #1e293b;
+    color: #38bdf8;
+}
+
+.dark .nav-submenu a {
+    color: #94a3b8;
+}
+
+.dark .nav-submenu a:hover {
+    color: #f8fafc;
+    background-color: #1e293b;
+}
+
+.dark .content {
+    color: #f1f5f9;
+}
+
+.dark .content a {
+    color: #93c5fd; /* light blue for links */
+}
+
+.dark .content a:hover {
+    color: #60a5fa;
+    text-decoration: underline;
+}
+
+/* MAKE INSERTED CONTENT TEXT WILL HAVE #F1F5F9 COLOR === */
+.dark .content-card {
+    color: #f1f5f9;
+}
+
+.dark .content-card h2,
+.dark .content-card h3 {
+    color: #f1f5f9;
+}
+
+.dark .content-card ul li {
+    color: #f1f5f9;
+    border-color: #4b5563; /* soften borders for dark mode */
+}
+
+.dark .content-card canvas {
+    background-color: transparent;
+    color: #f1f5f9 !important;
+}
+
+/* Optional: Tooltip or chart legend styling (if using Chart.js with default tooltips) */
+.dark .chartjs-tooltip,
+.dark .chart-legend {
+    color: #f1f5f9;
+    background-color: #1e293b;
+    border-color: #334155;
 }
