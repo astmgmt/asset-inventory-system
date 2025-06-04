@@ -80,14 +80,41 @@
         <header class="header">
             <h1>@yield('title', 'Dashboard')</h1>
             <div class="user-info-group">
-                <div class="user-profile">
-                    <i class="fas fa-user-circle"></i>
-                    <div class="user-details">
-                        <span class="user-name">John Doe</span>
-                        <span class="user-role">Administrator</span>
+                <!-- User Profile Section -->
+                @auth
+                    @php
+                        $user = Auth::user();
+                        $user->load('role');
+                    @endphp
+                    <div class="user-profile">
+                        @if($user->profile_photo_path)
+                            <img 
+                                src="{{ asset('storage/' . $user->profile_photo_path) }}" 
+                                alt="{{ $user->name }}"
+                                class="profile-avatar"
+                            >
+                        @else
+                            <i class="fas fa-user-circle profile-avatar"></i>
+                        @endif
+                        <div class="user-details">
+                            <span class="user-name">{{ $user->name }}</span>
+                            <span class="user-role">{{ $user->role->name ?? 'User' }}</span>
+                        </div>
                     </div>
-                </div>
-                <a href="#" class="btn btn-edit-profile"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                @else
+                    <div class="user-profile">
+                        <i class="fas fa-user-circle"></i>
+                        <div class="user-details">
+                            <span class="user-name">Guest</span>
+                            <span class="user-role">Guest</span>
+                        </div>
+                    </div>
+                @endauth
+
+                <a href="{{ route('profile.show') }}" class="btn btn-edit-profile">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </a>
+                
                 <form method="POST" action="{{ route('logout') }}" x-data>
                     @csrf
                     <button 
@@ -98,7 +125,6 @@
                     </button>
                 </form>
 
-
                 <!-- Theme Toggle Button -->
                 <div>
                     <button @click="darkMode = !darkMode"
@@ -108,7 +134,6 @@
                         <i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
                     </button>
                 </div>
-                
             </div>
         </header>
 

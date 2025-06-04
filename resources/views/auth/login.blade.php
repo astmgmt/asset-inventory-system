@@ -13,7 +13,14 @@
             </div>
 
             <!-- Validation Errors -->
-            <x-validation-errors class="mb-4 w-[90%] md:w-[40%]" />
+            @if ($errors->any())
+                <div class="w-[90%] md:w-[40%] mb-4">
+                    <div class="bg-red-200 border border-red-400 text-red-900 px-4 py-3 rounded shadow-md text-sm font-medium">
+                        <x-validation-errors />
+                    </div>
+                </div>
+            @endif
+
 
             @if (session('status'))
                 <div class="mb-4 w-[90%] md:w-[40%] bg-green-200 border border-green-400 text-green-900 px-4 py-3 rounded shadow-md text-sm font-medium">
