@@ -33,46 +33,119 @@
         <nav class="sidebar-nav" x-data="{ open: null }">
             <hr class="sidebar-separator" />
 
-            <button @click="open === 1 ? open = null : open = 1" class="nav-link-button" type="button">
-                <i class="fas fa-user-cog"></i> Account Management
-                <i class="fas" :class="open === 1 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
-            </button>
-            <div x-show="open === 1" x-collapse class="nav-submenu">
-                <a href="#"><i class="fas fa-user-shield"></i> Admins</a>
-                <a href="#"><i class="fas fa-users"></i> Users</a>
-            </div>
+            @auth
+                @php
+                    $user = Auth::user();
+                    $user->load('role');
+                @endphp
 
-            <a href="#"><i class="fas fa-boxes"></i> Asset Management</a>
-            <a href="#"><i class="fas fa-laptop-code"></i> Software Management</a>
+                <!-- SUPER ADMIN MENUS -->
+                @if($user->isSuperAdmin())
+                    <!-- Account Management -->
+                    <button @click="open === 1 ? open = null : open = 1" class="nav-link-button" type="button">
+                        <i class="fas fa-user-cog"></i> Account Management
+                        <i class="fas" :class="open === 1 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
+                    </button>
+                    <div x-show="open === 1" x-collapse class="nav-submenu">
+                        <a href="#"><i class="fas fa-user-shield"></i> Admins</a>
+                        <a href="#"><i class="fas fa-users"></i> Users</a>
+                    </div>
 
-            <button @click="open === 2 ? open = null : open = 2" class="nav-link-button" type="button">
-                <i class="fas fa-tasks"></i> Assignment
-                <i class="fas" :class="open === 2 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
-            </button>
-            <div x-show="open === 2" x-collapse class="nav-submenu">
-                <a href="#"><i class="fas fa-box"></i> Asset Assignment</a>
-                <a href="#"><i class="fas fa-desktop"></i> Software</a>
-            </div>
+                    <!-- Asset Management -->
+                    <a href="#"><i class="fas fa-boxes"></i> Asset Management</a>
 
-            <a href="#"><i class="fas fa-hand-holding"></i> Borrow Asset</a>
-            <a href="#"><i class="fas fa-undo-alt"></i> Return Asset</a>
-            <a href="#"><i class="fas fa-trash"></i> Dispose Asset</a>
+                    <!-- Software Management -->
+                    <a href="#"><i class="fas fa-laptop-code"></i> Software Management</a>
 
-            <button @click="open === 3 ? open = null : open = 3" class="nav-link-button" type="button">
-                <i class="fas fa-print"></i> Print Reports
-                <i class="fas" :class="open === 3 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
-            </button>
-            <div x-show="open === 3" x-collapse class="nav-submenu">
-                <a href="#">Asset Master List</a>
-                <a href="#">Asset Request Form for Borrowing</a>
-                <a href="#">Asset Assignment Report</a>
-                <a href="#">Return Asset Report</a>
-                <a href="#">History Return Asset</a>
-                <a href="#">Disposed Asset Report</a>
-                <a href="#">Software Inventory Report</a>
-                <a href="#">Software Assignment Report</a>
-                <a href="#">QRCode Sticker</a>
-            </div>
+                    <!-- Assignment -->
+                    <button @click="open === 2 ? open = null : open = 2" class="nav-link-button" type="button">
+                        <i class="fas fa-tasks"></i> Assignment
+                        <i class="fas" :class="open === 2 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
+                    </button>
+                    <div x-show="open === 2" x-collapse class="nav-submenu">
+                        <a href="#"><i class="fas fa-box"></i> Asset Assignment</a>
+                        <a href="#"><i class="fas fa-desktop"></i> Software</a>
+                    </div>
+
+                    <!-- Borrow Asset -->
+                    <a href="#"><i class="fas fa-hand-holding"></i> Borrow Asset</a>
+
+                    <!-- Return Asset -->
+                    <a href="#"><i class="fas fa-undo-alt"></i> Return Asset</a>
+
+                    <!-- Dispose Asset -->
+                    <a href="#"><i class="fas fa-trash"></i> Dispose Asset</a>
+
+                    <!-- Print Reports -->
+                    <button @click="open === 3 ? open = null : open = 3" class="nav-link-button" type="button">
+                        <i class="fas fa-print"></i> Print Reports
+                        <i class="fas" :class="open === 3 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
+                    </button>
+                    <div x-show="open === 3" x-collapse class="nav-submenu">
+                        <a href="#">Asset Master List</a>
+                        <a href="#">Asset Request Form for Borrowing</a>
+                        <a href="#">Asset Assignment Report</a>
+                        <a href="#">Return Asset Report</a>
+                        <a href="#">History Return Asset</a>
+                        <a href="#">Disposed Asset Report</a>
+                        <a href="#">Software Inventory Report</a>
+                        <a href="#">Software Assignment Report</a>
+                        <a href="#">QRCode Sticker</a>
+                    </div>
+                
+                <!-- ADMIN MENUS -->
+                @elseif($user->isAdmin())
+                    <!-- Asset Management -->
+                    <a href="#"><i class="fas fa-boxes"></i> Asset Management</a>
+
+                    <!-- Software Management -->
+                    <a href="#"><i class="fas fa-laptop-code"></i> Software Management</a>
+
+                    <!-- Assignment -->
+                    <button @click="open === 2 ? open = null : open = 2" class="nav-link-button" type="button">
+                        <i class="fas fa-tasks"></i> Assignment
+                        <i class="fas" :class="open === 2 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
+                    </button>
+                    <div x-show="open === 2" x-collapse class="nav-submenu">
+                        <a href="#"><i class="fas fa-box"></i> Asset Assignment</a>
+                        <a href="#"><i class="fas fa-desktop"></i> Software</a>
+                    </div>
+
+                    <!-- Borrow Asset -->
+                    <a href="#"><i class="fas fa-hand-holding"></i> Borrow Asset</a>
+
+                    <!-- Return Asset -->
+                    <a href="#"><i class="fas fa-undo-alt"></i> Return Asset</a>
+
+                    <!-- Dispose Asset -->
+                    <a href="#"><i class="fas fa-trash"></i> Dispose Asset</a>
+
+                    <!-- Print Reports -->
+                    <button @click="open === 3 ? open = null : open = 3" class="nav-link-button" type="button">
+                        <i class="fas fa-print"></i> Print Reports
+                        <i class="fas" :class="open === 3 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
+                    </button>
+                    <div x-show="open === 3" x-collapse class="nav-submenu">
+                        <a href="#">Asset Master List</a>
+                        <a href="#">Asset Request Form for Borrowing</a>
+                        <a href="#">Asset Assignment Report</a>
+                        <a href="#">Return Asset Report</a>
+                        <a href="#">History Return Asset</a>
+                        <a href="#">Disposed Asset Report</a>
+                        <a href="#">Software Inventory Report</a>
+                        <a href="#">Software Assignment Report</a>
+                        <a href="#">QRCode Sticker</a>
+                    </div>
+                
+                <!-- USER MENUS -->
+                @else
+                    <!-- Borrow Assets -->
+                    <a href="#"><i class="fas fa-hand-holding"></i> Borrow Assets</a>
+                    
+                    <!-- Transactions -->
+                    <a href="#"><i class="fas fa-exchange-alt"></i> Transactions</a>
+                @endif
+            @endauth
         </nav>
     </aside>
 
