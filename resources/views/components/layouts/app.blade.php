@@ -100,12 +100,15 @@
 
 
                 <!-- Theme Toggle Button -->
-                <button @click="darkMode = !darkMode"
-                        class="btn btn-logout"
-                        title="Toggle Mode"
-                        style="background-color: transparent; color: inherit; border: none; cursor: pointer;font-size: 1.5rem; border: 1px solid #b3b3b3;">
-                    <i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
-                </button>
+                <div>
+                    <button @click="darkMode = !darkMode"
+                            class="btn btn-logout"
+                            title="Toggle Mode"
+                            style="background-color: transparent; color: inherit; border: none; cursor: pointer;font-size: 1.5rem; border: 1px solid #b3b3b3;">
+                        <i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
+                    </button>
+                </div>
+                
             </div>
         </header>
 

@@ -7,13 +7,35 @@ use Illuminate\Http\Request;
 
 //ADDED FOR ROLE-BASED AUTHENTICATION
 use Illuminate\Support\Facades\Auth;
-use Laravel\Fortify\Http\Requests\LoginRequest;
+
+//ADDED FOR LOGIN REQUEST VALIDATION
+use Illuminate\Validation\ValidationException;
 
 class CustomAuthenticatedSessionController extends Controller
 {
-    public function store(LoginRequest $request)
+    public function store(Request $request)
     {
-        $request->authenticate();  // Validates credentials
+        // Validate required fields
+        $request->validate([
+            'login' => ['required', 'string'],
+            'password' => ['required', 'string'],
+        ]);
+
+        $login_type = filter_var($request->input('login'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $credentials = [
+            $login_type => $request->input('login'),
+            'password' => $request->input('password'),
+        ];
+
+        // Attempt to login using username or email
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+            throw ValidationException::withMessages([
+                'login' => __('auth.failed'),
+            ]);
+        }
+
+        // Regenerate session
         $request->session()->regenerate();
 
         $user = Auth::user();
@@ -27,6 +49,7 @@ class CustomAuthenticatedSessionController extends Controller
             return redirect()->route('dashboard.user');
         }
     }
+
     
     public function destroy(Request $request)
     {

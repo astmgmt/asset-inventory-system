@@ -15,6 +15,10 @@ use App\Actions\Fortify\RegisterRedirect;
 //ADDED FOR CUSTOM DESIGN OF DASHBOARD
 use Illuminate\Support\Facades\Blade;
 
+// ADDED FOR FORGOT PASSWORD AND RESET PASSWORD
+use Laravel\Fortify\Contracts\ResetsUserPasswords;
+use App\Actions\Fortify\ResetUserPassword;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -27,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
 
         // ADDED FOR CUSTOM REDIRECTION AFTER REGISTRATION
         $this->app->bind(RegisterResponse::class, RegisterRedirect::class);
+
+        //ADD FOR FORGOT PASSWORD AND RESET PASSWORD
+        $this->app->bind(ResetsUserPasswords::class, ResetUserPassword::class);
+
     }
 
     /**

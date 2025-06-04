@@ -1,48 +1,75 @@
-<x-guest-layout>
-    <x-authentication-card>
-        <x-slot name="logo">
-            <x-authentication-card-logo />
-        </x-slot>
+<x-layouts.guest>
+    <div class="login-gradient-bg w-full">
+        <div class="video-background">
+            <video autoplay muted loop playsinline class="video-background-video">
+                <source src="/path/to/your/bg.mp4" type="video/mp4" />
+            </video>
+        </div>
 
-        <x-validation-errors class="mb-4" />
-
-        @session('status')
-            <div class="mb-4 font-medium text-sm text-green-600">
-                {{ $value }}
-            </div>
-        @endsession
-
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-
-            <div>
-                <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+        <div class="relative z-10 w-full max-w-7xl flex flex-col items-center">
+            <!-- Logo -->
+            <div class="flex justify-center mb-6">
+                <img src="{{ asset('images/inventory.png') }}" alt="Custom Logo" class="h-48 w-48 object-contain" />
             </div>
 
-            <div class="mt-4">
-                <x-label for="password" value="{{ __('Password') }}" />
-                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="current-password" />
-            </div>
+            <!-- Validation Errors -->
+            <x-validation-errors class="mb-4 w-[90%] md:w-[40%]" />
 
-            <div class="block mt-4">
-                <label for="remember_me" class="flex items-center">
-                    <x-checkbox id="remember_me" name="remember" />
-                    <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-                </label>
-            </div>
+            @if (session('status'))
+                <div class="mb-4 w-[90%] md:w-[40%] bg-green-200 border border-green-400 text-green-900 px-4 py-3 rounded shadow-md text-sm font-medium">
+                    {{ session('status') }}
+                </div>
+            @endif
 
-            <div class="flex items-center justify-end mt-4">
-                @if (Route::has('password.request'))
-                    <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                        {{ __('Forgot your password?') }}
-                    </a>
-                @endif
+            <form method="POST" action="{{ route('login') }}" class="login-form-glass w-[90%] md:w-[40%] space-y-4 p-6 rounded-xl shadow-lg backdrop-blur-sm bg-white/70 dark:bg-gray-800/60 border border-white/30">
+                @csrf
 
-                <x-button class="ms-4">
-                    {{ __('Log in') }}
-                </x-button>
-            </div>
-        </form>
-    </x-authentication-card>
-</x-guest-layout>
+                <!-- Email or Username -->
+                <div>
+                    <x-label for="login" value="{{ __('Email or Username') }}" />
+                    <x-input id="login" name="login" type="text"
+                             class="block mt-1 w-full text-lg py-3"
+                             :value="old('login')" required autofocus autocomplete="username" />
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <x-label for="password" value="{{ __('Password') }}" />
+                    <x-input id="password" name="password" type="password"
+                             class="block mt-1 w-full text-lg py-3"
+                             required autocomplete="current-password" />
+                </div>
+
+                <!-- Remember + Forgot -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                    <label for="remember_me" class="flex items-center text-sm mb-2 sm:mb-0">
+                        <x-checkbox id="remember_me" name="remember" />
+                        <span class="ml-2 text-gray-600">{{ __('Remember me') }}</span>
+                    </label>
+
+                    @if (Route::has('password.request'))
+                        <a class="text-sm text-indigo-600 hover:underline" href="{{ route('password.request') }}">
+                            {{ __('Forgot your password?') }}
+                        </a>
+                    @endif
+                </div>            
+
+                <!-- Buttons -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <x-button
+                        type="submit"
+                        class="w-full sm:w-auto text-lg px-6 py-3 text-center normal-case rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition inline-flex items-center justify-center">
+                        {{ __('Login') }}
+                    </x-button>
+
+                    @if (Route::has('register'))
+                        <a href="{{ route('register') }}"
+                           class="w-full sm:w-auto text-sm px-6 py-3 text-center font-bold normal-case rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition inline-flex items-center justify-center">
+                            {{ __('Register') }}
+                        </a>
+                    @endif
+                </div>           
+            </form>
+        </div>
+    </div>
+</x-layouts.guest>

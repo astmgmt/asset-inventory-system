@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Laravel\Fortify\Http\Controllers\PasswordResetLinkController;
+use Laravel\Fortify\Http\Controllers\NewPasswordController;
 
 // ADDED FOR ROLE-BASED ROUTE IMPORTS
 use App\Http\Controllers\Auth\CustomAuthenticatedSessionController;
@@ -10,19 +12,42 @@ use App\Livewire\Dashboard\UserDashboard;
 
 // DEFAULT LANDING PAGE
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login'); 
 });
 
-// MANUAL LOGIN VIEW ROUTE (IF NOT AUTOMATICALLY HANDLED BY JETSTREAM)
-Route::get('/login', function () {
-    return view('auth.login'); // This should point to your login Blade file
-})->middleware('guest')->name('login');
+// AUTH ROUTES
+Route::middleware('guest')->group(function () {
+    // Login
+    Route::get('/login', function () {
+        return view('auth.login'); 
+    })->name('login');
+    
+    // Register
+    Route::get('/register', function () {
+        return view('auth.register'); 
+    })->name('register');
+    
+    // Password Reset
+    Route::get('/forgot-password', function () {
+        return view('auth.forgot-password');
+    })->name('password.request');
+    
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
+        ->name('password.email');
+    
+    Route::get('/reset-password/{token}', function ($token) {
+        return view('auth.reset-password', ['token' => $token]);
+    })->name('password.reset');
+    
+    Route::post('/reset-password', [NewPasswordController::class, 'store'])
+        ->name('password.update');
+});
 
-// OVERRIDE FORTIFY ROUTES FOR AUTHENTICATION
+// OVERRIDE FORTIFY AUTHENTICATION
 Route::post('/login', [CustomAuthenticatedSessionController::class, 'store']);
 Route::post('/logout', [CustomAuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-// ROUTES AFTER AUTHENTICATION AND EMAIL VERIFICATION
+// AUTHENTICATED ROUTES
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
