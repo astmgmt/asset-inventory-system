@@ -62,7 +62,11 @@
                 <!-- Profile Photo -->
                 <div>
                     <x-label for="profile_photo" value="Profile Photo" />
-                    <x-input id="profile_photo" name="profile_photo" type="file" class="block mt-1 w-full text-base py-3 file:mr-4 file:py-2 file:px-4 file:border file:rounded-lg file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200" />
+                    <input id="profile_photo" name="profile_photo" type="file"
+                        class="block mt-1 w-full text-base py-3 file:mr-4 file:py-2 file:px-4 file:border file:rounded-lg file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200" />
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        Maximum file size: 2MB. Supported formats: JPG, PNG, GIF.
+                    </p>
                 </div>
 
                 <!-- Terms and Privacy Policy -->

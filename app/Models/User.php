@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -14,18 +15,11 @@ use App\Models\Role;
 class User extends Authenticatable
 {
     use HasApiTokens;
-
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'role_id',
         'name',
@@ -33,15 +27,9 @@ class User extends Authenticatable
         'email',
         'contact_number',
         'address',
-        'profile_photo_path',
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -49,20 +37,10 @@ class User extends Authenticatable
         'two_factor_secret',
     ];
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array<int, string>
-     */
     protected $appends = [
         'profile_photo_url',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -71,8 +49,43 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Custom profile photo update method
+     */
+    public function updateProfilePhoto(UploadedFile $photo)
+    {
+        // Generate custom filename: originalname_userid.extension
+        $originalName = pathinfo($photo->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $photo->extension();
+        $filename = $this->sanitizeFilename($originalName) . '_' . $this->id . '.' . $extension;
+        
+        // Store with custom name
+        $path = $photo->storeAs(
+            'profile-photos',
+            $filename,
+            ['disk' => $this->profilePhotoDisk()]
+        );
 
-    //Added for Account Roles
+        $this->forceFill([
+            'profile_photo_path' => $path,
+        ])->save();
+    }
+
+    /**
+     * Sanitize filename for safe storage
+     */
+    protected function sanitizeFilename(string $filename): string
+    {
+        // Remove special characters except dashes and underscores
+        $safe = preg_replace('/[^a-zA-Z0-9_-]/', '_', $filename);
+        
+        // Replace multiple underscores with single
+        $safe = preg_replace('/_{2,}/', '_', $safe);
+        
+        // Trim to 100 characters max
+        return substr($safe, 0, 100);
+    }
+
     public function role() {
         return $this->belongsTo(Role::class);
     }
@@ -84,6 +97,4 @@ class User extends Authenticatable
     public function isAdmin() {
         return $this->role->name === 'Admin';
     }
-
-
 }

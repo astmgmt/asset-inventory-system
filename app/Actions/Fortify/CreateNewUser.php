@@ -3,6 +3,7 @@
 namespace App\Actions\Fortify;
 
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
@@ -13,11 +14,6 @@ class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules;    
 
-    /**
-     * Validate and create a newly registered user.
-     *
-     * @param  array<string, string>  $input
-     */
     public function create(array $input): User
     {      
         Validator::make($input, [
@@ -31,26 +27,24 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
-        //HANDLE PROFILE PHOTO UPLOAD
-        $profilePhotoPath = null;
-
-        if (isset($input['profile_photo']) && $input['profile_photo'] instanceof UploadedFile) {
-            $profilePhotoPath = $input['profile_photo']->store('profile-photos', 'public');
-        }
-
-        // ADDED CODE TO ASSIGN DEFAULT USER ROLE
-        // Get the 'User' role ID
-        $defaultRole = Role::where('name', 'User')->first();
-
-        return User::create([
+        // Create user first to generate ID
+        $defaultRole = Role::where('name', 'User')->firstOrFail();
+        
+        $user = User::create([
             'name' => $input['name'],
             'username' => $input['username'],
             'email' => $input['email'],
             'contact_number' => $input['contact_number'],
             'address' => $input['address'],
-            'profile_photo_path' => $profilePhotoPath,
-            'role_id' => $defaultRole->id, // Set the default role
+            'role_id' => $defaultRole->id,
             'password' => Hash::make($input['password']),
         ]);
+
+        // Handle profile photo after user creation (so we have ID)
+        if (isset($input['profile_photo']) && $input['profile_photo'] instanceof UploadedFile) {
+            $user->updateProfilePhoto($input['profile_photo']);
+        }
+
+        return $user;
     }
 }
