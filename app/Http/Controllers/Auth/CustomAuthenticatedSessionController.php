@@ -40,6 +40,14 @@ class CustomAuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
+        // ADDED FOR REDIRECTION OF USER IF THEY ARE NOT YET APPROVED
+        if ($user->status !== 'Approved') {
+            Auth::logout();
+            return redirect()->route('login')->withErrors([
+                'login' => 'Your account status is "' . $user->status . '". You cannot login at this time.',
+            ]);
+        }
+
         // Role-based redirect
         if ($user->role->name === 'Super Admin') {
             return redirect()->route('dashboard.superadmin');

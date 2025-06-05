@@ -21,6 +21,7 @@ class UserSeeder extends Seeder
             'username' => 'ryan',
             'email' => 'ryan@test.com',
             'password' => Hash::make('Super1234'),
+            'status' => 'Approved',
         ]);
 
         User::create([
@@ -29,6 +30,7 @@ class UserSeeder extends Seeder
             'username' => 'jomz',
             'email' => 'jomz@test.com',
             'password' => Hash::make('Admin1234'),
+            'status' => 'Approved',
         ]);
 
         User::create([
@@ -37,6 +39,7 @@ class UserSeeder extends Seeder
             'username' => 'kelvz',
             'email' => 'kelvz@test.com',
             'password' => Hash::make('User1234'),
+            'status' => 'Approved',
         ]);
     }
 }

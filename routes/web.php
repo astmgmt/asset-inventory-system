@@ -7,6 +7,8 @@ use App\Http\Controllers\Auth\CustomAuthenticatedSessionController;
 use App\Livewire\Dashboard\SuperAdminDashboard;
 use App\Livewire\Dashboard\AdminDashboard;
 use App\Livewire\Dashboard\UserDashboard;
+use App\Http\Controllers\SuperAdmin\AccountController;
+use App\Http\Controllers\Auth\CustomRegisteredUserController;
 
 // DEFAULT LANDING PAGE
 Route::get('/', function () {
@@ -22,6 +24,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', function () {
         return view('auth.register'); 
     })->name('register');
+
+    Route::post('/register', [CustomRegisteredUserController::class, 'store'])    
+        ->name('register.store');
     
     Route::get('/forgot-password', function () {
         return view('auth.forgot-password');
@@ -51,6 +56,14 @@ Route::middleware([
     // Super Admin Dashboard
     Route::get('/dashboard/superadmin', [SuperAdminDashboard::class, 'render'])
         ->name('dashboard.superadmin')
+        ->middleware('role:Super Admin');
+
+    Route::get('/dashboard/superadmin/create', [AccountController::class, 'showForm'])
+        ->name('superadmin.register')
+        ->middleware('role:Super Admin');
+
+    Route::post('/dashboard/superadmin/create', [AccountController::class, 'create'])
+        ->name('superadmin.create')
         ->middleware('role:Super Admin');
     
     // Admin Dashboard

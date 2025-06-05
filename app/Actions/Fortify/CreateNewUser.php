@@ -38,6 +38,7 @@ class CreateNewUser implements CreatesNewUsers
             'address' => $input['address'],
             'role_id' => $defaultRole->id,
             'password' => Hash::make($input['password']),
+            'status' => 'Pending',
         ]);
 
         // Handle profile photo after user creation (so we have ID)

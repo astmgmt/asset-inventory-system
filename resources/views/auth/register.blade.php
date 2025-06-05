@@ -5,7 +5,7 @@
         <div class="relative z-10 w-full max-w-7xl mx-auto min-h-screen flex flex-col items-center px-4 py-10">
             
             <!-- Registration Form -->
-            <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data"
+            <form method="POST" action="{{ route('register.store') }}" enctype="multipart/form-data"
                 class="mt-16 w-full max-w-xl space-y-6 p-8 rounded-2xl shadow-2xl bg-white/80 dark:bg-gray-800/70 backdrop-blur-md border border-white/30 transition-all" style="font-family: 'Inter', sans-serif;">
                 @csrf
 

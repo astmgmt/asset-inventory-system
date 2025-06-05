@@ -47,8 +47,8 @@
                         <i class="fas" :class="open === 1 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 1" x-collapse class="nav-submenu">
-                        <a href="#"><i class="fas fa-user-shield"></i> Admins</a>
-                        <a href="#"><i class="fas fa-users"></i> Users</a>
+                        <a href="{{route('superadmin.register')}}"><i class="fas fa-user-shield"></i> Create</a>
+                        <a href="#"><i class="fas fa-users"></i> Approve</a>
                     </div>
 
                     <!-- Asset Management -->
@@ -150,65 +150,55 @@
     </aside>
 
     <main class="main-content-area">
-        <header class="header">
-            <h1>@yield('title', 'Dashboard')</h1>
-            <div class="user-info-group">
-                <!-- User Profile Section -->
+        <header class="app-header">
+            <!-- Row 1: Dashboard -->
+            <div class="header-row top-row">
+                <h1 class="dashboard-title">@yield('title', 'Dashboard')</h1>
+            </div>
+
+            <!-- Row 2: User Info + Actions -->
+            <div class="header-row bottom-row">
                 @auth
                     @php
                         $user = Auth::user();
                         $user->load('role');
                     @endphp
-                    <div class="user-profile">
+
+                    <div class="user-info">
                         @if($user->profile_photo_path)
-                            <img 
-                                src="{{ asset('storage/' . $user->profile_photo_path) }}" 
-                                alt="{{ $user->name }}"
-                                class="profile-avatar"
-                            >
+                            <img src="{{ asset('storage/' . $user->profile_photo_path) }}" alt="{{ $user->name }}" class="user-avatar">
                         @else
-                            <i class="fas fa-user-circle profile-avatar"></i>
+                            <i class="fas fa-user-circle user-avatar"></i>
                         @endif
+
                         <div class="user-details">
                             <span class="user-name">{{ $user->name }}</span>
                             <span class="user-role">{{ $user->role->name ?? 'User' }}</span>
                         </div>
                     </div>
-                @else
-                    <div class="user-profile">
-                        <i class="fas fa-user-circle"></i>
-                        <div class="user-details">
-                            <span class="user-name">Guest</span>
-                            <span class="user-role">Guest</span>
-                        </div>
-                    </div>
-                @endauth
 
-                <a href="{{ route('profile.show') }}" class="btn btn-edit-profile">
-                    <i class="fas fa-user-edit"></i> Edit Profile
-                </a>
-                
-                <form method="POST" action="{{ route('logout') }}" x-data>
-                    @csrf
+                    <a href="{{ route('profile.show') }}" class="btn edit-profile-btn">
+                        <i class="fas fa-user-edit"></i> Edit Profile
+                    </a>
+
+                    <form method="POST" action="{{ route('logout') }}" x-data>
+                        @csrf
+                        <button type="submit" class="btn logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </form>
+
                     <button 
-                        type="submit" 
-                        class="btn btn-logout"                        
+                        @click="darkMode = !darkMode"
+                        class="btn toggle-theme-button"
+                        title="Toggle Theme"
                     >
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                </form>
-
-                <!-- Theme Toggle Button -->
-                <div>
-                    <button @click="darkMode = !darkMode"
-                            class="btn btn-logout"
-                            title="Toggle Mode"
-                            style="background-color: transparent; color: inherit; border: none; cursor: pointer;font-size: 1.5rem; border: 1px solid #b3b3b3;">
                         <i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
                     </button>
-                </div>
+                @endauth
             </div>
         </header>
+
 
         <div class="content">
             <div class="content-card">

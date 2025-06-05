@@ -15,7 +15,11 @@
             @endif
 
             <!-- Validation Errors -->
-            <x-validation-errors class="mb-4 text-gray-800 w-[90%] md:w-[40%]" />
+             @if ($errors->any())
+                <div class="p-4 bg-red-100 text-red-700 rounded-md w-[90%] md:w-[40%] mb-2">
+                    <x-validation-errors class="mb-2" />
+                </div>
+            @endif            
 
             <form method="POST" action="{{ route('password.email') }}" class="login-form-glass w-[90%] md:w-[40%] space-y-4 p-6 rounded-xl shadow-lg backdrop-blur-sm bg-white/70 dark:bg-gray-800/60 border border-white/30">
                 @csrf

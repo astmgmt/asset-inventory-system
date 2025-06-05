@@ -21,10 +21,16 @@
                 </div>
             @endif
 
-
             @if (session('status'))
                 <div class="mb-4 w-[90%] md:w-[40%] bg-green-200 border border-green-400 text-green-900 px-4 py-3 rounded shadow-md text-sm font-medium">
                     {{ session('status') }}
+                </div>
+            @endif
+
+            {{-- SUCCESS REGISTRATION AND WAITING FOR APPROVAL MESSAGE --}}
+            @if(session('info'))
+                <div class="mb-4 px-4 py-3 rounded bg-blue-100 text-blue-800 border border-blue-300" role="alert">
+                    {{ session('info') }}
                 </div>
             @endif
 
@@ -49,10 +55,10 @@
 
                 <!-- Remember + Forgot -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                    <label for="remember_me" class="flex items-center text-sm mb-2 sm:mb-0">
+                    {{-- <label for="remember_me" class="flex items-center text-sm mb-2 sm:mb-0">
                         <x-checkbox id="remember_me" name="remember" />
                         <span class="ml-2 text-gray-600">{{ __('Remember me') }}</span>
-                    </label>
+                    </label> --}}
 
                     @if (Route::has('password.request'))
                         <a class="text-sm text-indigo-600 hover:underline" href="{{ route('password.request') }}">
@@ -62,20 +68,21 @@
                 </div>            
 
                 <!-- Buttons -->
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-4">
                     <x-button
                         type="submit"
-                        class="w-full sm:w-auto text-lg px-6 py-3 text-center normal-case rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition inline-flex items-center justify-center">
+                        class="w-full sm:w-auto text-lg px-6 py-3 text-center normal-case rounded-md bg-indigo-600 text-white hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition inline-flex items-center justify-center">
                         {{ __('Login') }}
                     </x-button>
 
                     @if (Route::has('register'))
                         <a href="{{ route('register') }}"
-                           class="w-full sm:w-auto text-sm px-6 py-3 text-center font-bold normal-case rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition inline-flex items-center justify-center">
+                        class="w-full sm:w-auto text-sm px-6 py-3 text-center font-bold normal-case rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition inline-flex items-center justify-center">
                             {{ __('Register') }}
                         </a>
                     @endif
-                </div>           
+                </div>
+           
             </form>
         </div>
     </div>
