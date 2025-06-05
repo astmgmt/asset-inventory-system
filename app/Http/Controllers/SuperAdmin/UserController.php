@@ -7,22 +7,19 @@ use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of user accounts.
-     */
+   
     public function index()
     {
-        $users = User::with('role')->get();
+        //$users = User::with('role')->get();
+        $users = User::where('id', '!=', auth()->id())->get();
         return view('superadmin.manage', compact('users'));
     }
-
-    /**
-     * Update the user status (Approved, Blocked, Pending).
-     */
+   
     public function updateStatus(Request $request, User $user)
     {
         $request->validate([
@@ -34,28 +31,19 @@ class UserController extends Controller
 
         return redirect()->route('superadmin.manage')->with('success', 'User status updated.');
     }
-
-    /**
-     * Show detailed information about a user.
-     */
+    
     public function show(User $user)
     {
         $user->load('role');
         return view('superadmin.manage_show', compact('user'));
     }
-
-    /**
-     * Show the form for editing a user account.
-     */
+   
     public function edit(User $user)
     {
         $roles = Role::all();
         return view('superadmin.manage_edit', compact('user', 'roles'));
     }
-
-    /**
-     * Update the user's profile data.
-     */
+    
     public function update(Request $request, User $user)
     {
         $request->validate([
@@ -69,18 +57,34 @@ class UserController extends Controller
 
         return redirect()->route('superadmin.manage')->with('success', 'User updated successfully.');
     }
-
-    /**
-     * Delete a user account with password confirmation.
-     */
+    
     public function destroy(Request $request, User $user)
     {
+        // Make sure the currently logged-in Super Admin is entering the correct password
+        $superAdmin = Auth::user();
+
+        // Validate input
         $request->validate([
-            'password' => ['required', 'current_password'],
+            'password' => 'required|string',
         ]);
 
-        $user->delete();
+        // Check if the password matches
+        if (!Hash::check($request->password, $superAdmin->password)) {
+            // Incorrect password, redirect back with error message
+            return redirect()->route('superadmin.manage')
+                ->with('error', 'Incorrect password. Try again.');
+        }
 
-        return redirect()->route('superadmin.manage')->with('success', 'User deleted successfully.');
+        // Prevent deleting the currently logged-in user
+        if ($user->id === $superAdmin->id) {
+            return redirect()->route('superadmin.manage')
+                ->with('error', 'You cannot delete your own account.');
+        }
+       
+        $user->delete();
+        
+        return redirect()->route('superadmin.manage')
+            ->with('success', 'User deleted successfully.');
     }
+
 }

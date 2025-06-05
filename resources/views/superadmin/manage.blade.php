@@ -3,6 +3,19 @@
         <div class="content-card">
             <h1 class="text-xl font-bold mb-4 text-center">Manage User Accounts</h1>
 
+            @if (session('success'))
+                <div class="w-full max-w-5xl mx-auto mb-4 px-4 py-2 rounded border border-green-300 bg-green-100 text-green-700 text-sm">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="w-full max-w-5xl mx-auto mb-4 px-4 py-2 rounded border border-red-300 bg-red-100 text-red-700 text-sm">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+
             <div class="user-table-container">
                 <table class="user-table">
                     <thead>
@@ -18,7 +31,7 @@
                     </thead>
                     <tbody>
                         @foreach ($users as $user)
-                            <tr>
+                            <tr x-data="{ open: false }">
                                 <td data-label="ID">{{ $user->id }}</td>
                                 <td data-label="Name">{{ $user->name }}</td>
                                 <td data-label="Username">{{ $user->username }}</td>
@@ -44,16 +57,14 @@
 
                                     <!-- Delete button triggers modal -->
                                     <button
-                                        @click="openModal('deleteModal-{{ $user->id }}')"
+                                        @click="open = true"
                                         class="delete-button"
                                         type="button"
                                     >Delete</button>
 
                                     <!-- Delete Modal -->
                                     <div
-                                        x-data="{ open: false }"
                                         x-show="open"
-                                        x-init="window.openModal = (id) => { if(id === 'deleteModal-{{ $user->id }}') { open = true; } }"
                                         @keydown.escape.window="open = false"
                                         style="display: none;"
                                         class="modal-backdrop"
@@ -64,16 +75,18 @@
 
                                             <form method="POST" action="{{ route('superadmin.manage.destroy', $user) }}">
                                                 @csrf
-                                                @method('DELETE')
+                                                @method('DELETE')                                                
 
-                                                <label for="password-{{ $user->id }}">Your password:</label>
-                                                <input
-                                                    id="password-{{ $user->id }}"
-                                                    name="password"
-                                                    type="password"
-                                                    required
-                                                    autocomplete="current-password"
-                                                >
+                                                <div class="form-group-inline">
+                                                    <label for="password-{{ $user->id }}">Password:</label>
+                                                    <input
+                                                        id="password-{{ $user->id }}"
+                                                        name="password"
+                                                        type="password"
+                                                        required
+                                                        autocomplete="current-password"
+                                                    >
+                                                </div>
 
                                                 <div class="modal-actions">
                                                     <button type="button" @click="open = false" class="btn btn-secondary">Cancel</button>
