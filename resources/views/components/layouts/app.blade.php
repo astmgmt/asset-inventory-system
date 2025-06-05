@@ -48,7 +48,7 @@
                     </button>
                     <div x-show="open === 1" x-collapse class="nav-submenu">
                         <a href="{{route('superadmin.register')}}"><i class="fas fa-user-shield"></i> Create</a>
-                        <a href="#"><i class="fas fa-users"></i> Approve</a>
+                        <a href="{{route('superadmin.manage')}}"><i class="fas fa-users"></i> Manage</a>
                     </div>
 
                     <!-- Asset Management -->

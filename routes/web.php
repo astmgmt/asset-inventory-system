@@ -1,21 +1,26 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use Laravel\Fortify\Http\Controllers\PasswordResetLinkController;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
-use App\Http\Controllers\Auth\CustomAuthenticatedSessionController;
+
 use App\Livewire\Dashboard\SuperAdminDashboard;
 use App\Livewire\Dashboard\AdminDashboard;
 use App\Livewire\Dashboard\UserDashboard;
-use App\Http\Controllers\SuperAdmin\AccountController;
+
+use App\Http\Controllers\Auth\CustomAuthenticatedSessionController;
 use App\Http\Controllers\Auth\CustomRegisteredUserController;
+
+use App\Http\Controllers\SuperAdmin\AccountController;
+use App\Http\Controllers\SuperAdmin\UserController;
 
 // DEFAULT LANDING PAGE
 Route::get('/', function () {
     return view('auth.login'); 
 });
 
-// AUTH ROUTES
+// GUEST ROUTES
 Route::middleware('guest')->group(function () {
     Route::get('/login', function () {
         return view('auth.login'); 
@@ -66,6 +71,32 @@ Route::middleware([
         ->name('superadmin.create')
         ->middleware('role:Super Admin');
     
+    // MANAGE ACCOUNTS - Approve, Edit, Delete and View Accounts
+    Route::get('/superadmin/manage', [UserController::class, 'index'])
+        ->name('superadmin.manage')
+        ->middleware('role:Super Admin');
+
+    Route::post('/superadmin/manage/status/{user}', [UserController::class, 'updateStatus'])
+        ->name('superadmin.manage.status')
+        ->middleware('role:Super Admin');
+
+    Route::get('/superadmin/manage/{user}', [UserController::class, 'show'])
+        ->name('superadmin.manage.show')
+        ->middleware('role:Super Admin');
+        
+    Route::get('/superadmin/manage/edit/{user}', [UserController::class, 'edit'])
+        ->name('superadmin.manage.edit')
+        ->middleware('role:Super Admin');
+
+    Route::put('/superadmin/manage/{user}', [UserController::class, 'update'])
+        ->name('superadmin.manage.update')
+        ->middleware('role:Super Admin');
+    
+    Route::delete('/superadmin/manage/{user}', [UserController::class, 'destroy'])
+        ->name('superadmin.manage.destroy')
+        ->middleware('role:Super Admin');
+
+
     // Admin Dashboard
     Route::get('/dashboard/admin', [AdminDashboard::class, 'render'])
         ->name('dashboard.admin')
@@ -76,3 +107,14 @@ Route::middleware([
         ->name('dashboard.user')
         ->middleware('role:User');
 });
+
+// TO CATCH ERRORS FROM DASHBOARD ROUTES
+Route::get('/dashboard', function () {
+    if (auth()->user()->hasRole('Super Admin')) {
+        return redirect()->route('dashboard.superadmin');
+    } elseif (auth()->user()->hasRole('Admin')) {
+        return redirect()->route('dashboard.admin');
+    } else {
+        return redirect()->route('dashboard.user');
+    }
+})->name('dashboard');
