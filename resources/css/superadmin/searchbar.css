@@ -1,21 +1,21 @@
 .search-bar {
-    position: relative; /* Essential for absolute positioning of child */
-    display: inline-block; /* Fits container width to input */
-    width: 100%; /* Takes full width of parent */
+    position: relative; 
+    display: inline-block; 
+    width: 100%; 
 }
 
 .search-input {
-    padding-right: 40px; /* Creates space for the icon on the right */
-    width: 100%; /* Ensures input fills the container */
+    padding-right: 40px; 
+    width: 100%; 
 }
 
 .search-bar .fa-search {
     position: absolute;
-    right: 15px; /* Positions icon inside the input's padding area */
-    top: 35%; /* Starts vertical centering from top */
-    transform: translateY(-50%); /* Fine-tunes vertical centering */
-    color: #777; /* Optional: matches default input text color */
-    pointer-events: none; /* Prevents icon from blocking input clicks */
+    right: 15px; 
+    top: 35%; 
+    transform: translateY(-50%); 
+    color: #777; 
+    pointer-events: none; 
 }
 
 
@@ -27,5 +27,5 @@
 }
 
 .dark .search-input::placeholder {
-    color: #a0aec0; /* muted placeholder */
+    color: #a0aec0; 
 }

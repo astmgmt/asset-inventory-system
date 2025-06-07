@@ -83,7 +83,10 @@ Route::middleware([
         ->name('superadmin.manage')
         ->middleware('role:Super Admin');
 
-    
+    Route::get('/superadmin/manage/edit', ManageAccount::class)
+        ->name('superadmin.edit')
+        ->middleware('role:Super Admin');
+
     // MANAGE ACCOUNTS - Approve, Edit, Delete and View Accounts
     
 
