@@ -22,7 +22,8 @@
                     type="text"
                     placeholder="Search by name or username..."
                     class="search-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-5"
-                />
+                />   
+                <i class="fas fa-search"></i>             
             </div>
 
             <table class="user-table">
