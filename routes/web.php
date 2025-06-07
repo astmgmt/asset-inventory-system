@@ -10,6 +10,7 @@ use App\Livewire\Dashboard\AdminDashboard;
 use App\Livewire\Dashboard\UserDashboard;
 
 use App\Livewire\SuperAdmin\ManageAccount;
+use App\Livewire\SuperAdmin\EditUser;
 
 use App\Http\Controllers\Auth\CustomAuthenticatedSessionController;
 use App\Http\Controllers\Auth\CustomRegisteredUserController;
@@ -74,21 +75,26 @@ Route::middleware([
         ->middleware('role:Super Admin');
 
 
-    // TESTING LIVEWIRE
-    // Route::get('/superadmin/manage/account', [ManageAccount::class, 'render'])
-    //     ->name('superadmin.managelive')
-    //     ->middleware('role:Super Admin');
+
+    // -------------------------------------------------------------------------------------------------
+
+    // WORKING LIVEWIRE   
 
     Route::get('/superadmin/manage/account', ManageAccount::class)
         ->name('superadmin.manage')
         ->middleware('role:Super Admin');
 
-    Route::get('/superadmin/manage/edit', ManageAccount::class)
-        ->name('superadmin.edit')
+    Route::get('/superadmin/manage/account/edit/{id}', EditUser::class)
+        ->name('superadmin.manage.edit_account')
         ->middleware('role:Super Admin');
 
-    // MANAGE ACCOUNTS - Approve, Edit, Delete and View Accounts
     
+    // -------------------------------------------------------------------------------------------------
+
+
+
+
+    // MANAGE ACCOUNTS - Approve, Edit, Delete and View Accounts   
 
     Route::post('/superadmin/manage/status/{user}', [UserController::class, 'updateStatus'])
         ->name('superadmin.manage.status')

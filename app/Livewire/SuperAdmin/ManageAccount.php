@@ -29,11 +29,8 @@ class ManageAccount extends Component
     {
         $user = User::findOrFail($userId);
         $user->status = $newStatus;
-        $user->save();
+        $user->save();       
         
-        // Optional: Add status update success message
-        // $this->successMessage = "User status updated to $newStatus!";
-        // $this->clearSuccessMessage();
     }
 
     public function confirmDelete($userId)
@@ -81,7 +78,7 @@ class ManageAccount extends Component
 
     public function editUser($userId)
     {
-        return redirect()->route('users.edit', ['id' => $userId]);
+        return redirect()->route('superadmin.manage.edit_account', ['id' => $userId]);
     }
 
     #[Layout('components.layouts.app')]

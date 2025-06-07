@@ -1,8 +1,5 @@
-<div>   
-
-    <div class="superadmin-container">       
-
-        
+<div>  
+    <div class="superadmin-container">               
         <!-- USER TABLE -->
         <div class="user-table-container">
             <!-- Success Message -->
@@ -10,7 +7,7 @@
                 <div class="success-message" 
                      x-data="{ show: true }" 
                      x-show="show"
-                     x-init="setTimeout(() => show = false, 5000)">
+                     x-init="setTimeout(() => show = false, 3000)">
                     {{ $successMessage }}
                 </div>
             @endif
@@ -97,8 +94,24 @@
                     @enderror
 
                     <div class="modal-actions mt-2">
-                        <button wire:click="deleteUser" class="btn btn-danger">Confirm</button>
-                        <button wire:click="$set('confirmingUserDeletion', false)" class="btn btn-secondary">Cancel</button>
+                        <div class="flex items-center space-x-4 mt-6">
+                            <button
+                                wire:click="deleteUser"
+                                class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
+                            >
+                                <i class="fas fa-trash-alt mr-2"></i>
+                                Confirm
+                            </button>
+
+                            <button
+                                wire:click="$set('confirmingUserDeletion', false)"
+                                class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition"
+                            >
+                                <i class="fas fa-times mr-2"></i>
+                                Cancel
+                            </button>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -109,7 +122,7 @@
             Livewire.on('clear-message', () => {
                 setTimeout(() => {
                     @this.set('successMessage', '');
-                }, 5000);
+                }, 3000);
             });
         });
     </script>

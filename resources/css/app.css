@@ -8,6 +8,7 @@
 @import './superadmin/animations.css';
 @import './superadmin/pagination.css';
 @import './superadmin/searchbar.css';
+@import './superadmin/edit-account.css';
 
 
 @tailwind base;
