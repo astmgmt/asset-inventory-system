@@ -1,0 +1,49 @@
+/* Light mode styles */
+.pagination-container {
+    background-color: #ffffff;
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+/* Dark mode styles */
+.dark .pagination-container {
+    background-color: rgba(45, 55, 72, 0.8);
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+/* Pagination links in both modes */
+.pagination-container .pagination li a,
+.pagination-container .pagination li span {
+    color: #1a1a1a; /* Dark text for buttons */
+}
+
+/* Dark mode pagination links - keep same as light mode */
+.dark .pagination-container .pagination li a,
+.dark .pagination-container .pagination li span {
+    background-color: transparent;
+    color: #1a1a1a; /* Maintain dark text */
+    border-color: #4a5568;
+}
+
+/* Active pagination link in both modes */
+.pagination-container .pagination li.active span {
+    background-color: #4299e1;
+    color: #ffffff;
+}
+
+.dark .pagination-container .pagination li.active span {
+    background-color: #4a5568;
+    color: #ffffff;
+}
+
+/* HIDE SUMMARY IN DARK MODE ONLY */
+.dark .pagination-container > p:first-child {
+    display: none;
+}
+
+/* Optional: Style summary in light mode */
+.pagination-container > p:first-child {
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+}

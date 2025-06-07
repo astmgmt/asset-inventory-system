@@ -5,6 +5,16 @@
         
         <!-- USER TABLE -->
         <div class="user-table-container">
+            <!-- Success Message -->
+            @if ($successMessage)
+                <div class="success-message" 
+                     x-data="{ show: true }" 
+                     x-show="show"
+                     x-init="setTimeout(() => show = false, 5000)">
+                    {{ $successMessage }}
+                </div>
+            @endif
+
             <!-- SEARCH BAR -->
             <div class="search-bar w-full lg:w-1/3">
                 <input                
@@ -18,7 +28,8 @@
             <table class="user-table">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th>
+                        <th>ID</th><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th>
+                        <th class="actions-column">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,7 +62,13 @@
                         </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </table>            
+
+            <!-- PAGINATION -->
+            <div class="mt-4 pagination-container">
+                {{ $users->links() }}
+            </div>
+
         </div>
 
         <!-- Delete Confirmation Modal -->
@@ -87,4 +104,13 @@
             </div>
         @endif
     </div>
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('clear-message', () => {
+                setTimeout(() => {
+                    @this.set('successMessage', '');
+                }, 5000);
+            });
+        });
+    </script>
 </div>

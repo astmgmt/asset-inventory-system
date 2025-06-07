@@ -1,0 +1,24 @@
+.success-message {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: #d1fae5;
+    color: #065f46;
+    border-radius: 0.5rem;
+    border-left: 4px solid #10b981;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    animation: fadeInOut 3s ease-in-out forwards;
+}
+
+.success-message::before {
+    content: "✓";
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+}
+
+.dark .success-message {
+    background-color: #064e3b;
+    color: #6ee7b7;
+    border-left-color: #10b981;
+}

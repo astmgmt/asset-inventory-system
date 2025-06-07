@@ -1,0 +1,59 @@
+.user-table-container {
+    width: 100%;
+    overflow-x: auto;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.user-table th,
+.user-table td {
+    padding: 0.85rem;
+    text-align: center;
+    vertical-align: middle;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.875rem;
+}
+
+.user-table th {
+    background-color: #f3f4f6;
+    font-weight: 600;
+    color: #374151;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+}
+
+.user-table td {
+    vertical-align: middle !important;
+}
+
+.user-table td.action-buttons {
+    white-space: nowrap;
+}
+
+.dark .user-table {
+    background-color: #2d3748;
+    color: #e2e8f0;
+}
+
+.dark .user-table th {
+    background-color: #4a5568;
+    color: #e2e8f0;
+    border-color: #4a5568;
+}
+
+.dark .user-table td {
+    border-color: #4a5568;
+}
+
+.dark .user-table tr {
+    background-color: #1a202c;
+}

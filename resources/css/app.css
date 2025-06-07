@@ -1,5 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import './superadmin_manage.css';
+@import './superadmin/table.css';
+@import './superadmin/status-dropdown.css';
+@import './superadmin/action-buttons.css';
+@import './superadmin/modal.css';
+@import './superadmin/responsive.css';
+@import './superadmin/success-message.css';
+@import './superadmin/animations.css';
+@import './superadmin/pagination.css';
+
 
 @tailwind base;
 @tailwind components;

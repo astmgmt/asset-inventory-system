@@ -41,5 +41,17 @@ class UserSeeder extends Seeder
             'password' => Hash::make('User1234'),
             'status' => 'Approved',
         ]);
+
+        // ADD 17 MORE USERS TO MAKE A TOTAL OF 20 USERS EXCLUDING THE THREE CREATED ABOVE
+        User::factory()
+            ->count(17)
+            ->state(function () use ($userRole) {
+                return [
+                    'role_id' => $userRole->id,
+                    'username' => fake()->unique()->userName(),
+                    'status' => 'Approved',
+                ];
+            })
+            ->create();
     }
 }
