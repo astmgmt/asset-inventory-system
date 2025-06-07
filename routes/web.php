@@ -11,6 +11,7 @@ use App\Livewire\Dashboard\UserDashboard;
 
 use App\Livewire\SuperAdmin\ManageAccount;
 use App\Livewire\SuperAdmin\EditUser;
+use App\Livewire\SuperAdmin\ViewUser;
 
 use App\Http\Controllers\Auth\CustomAuthenticatedSessionController;
 use App\Http\Controllers\Auth\CustomRegisteredUserController;
@@ -86,6 +87,10 @@ Route::middleware([
 
     Route::get('/superadmin/manage/account/edit/{id}', EditUser::class)
         ->name('superadmin.manage.edit_account')
+        ->middleware('role:Super Admin');
+
+    Route::get('/superadmin/manage/account/view/{id}', ViewUser::class)
+        ->name('superadmin.manage.view_account')
         ->middleware('role:Super Admin');
 
     

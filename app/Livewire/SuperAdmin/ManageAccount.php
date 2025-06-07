@@ -73,7 +73,7 @@ class ManageAccount extends Component
 
     public function viewUser($userId)
     {
-        return redirect()->route('users.view', ['id' => $userId]);
+        return redirect()->route('superadmin.manage.view_account', ['id' => $userId]);
     }
 
     public function editUser($userId)

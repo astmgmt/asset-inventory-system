@@ -9,6 +9,7 @@
 @import './superadmin/pagination.css';
 @import './superadmin/searchbar.css';
 @import './superadmin/edit-account.css';
+@import './superadmin/view-account.css';
 
 
 @tailwind base;
@@ -815,4 +816,29 @@ html.dark .logout-btn {
         text-align: center;
         justify-content: center;
     }
+}
+
+/*  HEADER LOGO */
+.sidebar-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.sidebar-header .logo {
+    height: 100px;
+    width: auto;
+    display: block;
+    margin: 0 auto 0.5rem; /* Reduced bottom margin to tighten spacing */
+}
+
+.header-title {
+    font-size: 1.75rem;
+    margin: 0.25rem 0 0.25rem; /* Reduced top margin */
+    font-weight: 600;
+}
+
+.header-subtitle {
+    font-size: 1rem;
+    color: #666;
+    margin: 0;
 }

@@ -8,7 +8,8 @@
     <title>{{ config('app.name', 'Asset Management') }}</title>
 
     <!-- FAVICON -->
-    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('images/icon.ico') }}" type="image/x-icon">
+
 
     <!-- GOOGLE FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,9 +36,10 @@
       :class="{ 'dark': darkMode }">
 
     <aside class="sidebar">
-        <div class="sidebar-header">
-            <h1>Asset Management Inventory</h1>
-            <p>Comprehensive tracking of organizational assets</p>
+        <div class="sidebar-header text-center">
+            <img src="{{ asset('images/logo.png') }}" alt="Asset Logo" class="logo mb-3">
+            <h1 class="header-title">Asset Management Inventory</h1>
+            <p class="header-subtitle">Comprehensive tracking of organizational assets</p>
         </div>
 
         <nav class="sidebar-nav" x-data="{ open: null }">
