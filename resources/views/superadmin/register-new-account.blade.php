@@ -64,8 +64,8 @@
             <div>
                 <x-label for="role_id" value="Account Role" />
                 <select id="role_id" name="role_id" required
-                    class="mt-1 w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="" disabled selected>Select Account Role</option>
+                    class="mt-1 w-full">
+                    <option value="" disabled>Select Account Role</option>
                     @foreach($roles as $role)
                         <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
                             {{ $role->name }}
@@ -77,7 +77,7 @@
             <div>
                 <x-label for="status" value="Account Status" />
                 <select id="status" name="status" required
-                    class="mt-1 w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500">
+                    class="mt-1 w-full">
                     <option value="Approved" {{ old('status', 'Approved') == 'Approved' ? 'selected' : '' }}>Approved</option>
                     <option value="Pending" {{ old('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
                     <option value="Blocked" {{ old('status') == 'Blocked' ? 'selected' : '' }}>Blocked</option>
@@ -96,9 +96,20 @@
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Max 2MB. JPG, PNG, GIF only.</p>
             </div>
 
-            <div class="pt-4 flex justify-end">
-                <x-button type="submit" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700">
-                    Create Account
+            <div class="pt-4 flex justify-end space-x-3">
+                {{-- Cancel Button (as a link) --}}
+                <a href="{{ route('dashboard.superadmin') }}"
+                class="inline-flex items-center px-6 py-3 bg-gray-200 text-gray-800 text-sm font-medium rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition"
+                >
+                    <i class="fas fa-arrow-left mr-2"></i> Cancel
+                </a>
+
+                {{-- Create Account Button --}}
+                <x-button
+                    type="submit"
+                    class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
+                    <i class="fas fa-user-plus mr-2"></i> Create
                 </x-button>
             </div>
         </form>

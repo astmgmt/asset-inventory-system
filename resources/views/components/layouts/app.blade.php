@@ -189,7 +189,7 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('profile.show') }}" class="btn edit-profile-btn">
+                    <a href="{{ route('account.edit.profile') }}" class="btn edit-profile-btn">
                         <i class="fas fa-user-edit"></i> Edit Profile
                     </a>
 

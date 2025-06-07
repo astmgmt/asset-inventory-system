@@ -13,6 +13,8 @@ use App\Livewire\SuperAdmin\ManageAccount;
 use App\Livewire\SuperAdmin\EditUser;
 use App\Livewire\SuperAdmin\ViewUser;
 
+use App\Livewire\AccountProfile\EditProfile;
+
 use App\Http\Controllers\Auth\CustomAuthenticatedSessionController;
 use App\Http\Controllers\Auth\CustomRegisteredUserController;
 
@@ -93,7 +95,11 @@ Route::middleware([
         ->name('superadmin.manage.view_account')
         ->middleware('role:Super Admin');
 
-    
+    Route::get('/account/edit/profile', EditProfile::class)
+        ->name('account.edit.profile')
+        ->middleware('role:Super Admin,Admin,User'); // CAN BE USED BY ALL ROLES TO EDIT THEIR PROFILE
+
+
     // -------------------------------------------------------------------------------------------------
 
 
