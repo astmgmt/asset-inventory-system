@@ -7,6 +7,7 @@
 @import './superadmin/success-message.css';
 @import './superadmin/animations.css';
 @import './superadmin/pagination.css';
+@import './superadmin/searchbar.css';
 
 
 @tailwind base;

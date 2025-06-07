@@ -126,3 +126,14 @@
     background-color: #2d3748;
     border-color: #a0aec0;
 }
+
+.modal-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 0.375rem;
+    font-size: 0.95rem;
+    background-color: #fff;
+    color: #2d3748;
+}

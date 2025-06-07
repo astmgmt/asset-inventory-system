@@ -39,6 +39,14 @@
     white-space: nowrap;
 }
 
+.user-table td.action-buttons {
+    border-bottom: none;
+}
+
+.dark .user-table td.action-buttons {
+    border-bottom: none;
+}
+
 .dark .user-table {
     background-color: #2d3748;
     color: #e2e8f0;
@@ -56,4 +64,39 @@
 
 .dark .user-table tr {
     background-color: #1a202c;
+}
+
+/* HOVER EFFECT FOR ROW */
+
+/*
+.user-table tbody tr:hover {
+    background-color: #e0f2fe; 
+    cursor: pointer;
+}
+
+.user-table tbody tr:hover {
+    background-color: #bfdbfe; 
+    color: #1e40af; 
+}
+
+.dark .user-table tbody tr:hover {
+    background-color: #2563eb; 
+    color: #e0f2fe; 
+    cursor: pointer;
+} */
+
+
+
+
+.user-table tbody tr:hover {
+    background-color: #f0f4f8; /* very light, neutral bluish-gray */
+    color: #008fb3; /* medium blue for subtle emphasis */
+    cursor: pointer;
+}
+
+/* Dark mode: soft muted blue-gray background, with light text */
+.dark .user-table tbody tr:hover {
+    background-color: #334155; /* dark slate blue-gray */
+    color: #dbeafe; /* very light blue */
+    cursor: pointer;
 }

@@ -95,7 +95,6 @@
                         </div>
                     @enderror
 
-
                     <div class="modal-actions mt-2">
                         <button wire:click="deleteUser" class="btn btn-danger">Confirm</button>
                         <button wire:click="$set('confirmingUserDeletion', false)" class="btn btn-secondary">Cancel</button>

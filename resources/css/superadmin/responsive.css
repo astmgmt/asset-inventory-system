@@ -51,7 +51,7 @@
     }
 }
 
-@media (max-width: 1024px), (max-width: 640px) {
+@media (max-width: 1024px) {
     .action-buttons {
         flex-direction: column;
         gap: 0.5rem;
@@ -60,5 +60,10 @@
     .action-buttons button {
         width: 100%;
         margin: 0.25rem 0 !important;
+    }
+
+    /* Ensure table cells wrap content properly */
+    .user-table td.action-buttons {
+        white-space: normal; /* Override nowrap on smaller screens */
     }
 }
