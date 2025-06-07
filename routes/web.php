@@ -9,6 +9,8 @@ use App\Livewire\Dashboard\SuperAdminDashboard;
 use App\Livewire\Dashboard\AdminDashboard;
 use App\Livewire\Dashboard\UserDashboard;
 
+use App\Livewire\SuperAdmin\ManageAccount;
+
 use App\Http\Controllers\Auth\CustomAuthenticatedSessionController;
 use App\Http\Controllers\Auth\CustomRegisteredUserController;
 
@@ -70,11 +72,20 @@ Route::middleware([
     Route::post('/dashboard/superadmin/create', [AccountController::class, 'create'])
         ->name('superadmin.create')
         ->middleware('role:Super Admin');
-    
-    // MANAGE ACCOUNTS - Approve, Edit, Delete and View Accounts
-    Route::get('/superadmin/manage', [UserController::class, 'index'])
+
+
+    // TESTING LIVEWIRE
+    // Route::get('/superadmin/manage/account', [ManageAccount::class, 'render'])
+    //     ->name('superadmin.managelive')
+    //     ->middleware('role:Super Admin');
+
+    Route::get('/superadmin/manage/account', ManageAccount::class)
         ->name('superadmin.manage')
         ->middleware('role:Super Admin');
+
+    
+    // MANAGE ACCOUNTS - Approve, Edit, Delete and View Accounts
+    
 
     Route::post('/superadmin/manage/status/{user}', [UserController::class, 'updateStatus'])
         ->name('superadmin.manage.status')
@@ -95,6 +106,8 @@ Route::middleware([
     Route::delete('/superadmin/manage/{user}', [UserController::class, 'destroy'])
         ->name('superadmin.manage.destroy')
         ->middleware('role:Super Admin');
+
+    
 
 
     // Admin Dashboard

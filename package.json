@@ -6,7 +6,8 @@
         "build": "vite build",
         "dev": "vite",
         "build-all": "clear && php artisan db:seed && php artisan migrate:fresh --seed && php artisan optimize:clear && npm run build",
-        "build-now": "php artisan optimize:clear && npm run build && clear"
+        "build-now": "php artisan optimize:clear && npm run build && clear",
+        "build-clear": "php artisan route:clear && php artisan config:clear && php artisan view:clear && php artisan optimize:clear"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.7",

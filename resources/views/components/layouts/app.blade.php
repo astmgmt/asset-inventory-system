@@ -1,16 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Asset Management Inventory</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>{{ config('app.name', 'Asset Management') }}</title>
+
+    <!-- FAVICON -->
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+
+    <!-- GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    
+    <!-- FONT-AWESOME ICONS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    
-    <!-- Add Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    @vite('resources/css/app.css')   
+   
+    @vite(['resources/css/app.css', 'resources/js/app.js'])  
     @livewireStyles
+    
 </head>
 <body x-data="{ darkMode: localStorage.getItem('theme') === 'dark' }"
       x-init="
@@ -48,7 +58,7 @@
                     </button>
                     <div x-show="open === 1" x-collapse class="nav-submenu">
                         <a href="{{route('superadmin.register')}}"><i class="fas fa-user-shield"></i> Create</a>
-                        <a href="{{route('superadmin.manage')}}"><i class="fas fa-users"></i> Manage</a>
+                        <a href="{{route('superadmin.manage')}}"><i class="fas fa-users"></i> Manage</a>                        
                     </div>
 
                     <!-- Asset Management -->
@@ -210,8 +220,8 @@
             <p>&copy; {{ date('Y') }} Asset Management Inventory System. All rights reserved.</p>
         </footer>
     </main>
-
-    @vite(['resources/js/app.js'])
+    
+   
     @livewireScripts
 </body>
 </html>
