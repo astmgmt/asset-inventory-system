@@ -1,15 +1,10 @@
 <x-layouts.guest>
-    <div class="login-gradient-bg w-full">
-        <div class="video-background">
-            <video autoplay muted loop playsinline class="video-background-video">
-                <source src="/path/to/your/bg.mp4" type="video/mp4" />
-            </video>
-        </div>
+    <div class="login-gradient-bg w-full">      
 
         <div class="relative z-10 w-full max-w-7xl flex flex-col items-center">
             <!-- Logo -->
-            <div class="flex justify-center mb-6">
-                <img src="{{ asset('images/inventory.png') }}" alt="Custom Logo" class="h-60 w-60 object-contain" />
+            <div class="flex justify-center mb-1">
+                <img src="{{ asset('images/company.png') }}" alt="Custom Logo" class="h-60 w-60 object-contain" />
             </div>
 
             <!-- Validation Errors -->
