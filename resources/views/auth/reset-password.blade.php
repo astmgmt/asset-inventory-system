@@ -1,26 +1,25 @@
 <x-layouts.guest>
     <div class="login-gradient-bg w-full">
-        <div class="video-background">
-            <video autoplay muted loop playsinline class="video-background-video">
-                <source src="/path/to/your/bg.mp4" type="video/mp4" />
-            </video>
-        </div>
 
         <div class="relative z-10 w-full max-w-7xl flex flex-col items-center">
-            <!-- Logo -->
-            <div class="flex justify-center mb-6">
-                <img src="{{ asset('images/inventory.png') }}" alt="Custom Logo" class="h-48 w-48 object-contain" />
+            <!-- Image -->
+            <div class="flex justify-center mb-1">
+                <img src="{{ asset('images/company.png') }}" alt="Custom Logo" class="h-60 w-60 object-contain" />
             </div>
 
             <!-- Status Message -->
             @if (session('status'))
-                <div class="mb-4 font-medium text-sm text-green-600 w-[90%] md:w-[40%]">
+                <div class="mb-4 w-[90%] md:w-[40%] bg-green-200 border border-green-400 text-green-900 px-4 py-3 rounded shadow-md text-sm font-medium">
                     {{ session('status') }}
                 </div>
             @endif
 
             <!-- Validation Errors -->
-            <x-validation-errors class="mb-4 text-gray-800 w-[90%] md:w-[40%]" />
+             @if ($errors->any())
+                <div class="p-4 bg-red-100 text-red-700 rounded-md w-[90%] md:w-[40%] mb-2">
+                    <x-validation-errors class="mb-2" />
+                </div>
+            @endif
 
             <form method="POST" action="{{ route('password.update') }}" class="login-form-glass w-[90%] md:w-[40%] space-y-4 p-6 rounded-xl shadow-lg backdrop-blur-sm bg-white/70 dark:bg-gray-800/60 border border-white/30">
                 @csrf

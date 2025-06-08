@@ -2,7 +2,7 @@
     <div class="login-gradient-bg w-full">      
 
         <div class="relative z-10 w-full max-w-7xl flex flex-col items-center">
-            <!-- Logo -->
+            <!-- Image -->
             <div class="flex justify-center mb-1">
                 <img src="{{ asset('images/company.png') }}" alt="Custom Logo" class="h-60 w-60 object-contain" />
             </div>
