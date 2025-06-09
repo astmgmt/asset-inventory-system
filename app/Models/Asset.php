@@ -61,4 +61,8 @@ class Asset extends Model
     {
         return $this->belongsTo(Vendor::class);
     }
+    public function assignments()
+    {
+        return $this->hasMany(AssetAssignment::class);
+    }
 }

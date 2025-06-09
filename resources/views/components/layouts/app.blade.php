@@ -75,7 +75,7 @@
                         <i class="fas" :class="open === 2 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 2" x-collapse class="nav-submenu">
-                        <a href="#"><i class="fas fa-box"></i> Asset Assignment</a>
+                        <a href="{{ route('asset.assignment') }}"><i class="fas fa-box"></i> Asset</a>
                         <a href="#"><i class="fas fa-desktop"></i> Software</a>
                     </div>
 

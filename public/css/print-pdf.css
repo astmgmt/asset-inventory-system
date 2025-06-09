@@ -1,0 +1,187 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+body {
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #333;
+    margin: 40px;
+    background-color: #fff;
+}
+
+h1, h2, h3 {
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+    color: #1a1a1a;
+}
+
+h1 {
+    font-size: 24px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+h2 {
+    font-size: 18px;
+    margin-top: 5px;
+    color: #2e3b4e;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-text h1 {
+    font-family: 'Inter', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #1a1a1a;
+    margin: 0 0 30px 0;
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+
+.header-text h2 {
+    font-family: 'Inter', Arial, sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    color: #154360;
+    margin: 0;
+    letter-spacing: 0.03em;
+    text-transform: none;
+}
+
+/* LOGO IMAGE */
+.logo {
+    width: 60px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* TEXT NEXT TO LOGO */
+.header-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.header-text h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1a1a1a;
+    margin: 0 0 30px 0; /* Increased bottom margin to 30px */
+    padding: 0;
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+
+.header-text h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #154360;
+    margin: 0;
+    letter-spacing: 0.03em;
+    text-transform: none;
+}
+
+.section {
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+}
+
+.section-title {
+    font-weight: bold;
+    text-decoration: underline;
+    margin-bottom: 8px;
+    color: #2e3b4e;
+}
+
+.assignee-info {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
+}
+
+.details-table th {
+    background-color: #cce5f7;
+    color: #1a1a1a;
+    font-weight: bold;
+    padding: 10px;
+    border: 1px solid #ccc;
+    font-size: 12px;
+    text-align: center;
+}
+
+.details-table td {
+    padding: 10px;
+    border: 1px solid #ccc;
+    font-size: 12px;
+    color: #222;
+    text-align: center;
+    background-color: #fff;
+}
+
+.details-table tbody tr:nth-child(even) td {
+    background-color: #f7faff;
+}
+
+/* Rounded corners on top-left and top-right table header */
+.details-table thead th:first-child {
+    border-top-left-radius: 6px;
+}
+
+.details-table thead th:last-child {
+    border-top-right-radius: 6px;
+}
+
+.signature {
+    margin-top: 70px;
+    text-align: left;
+    padding-left: 10px;
+    font-size: 12px;
+    color: #1a1a1a;
+}
+
+.signature > div:first-child {
+    margin-bottom: 60px; /* More space before the signature line */
+}
+
+.signature-line {
+    border-bottom: 1px solid #000;
+    width: 250px;
+    margin: 10px 0;
+}
+
+.footer {
+    position: fixed;
+    bottom: 30px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 10px;
+    color: #777;
+    border-top: 1px solid #ccc;
+    padding-top: 5px;
+    background-color: #f8f8f8;
+}

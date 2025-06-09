@@ -16,6 +16,9 @@ use App\Livewire\SuperAdmin\ViewUser;
 use App\Livewire\SuperAdmin\ManageAssets;
 use App\Livewire\SuperAdmin\ManageSoftwares;
 
+use App\Livewire\SuperAdmin\AssetAssignments; //Livewire component for asset assignment
+use App\Http\Controllers\SuperAdmin\AssetAssignmentPdfController; // Controller for generating PDF of asset assignment
+
 use App\Livewire\AccountProfile\EditProfile;
 
 use App\Http\Controllers\Auth\CustomAuthenticatedSessionController;
@@ -105,6 +108,18 @@ Route::middleware([
     Route::get('/manage/softwares', ManageSoftwares::class)
         ->name('manage.softwares')
         ->middleware('role:Super Admin,Admin');
+
+    Route::get('/asset/assignment', AssetAssignments::class)
+        ->name('asset.assignment')
+        ->middleware('role:Super Admin,Admin');
+
+    Route::get('/asset/assignment/pdf/{assignment}', [AssetAssignmentPdfController::class, 'generate'])
+        ->name('asset.assignment.pdf')
+        ->middleware('role:Super Admin,Admin');
+
+    // Route::get('/software/assignment', SoftwareAssignment::class)
+    //     ->name('software.assignment')
+    //     ->middleware('role:Super Admin,Admin');        
 
     Route::get('/account/edit/profile', EditProfile::class)
         ->name('account.edit.profile')

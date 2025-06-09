@@ -1,6 +1,6 @@
 <div>
     <div class="superadmin-container">
-        <h1 class="page-title">Manage Assets</h1>
+        <h1 class="page-title main-title">Manage Assets</h1>
         
         <!-- Success Message -->
         @if ($successMessage)

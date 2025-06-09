@@ -1,5 +1,6 @@
 <div>  
-    <div class="superadmin-container">               
+    <div class="superadmin-container">          
+        <h1 class="page-title main-title">Manage Accounts</h1>     
         <!-- USER TABLE -->
         <div class="user-table-container">
             <!-- Success Message -->
@@ -83,7 +84,7 @@
         <!-- Delete Confirmation Modal -->
         @if ($confirmingUserDeletion)
             <div class="modal-backdrop">
-                <div class="modal">
+                <div class="modal modal-delete">
                     <h2 class="modal-title">Confirm Deletion</h2>
                     <p class="modal-text">Enter your password to confirm deletion of this account.</p>
 
