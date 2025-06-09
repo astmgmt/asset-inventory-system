@@ -37,7 +37,7 @@
                     <th>Software Code</th>
                     <th>Name</th>
                     <th>License Key</th>
-                    <th>Responsible User</th>
+                    <th>Added By</th>
                     <th>Expiry Date</th>
                     <th class="actions-column">Actions</th>
                 </tr>

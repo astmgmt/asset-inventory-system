@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,    
             UserSeeder::class,    
             AssetSeeder::class,    
+            AssetAssignmentSeeder::class,
             NotificationSeeder::class,
             SoftwareSeeder::class,
         ]);
