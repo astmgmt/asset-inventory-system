@@ -11,6 +11,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Role;
+use App\Models\Software;
 
 class User extends Authenticatable
 {
@@ -97,5 +98,10 @@ class User extends Authenticatable
 
     public function isAdmin() {
         return $this->role->name === 'Admin';
+    }
+
+    public function managedSoftware()
+    {
+        return $this->hasMany(Software::class, 'responsible_user_id');
     }
 }

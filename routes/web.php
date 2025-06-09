@@ -14,6 +14,7 @@ use App\Livewire\SuperAdmin\EditUser;
 use App\Livewire\SuperAdmin\ViewUser;
 
 use App\Livewire\SuperAdmin\ManageAssets;
+use App\Livewire\SuperAdmin\ManageSoftwares;
 
 use App\Livewire\AccountProfile\EditProfile;
 
@@ -101,9 +102,15 @@ Route::middleware([
         ->name('manage.assets')
         ->middleware('role:Super Admin,Admin');
 
+    Route::get('/manage/softwares', ManageSoftwares::class)
+        ->name('manage.softwares')
+        ->middleware('role:Super Admin,Admin');
+
     Route::get('/account/edit/profile', EditProfile::class)
         ->name('account.edit.profile')
         ->middleware('role:Super Admin,Admin,User'); // CAN BE USED BY ALL ROLES TO EDIT THEIR PROFILE
+
+    
 
 
     // -------------------------------------------------------------------------------------------------

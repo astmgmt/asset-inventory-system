@@ -11,6 +11,7 @@
 @import './superadmin/edit-account.css';
 @import './superadmin/view-account.css';
 @import './superadmin/manage-assets.css';
+@import './superadmin/view-details.css';
 
 
 @tailwind base;

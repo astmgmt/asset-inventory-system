@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
-    /** @use HasFactory<\Database\Factories\NotificationFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'type_id',
+        'message',
+        'voice_alert',
+        'email_alert',
+        'sms_alert',
+    ];
 }

@@ -6,23 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('software_assignments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('software_id')->constrained('software');
-            $table->foreignId('assigned_to_user_id')->constrained('users');
+            $table->foreignId('software_id')->constrained('software')->onDelete('cascade');
+            $table->foreignId('assigned_to_user_id')->constrained('users')->onDelete('cascade');
             $table->date('assigned_date');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('software_assignments');

@@ -125,6 +125,7 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
+    color: #111827;
 }
 
 .detail-group {
@@ -141,7 +142,7 @@
 
 .detail-group p {
     font-size: 0.875rem;
-    color: #1f2937;
+    color: #111827;
     padding: 0.5rem;
     background-color: #f9fafb;
     border-radius: 0.375rem;
@@ -275,7 +276,7 @@
 
 .dark .asset-details-grid {
     display: grid;
-    gap: 1rem;
+    gap: 1rem;    
 }
 
 .dark .detail-group label {

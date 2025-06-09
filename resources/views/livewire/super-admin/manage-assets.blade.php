@@ -86,18 +86,18 @@
                                 @endif
                             </td>
                             <td data-label="Actions" class="text-center">
-                            <div class="flex justify-center gap-3">
-                                <button wire:click="openViewModal({{ $asset->id }})" class="text-blue-600 hover:text-blue-800 p-1" title="View">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button wire:click="openEditModal({{ $asset->id }})" class="text-yellow-500 hover:text-yellow-600 p-1" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button wire:click="confirmDelete({{ $asset->id }})" class="text-red-600 hover:text-red-800 p-1" title="Delete">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                        </td>
+                                <div class="flex justify-center gap-3">
+                                    <button wire:click="openViewModal({{ $asset->id }})" class="text-blue-600 hover:text-blue-800 p-1" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button wire:click="openEditModal({{ $asset->id }})" class="text-yellow-500 hover:text-yellow-600 p-1" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button wire:click="confirmDelete({{ $asset->id }})" class="text-red-600 hover:text-red-800 p-1" title="Delete">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
 
                         </tr>
                     @empty
@@ -313,7 +313,7 @@
                     </div>
                     
                     @if($viewAsset)
-                    <div class="asset-details-grid">
+                    <div class="asset-details-grid view-grid">
                         <div class="detail-group">
                             <label>Asset Code:</label>
                             <p>{{ $viewAsset->asset_code }}</p>

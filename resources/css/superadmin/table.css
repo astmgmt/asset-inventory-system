@@ -39,14 +39,6 @@
     white-space: nowrap;
 }
 
-/* .user-table td.action-buttons {
-    border-bottom: none;
-}
-
-.dark .user-table td.action-buttons {
-    border-bottom: none;
-} */
-
 .dark .user-table {
     background-color: #2d3748;
     color: #e2e8f0;

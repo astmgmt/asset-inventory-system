@@ -67,7 +67,7 @@
                     <a href="{{ route('manage.assets') }}"><i class="fas fa-boxes"></i> Asset Management</a>
 
                     <!-- Software Management -->
-                    <a href="#"><i class="fas fa-laptop-code"></i> Software Management</a>
+                    <a href="{{ route('manage.softwares') }}"><i class="fas fa-laptop-code"></i> Software Management</a>
 
                     <!-- Assignment -->
                     <button @click="open === 2 ? open = null : open = 2" class="nav-link-button" type="button">
