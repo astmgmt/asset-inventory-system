@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,    
             AssetSeeder::class,    
             NotificationSeeder::class,
+            SoftwareSeeder::class,
         ]);
         
     }
