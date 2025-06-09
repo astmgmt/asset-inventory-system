@@ -76,7 +76,7 @@
                     </button>
                     <div x-show="open === 2" x-collapse class="nav-submenu">
                         <a href="{{ route('asset.assignment') }}"><i class="fas fa-box"></i> Asset</a>
-                        <a href="#"><i class="fas fa-desktop"></i> Software</a>
+                        <a href="{{ route('software.assignment') }}"><i class="fas fa-desktop"></i> Software</a>
                     </div>
 
                     <!-- Borrow Asset -->

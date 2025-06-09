@@ -1,6 +1,5 @@
-
 <div class="superadmin-container">
-    <h1 class="page-title main-title">Asset Assignment</h1>
+    <h1 class="page-title main-title">Software Assignment</h1>
     
     <!-- Success Message -->
     @if ($successMessage)
@@ -41,7 +40,7 @@
         </div>
         
         <button wire:click="openAddModal" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md shadow-sm inline-flex items-center transition-colors duration-200">
-            <i class="fas fa-plus mr-2"></i> Assign Asset
+            <i class="fas fa-plus mr-2"></i> Assign Software
         </button>
     </div>
 
@@ -51,8 +50,8 @@
             <thead>
                 <tr>
                     <th>Ref. No.</th>
-                    <th>Asset Code</th>
-                    <th>Asset Name</th>
+                    <th>Software Code</th>
+                    <th>Software Name</th>
                     <th>Assignee</th>
                     <th>Assigned By</th>
                     <th>Date Assigned</th>
@@ -63,8 +62,8 @@
                 @forelse($assignments as $assignment)
                     <tr>
                         <td data-label="Ref. No." class="text-center">{{ $assignment->reference_no }}</td>
-                        <td data-label="Asset Code" class="text-center">{{ $assignment->asset->asset_code }}</td>
-                        <td data-label="Asset Name" class="text-center">{{ $assignment->asset->name }}</td>
+                        <td data-label="Software Code" class="text-center">{{ $assignment->software->software_code }}</td>
+                        <td data-label="Software Name" class="text-center">{{ $assignment->software->software_name }}</td>
                         <td data-label="Assignee" class="text-center">{{ $assignment->user->name }}</td>
                         <td data-label="Assigned By" class="text-center">{{ $assignment->admin->name }}</td>
                         <td data-label="Date Assigned" class="text-center">
@@ -83,7 +82,6 @@
                                 </button>
                             </div>
                         </td>
-
                     </tr>
                 @empty
                     <tr>
@@ -103,7 +101,7 @@
     @if ($showAddModal)
         <div class="modal-backdrop">
             <div class="modal">
-                <h2 class="modal-title">Assign Asset</h2>
+                <h2 class="modal-title">Assign Software</h2>
                 
                 <form wire:submit.prevent="createAssignment">
                     <div class="form-grid">
@@ -130,38 +128,17 @@
                             @error('admin_id') <span class="error">{{ $message }}</span> @enderror
                         </div>
                         
-                        <!-- SHOW ASSET INFO -->
                         <div class="form-group">
-                            <label>Asset *</label>
-                            <select wire:model="asset_id" class="form-input" wire:change="$refresh">
-                                <option value="">Select Asset</option>
-                                @foreach($assets as $asset)
-                                    <option value="{{ $asset->id }}">
-                                        {{ $asset->asset_code }}
+                            <label>Software *</label>
+                            <select wire:model="software_id" class="form-input">
+                                <option value="">Select Software</option>
+                                @foreach($softwareList as $software)
+                                    <option value="{{ $software->id }}">
+                                        {{ $software->software_code }} - {{ $software->software_name }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('asset_id') <span class="error">{{ $message }}</span> @enderror
-                            
-                            @if($asset_id)
-                                @php $selectedAsset = $assets->firstWhere('id', $asset_id); @endphp
-                                <div class="mt-4 bg-gray-50 p-4 rounded-lg col-span-2 asset-details">
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-500">Asset Name</p>
-                                            <p class="text-base">{{ $selectedAsset->name ?? 'N/A' }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-500">Serial Number</p>
-                                            <p class="text-base">{{ $selectedAsset->serial_number ?? 'N/A' }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-500">Condition</p>
-                                            <p class="text-base">{{ $selectedAsset->condition->condition_name ?? 'N/A' }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
+                            @error('software_id') <span class="error">{{ $message }}</span> @enderror
                         </div>
                         
                         <div class="form-group">
@@ -188,7 +165,7 @@
                             <i class="fas fa-user-check"></i> Assign
                         </button>
                         <button type="button" wire:click="closeModals" class="btn btn-secondary">
-                            <i class="fas fa-ban"></i> Cancel
+                            <i class="fas fa-times-circle"></i> Cancel
                         </button>
                     </div>
                 </form>
@@ -229,38 +206,17 @@
                             @error('admin_id') <span class="error">{{ $message }}</span> @enderror
                         </div>
                         
-                        <!-- SHOW ASSET INFO -->
                         <div class="form-group">
-                            <label>Asset *</label>
-                            <select wire:model="asset_id" class="form-input" wire:change="$refresh">
-                                <option value="">Select Asset</option>
-                                @foreach($assets as $asset)
-                                    <option value="{{ $asset->id }}">
-                                        {{ $asset->asset_code }}
+                            <label>Software *</label>
+                            <select wire:model="software_id" class="form-input">
+                                <option value="">Select Software</option>
+                                @foreach($softwareList as $software)
+                                    <option value="{{ $software->id }}" {{ $software->id == $software_id ? 'selected' : '' }}>
+                                        {{ $software->software_code }} - {{ $software->software_name }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('asset_id') <span class="error">{{ $message }}</span> @enderror
-                            
-                            @if($asset_id)
-                                @php $selectedAsset = $assets->firstWhere('id', $asset_id); @endphp
-                                <div class="mt-4 bg-gray-50 p-4 rounded-lg col-span-2 asset-details">
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-500">Asset Name</p>
-                                            <p class="text-base">{{ $selectedAsset->name ?? 'N/A' }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-500">Serial Number</p>
-                                            <p class="text-base">{{ $selectedAsset->serial_number ?? 'N/A' }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-500">Condition</p>
-                                            <p class="text-base">{{ $selectedAsset->condition->condition_name ?? 'N/A' }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
+                            @error('software_id') <span class="error">{{ $message }}</span> @enderror
                         </div>
                         
                         <div class="form-group">
@@ -309,13 +265,13 @@
                     </div>
                     
                     <div class="detail-group">
-                        <label>Asset Code:</label>
-                        <p>{{ $viewAssignment->asset->asset_code }}</p>
+                        <label>Software Code:</label>
+                        <p>{{ $viewAssignment->software->software_code }}</p>
                     </div>
 
                     <div class="detail-group">
-                        <label>Asset Name:</label>
-                        <p>{{ $viewAssignment->asset->name }}</p>
+                        <label>Software Name:</label>
+                        <p>{{ $viewAssignment->software->software_name }}</p>
                     </div>
                     
                     <div class="detail-group">
@@ -350,6 +306,7 @@
                         <i class="fas fa-times"></i> Close
                     </button>
                 </div>
+
             </div>
         </div>
     @endif
@@ -377,14 +334,8 @@
 
 <script>
     document.addEventListener('livewire:init', () => {
-        Livewire.on('clear-message', () => {
-            setTimeout(() => {
-                @this.set('successMessage', '');
-            }, 3000);
-        });
-        
-        Livewire.on('open-pdf', (event) => {
-            window.open(`/asset/assignment/pdf/${event.assignmentId}`, '_blank');
+        Livewire.on('open-software-pdf', (event) => {
+            window.open(`/software/assignment/pdf/${event.assignmentId}`, '_blank');
         });
     });
 </script>

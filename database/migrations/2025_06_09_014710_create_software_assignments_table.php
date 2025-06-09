@@ -10,9 +10,13 @@ return new class extends Migration
     {
         Schema::create('software_assignments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('software_id')->constrained('software')->onDelete('cascade');
-            $table->foreignId('assigned_to_user_id')->constrained('users')->onDelete('cascade');
-            $table->date('assigned_date');
+            $table->string('reference_no')->unique();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('software_id')->constrained()->onDelete('cascade');
+            $table->string('purpose');
+            $table->text('remarks')->nullable();
+            $table->timestamp('date_assigned')->useCurrent();
             $table->timestamps();
         });
     }

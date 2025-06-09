@@ -1,18 +1,16 @@
-<!-- resources/views/pdf/asset-assignment.blade.php -->
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Asset Assignment - {{ $assignment->reference_no }}</title>   
+    <title>Software Assignment - {{ $assignment->reference_no }}</title>
     <link rel="stylesheet" href="{{ public_path('css/print-pdf.css') }}">
 </head>
 <body>
     <div class="header">
         <div class="header-content">
-            <img src="{{ public_path('images/logo.png') }}" alt="Company Logo" class="logo">
             <div class="header-text">
                 <h1>Asset Management</h1>
-                <h2>Asset Assignment Form</h2>
+                <h2>Software Assignment Form</h2>
             </div>
         </div>
     </div>
@@ -21,7 +19,7 @@
         <div class="section">
             <div class="section-title">Assignee Information:</div>
             <div>Name: {{ $assignment->user->name }}</div>
-            <div>Contact No.: {{ $assignment->user->contact_number }}</div>
+            <div>Contact No.: {{ $assignment->user->contact_number ?? 'N/A' }}</div>
             <div>Email: {{ $assignment->user->email }}</div>
         </div>
 
@@ -36,10 +34,9 @@
     <table class="details-table">
         <thead>
             <tr>
-                <th>Asset Code</th>
-                <th>Asset Name</th>
+                <th>Software Code</th>
+                <th>Software Name</th>
                 <th>Description</th>
-                <th>Serial Number</th>
                 <th>Qty</th>
                 <th>Purpose</th>
                 <th>Remarks</th>
@@ -47,11 +44,10 @@
         </thead>
         <tbody>
             <tr>
-                <td>{{ $assignment->asset->asset_code }}</td>
-                <td>{{ $assignment->asset->name }}</td>
-                <td>{{ $assignment->asset->description }}</td>
-                <td>{{ $assignment->asset->serial_number }}</td>
-                <td>{{ $assignment->asset->quantity }}</td>
+                <td>{{ $assignment->software->software_code }}</td>
+                <td>{{ $assignment->software->software_name }}</td>
+                <td>{{ $assignment->software->description }}</td>
+                <td>1</td>
                 <td>{{ $assignment->purpose }}</td>
                 <td>{{ $assignment->remarks ?? 'N/A' }}</td>
             </tr>
@@ -65,6 +61,5 @@
         <div>Administrator</div>
         <div>(Signature over printed name)</div>
     </div>
-    
 </body>
 </html>

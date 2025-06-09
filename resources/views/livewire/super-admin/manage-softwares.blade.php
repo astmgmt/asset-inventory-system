@@ -133,8 +133,12 @@
                     </div>
                     
                     <div class="modal-actions">
-                        <button type="submit" class="btn btn-primary">Create Software</button>
-                        <button type="button" wire:click="closeModals" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-update">
+                            <i class="fas fa-plus-circle"></i> Add Software
+                        </button>
+                        <button type="button" wire:click="closeModals" class="btn btn-secondary">
+                            <i class="fas fa-ban"></i> Cancel
+                        </button>
                     </div>
                 </form>
             </div>
