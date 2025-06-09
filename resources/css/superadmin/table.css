@@ -39,13 +39,13 @@
     white-space: nowrap;
 }
 
-.user-table td.action-buttons {
+/* .user-table td.action-buttons {
     border-bottom: none;
 }
 
 .dark .user-table td.action-buttons {
     border-bottom: none;
-}
+} */
 
 .dark .user-table {
     background-color: #2d3748;
@@ -67,26 +67,6 @@
 }
 
 /* HOVER EFFECT FOR ROW */
-
-/*
-.user-table tbody tr:hover {
-    background-color: #e0f2fe; 
-    cursor: pointer;
-}
-
-.user-table tbody tr:hover {
-    background-color: #bfdbfe; 
-    color: #1e40af; 
-}
-
-.dark .user-table tbody tr:hover {
-    background-color: #2563eb; 
-    color: #e0f2fe; 
-    cursor: pointer;
-} */
-
-
-
 
 .user-table tbody tr:hover {
     background-color: #f0f4f8; /* very light, neutral bluish-gray */

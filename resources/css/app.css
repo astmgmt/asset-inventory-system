@@ -10,6 +10,7 @@
 @import './superadmin/searchbar.css';
 @import './superadmin/edit-account.css';
 @import './superadmin/view-account.css';
+@import './superadmin/manage-assets.css';
 
 
 @tailwind base;

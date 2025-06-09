@@ -13,15 +13,16 @@
             @endif
 
             <!-- SEARCH BAR -->
-            <div class="search-bar w-full lg:w-1/3">
+            <div class="relative w-full lg:w-1/3 mb-5">
                 <input                
                     wire:model.live.debounce.300ms="search"
                     type="text"
                     placeholder="Search by name or username..."
-                    class="search-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-5"
+                    class="w-full p-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />   
-                <i class="fas fa-search"></i>             
+                <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>             
             </div>
+
 
             <table class="user-table">
                 <thead>
@@ -48,11 +49,21 @@
                                     <option value="Blocked" {{ $user->status === 'Blocked' ? 'selected' : '' }}>Blocked</option>
                                 </select>
                             </td>
-                            <td data-label="Actions" class="action-buttons">
-                                <button wire:click="viewUser({{ $user->id }})" class="view-button">View</button>
-                                <button wire:click="editUser({{ $user->id }})" class="edit-button">Edit</button>
-                                <button wire:click="confirmDelete({{ $user->id }})" class="delete-button">Delete</button>
+                            <td data-label="Actions" class="text-center">
+                                <div class="flex justify-center gap-3">
+                                    <button wire:click="viewUser({{ $user->id }})" class="text-blue-600 hover:text-blue-800 p-1" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button wire:click="editUser({{ $user->id }})" class="text-yellow-500 hover:text-yellow-600 p-1" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button wire:click="confirmDelete({{ $user->id }})" class="text-red-600 hover:text-red-800 p-1" title="Delete">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
                             </td>
+
+
                         </tr>
                     @empty
                         <tr>

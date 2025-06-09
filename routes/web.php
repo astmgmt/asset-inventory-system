@@ -13,6 +13,8 @@ use App\Livewire\SuperAdmin\ManageAccount;
 use App\Livewire\SuperAdmin\EditUser;
 use App\Livewire\SuperAdmin\ViewUser;
 
+use App\Livewire\SuperAdmin\ManageAssets;
+
 use App\Livewire\AccountProfile\EditProfile;
 
 use App\Http\Controllers\Auth\CustomAuthenticatedSessionController;
@@ -94,6 +96,10 @@ Route::middleware([
     Route::get('/superadmin/manage/account/view/{id}', ViewUser::class)
         ->name('superadmin.manage.view_account')
         ->middleware('role:Super Admin');
+
+    Route::get('/manage/assets', ManageAssets::class)
+        ->name('manage.assets')
+        ->middleware('role:Super Admin,Admin');
 
     Route::get('/account/edit/profile', EditProfile::class)
         ->name('account.edit.profile')

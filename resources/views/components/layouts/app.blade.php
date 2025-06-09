@@ -64,7 +64,7 @@
                     </div>
 
                     <!-- Asset Management -->
-                    <a href="#"><i class="fas fa-boxes"></i> Asset Management</a>
+                    <a href="{{ route('manage.assets') }}"><i class="fas fa-boxes"></i> Asset Management</a>
 
                     <!-- Software Management -->
                     <a href="#"><i class="fas fa-laptop-code"></i> Software Management</a>
