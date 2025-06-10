@@ -235,20 +235,25 @@ class AssetAssignments extends Component
     {
         $this->reset('successMessage');
     }
-
     public function render()
     {
-        $assignments = AssetAssignment::with(['user', 'admin', 'asset'])
+        $assignments = AssetAssignment::with(['user.role', 'admin.role', 'asset'])
             ->where(function ($query) {
                 $query->where('reference_no', 'like', '%' . $this->search . '%')
-                      ->orWhereHas('user', function ($q) {
-                          $q->where('name', 'like', '%' . $this->search . '%');
-                      })
-                      ->orWhereHas('asset', function ($q) {
-                            $q->where('name', 'like', '%' . $this->search . '%')
-                            ->orWhere('asset_code', 'like', '%' . $this->search . '%');
+                    ->orWhereHas('user', function ($q) {
+                        $q->where('name', 'like', '%' . $this->search . '%');
+                    })
+                    ->orWhereHas('admin', function ($q) {
+                        $q->where('name', 'like', '%' . $this->search . '%')
+                        ->whereHas('role', function ($roleQuery) {
+                            $roleQuery->whereIn('name', ['Admin', 'Super Admin']);
                         });
-
+                    })
+                    ->orWhereHas('asset', function ($q) {
+                        $q->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('asset_code', 'like', '%' . $this->search . '%');
+                    })
+                    ->orWhereRaw("DATE_FORMAT(date_assigned, '%M %d, %Y') LIKE ?", ['%' . $this->search . '%']);
             })
             ->orderBy('date_assigned', 'desc')
             ->paginate(10);

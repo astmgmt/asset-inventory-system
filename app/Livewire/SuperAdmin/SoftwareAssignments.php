@@ -200,16 +200,23 @@ class SoftwareAssignments extends Component
 
     public function render()
     {
-        $assignments = SoftwareAssignment::with(['user', 'admin', 'software'])
+        $assignments = SoftwareAssignment::with(['user.role', 'admin.role', 'software'])
             ->where(function ($query) {
                 $query->where('reference_no', 'like', '%' . $this->search . '%')
-                      ->orWhereHas('user', function ($q) {
-                          $q->where('name', 'like', '%' . $this->search . '%');
-                      })
-                      ->orWhereHas('software', function ($q) {
-                            $q->where('software_name', 'like', '%' . $this->search . '%')
-                            ->orWhere('software_code', 'like', '%' . $this->search . '%');
+                    ->orWhereHas('user', function ($q) {
+                        $q->where('name', 'like', '%' . $this->search . '%');
+                    })
+                    ->orWhereHas('admin', function ($q) {
+                        $q->where('name', 'like', '%' . $this->search . '%')
+                        ->whereHas('role', function ($roleQuery) {
+                            $roleQuery->whereIn('name', ['Admin', 'Super Admin']);
                         });
+                    })
+                    ->orWhereHas('software', function ($q) {
+                        $q->where('software_name', 'like', '%' . $this->search . '%')
+                        ->orWhere('software_code', 'like', '%' . $this->search . '%');
+                    })
+                    ->orWhereRaw("DATE_FORMAT(date_assigned, '%M %d, %Y') LIKE ?", ['%' . $this->search . '%']);
             })
             ->orderBy('date_assigned', 'desc')
             ->paginate(10);

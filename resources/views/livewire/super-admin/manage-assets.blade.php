@@ -14,7 +14,7 @@
 
         <!-- Action Bar -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-        <div class="relative w-full md:w-1/3">
+            <div class="relative w-full md:w-1/3">
                 <input                
                     wire:model.live.debounce.300ms="search"
                     type="text"

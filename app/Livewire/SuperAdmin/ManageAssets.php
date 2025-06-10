@@ -227,6 +227,9 @@ class ManageAssets extends Component
                       })
                       ->orWhereHas('vendor', function ($q) {
                           $q->where('vendor_name', 'like', '%' . $this->search . '%');
+                      })
+                      ->orWhereHas('condition', function ($q) {
+                          $q->where('condition_name', 'like', '%' . $this->search . '%');
                       });
             })
             ->orderBy('created_at', 'desc')
