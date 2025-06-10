@@ -349,6 +349,9 @@
                     <button type="button" wire:click="closeModals" class="btn btn-secondary">
                         <i class="fas fa-times"></i> Close
                     </button>
+                    <a href="{{ route('asset.assignment.pdf', $viewAssignment->id) }}" class="btn btn-danger" target="_blank">
+                        <i class="fas fa-print "></i> Print
+                    </a>
                 </div>
             </div>
         </div>
