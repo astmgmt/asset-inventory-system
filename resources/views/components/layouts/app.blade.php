@@ -53,6 +53,10 @@
 
                 <!-- SUPER ADMIN MENUS -->
                 @if($user->isSuperAdmin())
+
+                    <!-- Home -->
+                    <a href="{{ route('dashboard.superadmin') }}"><i class="fas fa-home"></i> Home</a>
+
                     <!-- Account Management -->
                     <button @click="open === 1 ? open = null : open = 1" class="nav-link-button" type="button">
                         <i class="fas fa-user-cog"></i> Account Management
@@ -107,6 +111,9 @@
                 
                 <!-- ADMIN MENUS -->
                 @elseif($user->isAdmin())
+                    <!-- Home -->
+                    <a href="{{ route('dashboard.admin') }}"><i class="fas fa-home"></i> Home</a>
+
                     <!-- Asset Management -->
                     <a href="#"><i class="fas fa-boxes"></i> Asset Management</a>
 
@@ -151,6 +158,9 @@
                 
                 <!-- USER MENUS -->
                 @else
+                    <!-- Home -->
+                    <a href="{{ route('dashboard.user') }}"><i class="fas fa-home"></i> Home</a>
+
                     <!-- Borrow Assets -->
                     <a href="#"><i class="fas fa-hand-holding"></i> Borrow Assets</a>
                     
