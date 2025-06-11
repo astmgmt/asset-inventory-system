@@ -15,4 +15,9 @@ class Department extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function borrowTransactions()
+    {
+        return $this->hasMany(AssetBorrowTransaction::class, 'user_department_id');
+    }
 }

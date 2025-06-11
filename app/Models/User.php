@@ -104,4 +104,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(Software::class, 'responsible_user_id');
     }
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function borrowTransactions()
+    {
+        return $this->hasMany(AssetBorrowTransaction::class);
+    }
+
+    public function borrowRequests()
+    {
+        return $this->hasMany(AssetBorrowTransaction::class, 'requested_by_user_id');
+    }
+
+    public function approvedBorrows()
+    {
+        return $this->hasMany(AssetBorrowTransaction::class, 'approved_by_user_id');
+    }
+
 }
