@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             AssetAssignmentSeeder::class,
             NotificationSeeder::class,
             SoftwareSeeder::class,
+            BorrowAssetQuantitySeeder::class,
         ]);
         
     }

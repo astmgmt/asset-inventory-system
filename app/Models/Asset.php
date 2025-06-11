@@ -49,7 +49,7 @@ class Asset extends Model
 
     public function condition()
     {
-        return $this->belongsTo(AssetCondition::class);
+        return $this->belongsTo(AssetCondition::class, 'condition_id');
     }
 
     public function location()
@@ -64,5 +64,10 @@ class Asset extends Model
     public function assignments()
     {
         return $this->hasMany(AssetAssignment::class);
+    }
+
+    public function borrowAssetQuantity()
+    {
+        return $this->hasOne(BorrowAssetQuantity::class);
     }
 }

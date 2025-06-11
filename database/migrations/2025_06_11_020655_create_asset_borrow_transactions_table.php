@@ -13,13 +13,31 @@ return new class extends Migration
             $table->string('borrow_code')->unique(); // e.g. BR-20250611-00000001
 
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Borrower
-            $table->foreignId('user_department_id')->constrained('departments')->onDelete('set null')->nullable();
 
-            $table->foreignId('requested_by_user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('requested_by_department_id')->nullable()->constrained('departments')->onDelete('set null');
+            $table->foreignId('user_department_id')
+                ->nullable()
+                ->constrained('departments')
+                ->nullOnDelete();
 
-            $table->foreignId('approved_by_user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('approved_by_department_id')->nullable()->constrained('departments')->onDelete('set null');
+            $table->foreignId('requested_by_user_id')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            $table->foreignId('requested_by_department_id')
+                ->nullable()
+                ->constrained('departments')
+                ->nullOnDelete();
+
+            $table->foreignId('approved_by_user_id')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            $table->foreignId('approved_by_department_id')
+                ->nullable()
+                ->constrained('departments')
+                ->nullOnDelete();
 
             $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
 

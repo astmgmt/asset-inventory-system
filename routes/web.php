@@ -19,6 +19,8 @@ use App\Livewire\SuperAdmin\ManageSoftwares;
 use App\Livewire\SuperAdmin\AssetAssignments; 
 use App\Livewire\SuperAdmin\SoftwareAssignments; 
 
+use App\Livewire\User\UserBorrowAsset; 
+
 use App\Http\Controllers\SuperAdmin\AssetAssignmentPdfController; 
 use App\Http\Controllers\SuperAdmin\SoftwareAssignmentPDFController;
 
@@ -174,6 +176,12 @@ Route::middleware([
     Route::get('/dashboard/user', [UserDashboard::class, 'render'])
         ->name('dashboard.user')
         ->middleware('role:User');
+
+    // BORROW ASSETS FROM USER (LIVEWIRE)
+    Route::get('/user/borrow/assets', UserBorrowAsset::class)
+        ->name('user.borrow.assets')
+        ->middleware('role:User');
+    
 });
 
 // TO CATCH ERRORS FROM DASHBOARD ROUTES

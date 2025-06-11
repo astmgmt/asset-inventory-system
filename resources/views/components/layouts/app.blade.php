@@ -162,7 +162,7 @@
                     <a href="{{ route('dashboard.user') }}"><i class="fas fa-home"></i> Home</a>
 
                     <!-- Borrow Assets -->
-                    <a href="#"><i class="fas fa-hand-holding"></i> Borrow Assets</a>
+                    <a href="{{ route('user.borrow.assets') }}"><i class="fas fa-hand-holding"></i> Borrow Assets</a>
                     
                     <!-- Transactions -->
                     <a href="#"><i class="fas fa-exchange-alt"></i> Transactions</a>
