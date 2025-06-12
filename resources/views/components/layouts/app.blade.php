@@ -165,7 +165,7 @@
                     <a href="{{ route('user.borrow.assets') }}"><i class="fas fa-hand-holding"></i> Borrow Assets</a>
                     
                     <!-- Transactions -->
-                    <a href="#"><i class="fas fa-exchange-alt"></i> Transactions</a>
+                    <a href="{{ route('user.transactions') }}"><i class="fas fa-exchange-alt"></i> Transactions</a>
                 @endif
             @endauth
         </nav>

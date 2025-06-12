@@ -858,3 +858,47 @@ html.dark .logout-btn {
 .dark .main-title {
     color: #edf2f7; 
 }
+
+/* USER CONTAINER FOR TRANSACTIONS */
+
+.tab-header-wrapper {
+    border-bottom: 1px solid #4b5563;
+}
+
+.dark .tab-header-wrapper {
+    border-bottom: 1px solid #d1d5db;
+}
+
+.user-tab-button {
+    transition: color 0.2s ease, border-color 0.2s ease;
+    border-bottom: 2px solid transparent;
+    color: #374151;
+    position: relative;
+}
+
+.user-tab-button:hover {
+    color: #1f2937;
+}
+
+.dark .user-tab-button {
+    color: #d1d5db;
+}
+
+.dark .user-tab-button:hover {
+    color: #e5e7eb;
+}
+
+.user-tab-button-active {
+    color: #1f2937;
+    border-bottom-color: #4b5563;
+    bottom: -1px;
+}
+
+.dark .user-tab-button-active {
+    color: #f3f4f6;
+    border-bottom: 2px solid #d1d5db;
+    bottom: -1px;
+}
+
+
+

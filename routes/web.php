@@ -22,6 +22,8 @@ use App\Livewire\SuperAdmin\SoftwareAssignments;
 use App\Livewire\SuperAdmin\BorrowRequests; 
 
 use App\Livewire\User\UserBorrowAsset; 
+use App\Livewire\User\UserContainers;
+use App\Livewire\User\UserBorrowTransactions; 
 
 use App\Http\Controllers\SuperAdmin\AssetAssignmentPdfController; 
 use App\Http\Controllers\SuperAdmin\SoftwareAssignmentPDFController;
@@ -33,6 +35,8 @@ use App\Http\Controllers\Auth\CustomRegisteredUserController;
 
 use App\Http\Controllers\SuperAdmin\AccountController;
 use App\Http\Controllers\SuperAdmin\UserController;
+
+use App\Http\Controllers\User\ReturnController;
 
 // DEFAULT LANDING PAGE
 Route::get('/', function () {
@@ -186,6 +190,15 @@ Route::middleware([
     Route::get('/user/borrow/assets', UserBorrowAsset::class)
         ->name('user.borrow.assets')
         ->middleware('role:User');
+
+    Route::get('/user/transactions', UserContainers::class)
+        ->name('user.transactions')
+        ->middleware('role:User');
+
+    // SENDING OF PDF COPY TO USER DURING RETURNING OF ASSET(S)
+    Route::get('/return-pdf/{return_code}', [ReturnController::class, 'generatePDF'])
+        ->name('return.pdf');
+   
     
 });
 

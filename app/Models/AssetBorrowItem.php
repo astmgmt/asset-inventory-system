@@ -11,6 +11,7 @@ class AssetBorrowItem extends Model
         'borrow_transaction_id',
         'asset_id',
         'quantity',
+        'purpose',
     ];
 
     protected $casts = [

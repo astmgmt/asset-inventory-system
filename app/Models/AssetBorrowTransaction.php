@@ -16,9 +16,10 @@ class AssetBorrowTransaction extends Model
         'requested_by_department_id',
         'approved_by_user_id',
         'approved_by_department_id',
-        'borrow_date',
-        'return_due_date',
+        'borrowed_at',
+        'approved_at',        
         'status',
+        'remarks',
     ];
 
     protected $casts = [
