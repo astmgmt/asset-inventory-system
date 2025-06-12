@@ -10,10 +10,12 @@ use App\Models\AssetBorrowTransaction;
 use App\Models\AssetBorrowItem;
 use App\Models\AssetCondition;
 use App\Models\User;
+use App\Models\Role;
+use App\Models\Department;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\NewBorrowRequestNotification;
+use App\Services\SendEmail;
+use App\Services\EmailTemplates;
 
 class UserBorrowAsset extends Component
 {
@@ -25,14 +27,13 @@ class UserBorrowAsset extends Component
     public $selectedForBorrow = [];
     public $successMessage = '';
     public $errorMessage = '';
-    public $remarks = ''; // Added for remarks
-    
+    public $remarks = '';
 
     public function updatedShowCartModal($value)
     {
         if ($value) {
             $this->selectedForBorrow = array_keys($this->selectedAssets);
-            $this->errorMessage = ''; // Clear previous errors when modal opens
+            $this->errorMessage = '';
         }
     }
 
@@ -51,7 +52,7 @@ class UserBorrowAsset extends Component
                 $query->where(function($q) {
                     $q->where('assets.name', 'like', '%'.$this->search.'%')
                     ->orWhere('assets.asset_code', 'like', '%'.$this->search.'%')
-                    ->orWhere('asset_conditions.condition_name', 'like', '%'.$this->search.'%'); // Added condition search
+                    ->orWhere('asset_conditions.condition_name', 'like', '%'.$this->search.'%');
                 });
             })
             ->select('assets.*', 'borrow_asset_quantities.available_quantity')
@@ -59,7 +60,6 @@ class UserBorrowAsset extends Component
 
         return view('livewire.user.user-borrow-asset', compact('assets'));
     }
-
 
     public function addToCart($assetId)
     {
@@ -105,7 +105,7 @@ class UserBorrowAsset extends Component
     {
         $this->selectedAssets = [];
         $this->selectedForBorrow = [];
-        $this->remarks = ''; // Clear remarks when cart is cleared
+        $this->remarks = '';
     }
 
     public function clearSearch()
@@ -136,8 +136,7 @@ class UserBorrowAsset extends Component
         }
 
         try {
-            $transaction = null; 
-
+            $transaction = null;
             DB::transaction(function () use (&$transaction) {
                 $transaction = AssetBorrowTransaction::create([
                     'borrow_code' => $this->generateBorrowCode(),
@@ -170,29 +169,76 @@ class UserBorrowAsset extends Component
                 }
             });
 
-            // Now $transaction is available here
-            $admins = User::whereHas('role', function($q) {
-                $q->whereIn('name', ['Super Admin', 'Admin']);
-            })->get();
-
-            Notification::send($admins, new NewBorrowRequestNotification($transaction));
+            // Send email notification
+            $this->sendBorrowRequestEmail($transaction);
 
             $this->showCartModal = false;
             $this->successMessage = 'Borrow request submitted successfully!';
             $this->remarks = '';
-
+            
             foreach ($this->selectedForBorrow as $assetId) {
                 unset($this->selectedAssets[$assetId]);
             }
-
             $this->selectedForBorrow = [];
+            
             $this->dispatch('clear-message');
-
+            
         } catch (\Exception $e) {
             $this->errorMessage = 'Error: '.$e->getMessage();
         }
     }
 
+    private function sendBorrowRequestEmail($transaction)
+    {
+        $user = Auth::user();
+        $department = Department::find($user->department_id)->name ?? 'N/A';
+        
+        // Prepare assets data
+        $requestedAssets = [];
+        foreach ($this->selectedForBorrow as $assetId) {
+            if (!isset($this->selectedAssets[$assetId])) continue;
+            
+            $asset = $this->selectedAssets[$assetId];
+            $requestedAssets[] = [
+                'name' => $asset['name'],
+                'code' => $asset['code'],
+                'quantity' => $asset['quantity'],
+                'purpose' => $asset['purpose'] ?? null,
+            ];
+        }
+        
+        // Generate email body
+        $body = EmailTemplates::borrowRequest(
+            $transaction->borrow_code,
+            $user->name,
+            $user->email,
+            $department,
+            $this->remarks,
+            $requestedAssets
+        );
+        
+        // Get admin emails
+        $superAdmin = User::whereHas('role', function($q) {
+            $q->where('name', 'Super Admin');
+        })->first();
+        
+        $admins = User::whereHas('role', function($q) {
+            $q->where('name', 'Admin');
+        })->get();
+        
+        $to = $superAdmin ? $superAdmin->email : config('mail.from.address');
+        $cc = $admins->pluck('email')->toArray();
+        
+        // Send email
+        $emailService = new SendEmail();
+        $emailService->send(
+            config('mail.from.address'), // From address
+            "Borrow Request #{$transaction->borrow_code}", // Subject
+            $body, // HTML content
+            $to, // To (Super Admin)
+            $cc // CC (Admins)
+        );
+    }
 
     private function generateBorrowCode()
     {

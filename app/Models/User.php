@@ -99,6 +99,11 @@ class User extends Authenticatable
     public function isAdmin() {
         return $this->role->name === 'Admin';
     }
+    
+    public function isUser(): bool
+    {
+        return $this->role && $this->role->name === 'User';
+    }
 
     public function managedSoftware()
     {

@@ -19,6 +19,8 @@ use App\Livewire\SuperAdmin\ManageSoftwares;
 use App\Livewire\SuperAdmin\AssetAssignments; 
 use App\Livewire\SuperAdmin\SoftwareAssignments; 
 
+use App\Livewire\SuperAdmin\BorrowRequests; 
+
 use App\Livewire\User\UserBorrowAsset; 
 
 use App\Http\Controllers\SuperAdmin\AssetAssignmentPdfController; 
@@ -134,7 +136,10 @@ Route::middleware([
         ->name('account.edit.profile')
         ->middleware('role:Super Admin,Admin,User'); // CAN BE USED BY ALL ROLES TO EDIT THEIR PROFILE
 
-    
+
+    Route::get('/borrow/requests', BorrowRequests::class)
+        ->name('borrow.request')
+        ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
 
 
     // -------------------------------------------------------------------------------------------------
