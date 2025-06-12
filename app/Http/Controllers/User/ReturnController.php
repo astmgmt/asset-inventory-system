@@ -22,11 +22,13 @@ class ReturnController extends Controller
             abort(404, 'Return record not found');
         }
         
+        $firstItem = $returnItems->first();
+        
         $pdf = Pdf::loadView('pdf.return-asset', [
             'returnCode' => $returnCode,
             'returnItems' => $returnItems,
-            'user' => $returnItems->first()->returnedBy,
-            'returnDate' => $returnItems->first()->returned_at->format('M d, Y H:i')
+            'user' => $firstItem->returnedBy,
+            'returnDate' => $firstItem->returned_at ? $firstItem->returned_at->format('M d, Y H:i') : now()->format('M d, Y H:i')
         ]);
         
         return $pdf->stream("Return-{$returnCode}.pdf");

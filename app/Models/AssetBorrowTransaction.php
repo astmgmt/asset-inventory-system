@@ -23,8 +23,8 @@ class AssetBorrowTransaction extends Model
     ];
 
     protected $casts = [
-        'borrow_date' => 'datetime',
-        'return_due_date' => 'datetime',
+        'borrowed_at' => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     public function user()

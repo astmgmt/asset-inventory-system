@@ -8,11 +8,12 @@ class AssetReturnItem extends Model
 {
 
     protected $fillable = [
+        'return_code',
         'borrow_item_id',
         'returned_by_user_id',
         'returned_by_department_id',
-        'return_date',
-        'notes',
+        'returned_at',
+        'remarks',
     ];
 
     protected $casts = [

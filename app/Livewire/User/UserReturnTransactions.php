@@ -25,7 +25,6 @@ class UserReturnTransactions extends Component
     public $successMessage = '';
     public $errorMessage = '';
 
-    #[Layout('components.layouts.app')]
     public function render()
     {
         $transactions = AssetBorrowTransaction::where('user_id', Auth::id())
@@ -56,6 +55,7 @@ class UserReturnTransactions extends Component
             ->toArray();
             
         $this->selectAll = true;
+        $this->returnRemarks = '';
         $this->showReturnModal = true;
     }
 
@@ -77,7 +77,12 @@ class UserReturnTransactions extends Component
             'returnRemarks' => 'nullable|string|max:500',
         ]);
         
-        $this->showConfirmationModal = true;
+        // Check if at least one item is selected
+        if (count(array_filter($this->selectedItems))) {
+            $this->showConfirmationModal = true;
+        } else {
+            $this->errorMessage = 'Please select at least one asset to return!';
+        }
     }
 
     public function processReturn()

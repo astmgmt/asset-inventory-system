@@ -61,10 +61,10 @@
                             </span>
                         </td>
                         <td data-label="Borrowed At" class="text-center">
-                            {{ $transaction->borrowed_at->format('M d, Y H:i') }}
+                            {{ $transaction->borrowed_at ? $transaction->borrowed_at->format('F d, Y') : 'N/A' }}
                         </td>
                         <td data-label="Approved At" class="text-center">
-                            {{ $transaction->approved_at->format('M d, Y H:i') }}
+                            {{ $transaction->approved_at ? $transaction->approved_at->format('F d, Y') : 'N/A' }}
                         </td>
                         <td data-label="Remarks" class="text-center">
                             {{ $transaction->remarks ?: 'N/A' }}
