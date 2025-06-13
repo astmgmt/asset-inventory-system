@@ -25,7 +25,7 @@
     <div class="search-bar mb-6 w-full md:w-1/3 relative">
         <input 
             type="text" 
-            placeholder="Search by borrow code, status, or date..." 
+            placeholder="Search by code, status, date..." 
             wire:model.live.debounce.300ms="search"
             class="search-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
@@ -68,11 +68,11 @@
                             {{ $transaction->remarks ?: 'N/A' }}
                         </td>
                         <td data-label="Borrowed At" class="text-center">
-                            {{ $transaction->borrowed_at ? $transaction->borrowed_at->format('M d, Y H:i') : 'N/A' }}
+                            {{ $transaction->borrowed_at ? $transaction->borrowed_at->format('F d, Y') : 'N/A' }}
                         </td>
                         <td data-label="Approved At" class="text-center">
                             @if($transaction->status === 'Approved' && $transaction->approved_at)
-                                {{ $transaction->approved_at->format('M d, Y H:i') }}
+                                {{ $transaction->approved_at->format('F d, Y') }}
                             @else
                                 N/A
                             @endif

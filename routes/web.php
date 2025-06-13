@@ -25,10 +25,12 @@ use App\Livewire\SuperAdmin\ApproveBorrowerRequests;
 use App\Livewire\User\UserBorrowAsset; 
 use App\Livewire\User\UserContainers;
 use App\Livewire\User\UserBorrowTransactions; 
+use App\Livewire\User\UserReturnTransactions; 
 
 use App\Http\Controllers\SuperAdmin\AssetAssignmentPdfController; 
 use App\Http\Controllers\SuperAdmin\SoftwareAssignmentPDFController;
 use App\Http\Controllers\SuperAdmin\ApproveBorrowController;
+use App\Http\Controllers\SuperAdmin\ReturnApprovalController;
 
 use App\Livewire\AccountProfile\EditProfile;
 
@@ -154,6 +156,17 @@ Route::middleware([
         ->name('approve.requests')
         ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
 
+    Route::get('/return-requests', [ReturnApprovalController::class, 'index'])
+        ->name('admin.return-requests')
+        ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
+    
+    Route::post('/return-requests/approve/{returnCode}', [ReturnApprovalController::class, 'approve'])
+        ->name('admin.return-approve')
+        ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
+
+
+
+
     // Corrected the parameter name to match controller expectation
     Route::get('/borrow-pdf/{borrow_code}', [ApproveBorrowController::class, 'generatePDF'])
         ->name('borrow.pdf');
@@ -207,9 +220,28 @@ Route::middleware([
         ->name('user.transactions')
         ->middleware('role:User');
 
-    // SENDING OF PDF COPY TO USER DURING RETURNING OF ASSET(S)
-    Route::get('/return-pdf/{return_code}', [ReturnController::class, 'generatePDF'])
-        ->name('return.pdf');
+    // USER RETURN TRANSACTIONS
+    Route::get('/user/return/transactions', UserReturnTransactions::class)
+        ->name('user.return.transactions')
+        ->middleware('role:User');
+
+    // Add PDF route
+    Route::get('/return-pdf/{returnCode}', function($returnCode) {
+        $returnItems = AssetReturnItem::with(['borrowItem.asset', 'borrowItem.transaction'])
+            ->where('return_code', $returnCode)
+            ->get();
+        
+        if ($returnItems->isEmpty()) abort(404);
+
+        $pdf = PDF::loadView('pdf.return-asset', [
+            'returnCode' => $returnCode,
+            'returnItems' => $returnItems,
+            'user' => Auth::user(),
+            'returnDate' => now()->format('M d, Y H:i')
+        ]);
+
+        return $pdf->stream("Return-$returnCode.pdf");
+    })->name('return.pdf');
    
     
 });

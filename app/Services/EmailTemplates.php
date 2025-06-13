@@ -4,17 +4,6 @@ namespace App\Services;
 
 class EmailTemplates
 {
-    /**
-     * Generate HTML for borrow request notification
-     *
-     * @param string $borrowCode
-     * @param string $requesterName
-     * @param string $requesterEmail
-     * @param string $department
-     * @param string $remarks
-     * @param array $requestedAssets
-     * @return string HTML content
-     */
     public static function borrowRequest($borrowCode, $requesterName, $requesterEmail, $department, $remarks, $requestedAssets)
     {
         $appName = config('app.name');

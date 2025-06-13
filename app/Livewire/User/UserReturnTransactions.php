@@ -7,9 +7,15 @@ use Livewire\WithPagination;
 use App\Models\AssetBorrowTransaction;
 use App\Models\AssetBorrowItem;
 use App\Models\AssetReturnItem;
+use App\Models\BorrowAssetQuantity;
+use App\Models\Asset;
 use App\Services\SendEmail;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Models\User;
+
 
 class UserReturnTransactions extends Component
 {
@@ -19,8 +25,6 @@ class UserReturnTransactions extends Component
     public $selectedTransaction = null;
     public $showReturnModal = false;
     public $showConfirmationModal = false;
-    public $selectedItems = [];
-    public $selectAll = true;
     public $returnRemarks = '';
     public $successMessage = '';
     public $errorMessage = '';
@@ -30,10 +34,7 @@ class UserReturnTransactions extends Component
         $transactions = AssetBorrowTransaction::where('user_id', Auth::id())
             ->where('status', 'Approved')
             ->when($this->search, function ($query) {
-                $query->where(function ($q) {
-                    $q->where('borrow_code', 'like', '%'.$this->search.'%')
-                      ->orWhereDate('borrowed_at', 'like', '%'.$this->search.'%');
-                });
+                $query->where('borrow_code', 'like', '%'.$this->search.'%');
             })
             ->orderBy('created_at', 'desc')
             ->paginate(10);
@@ -48,27 +49,8 @@ class UserReturnTransactions extends Component
         $this->selectedTransaction = AssetBorrowTransaction::with('borrowItems.asset')
             ->findOrFail($transactionId);
             
-        // Initialize all items as selected
-        $this->selectedItems = $this->selectedTransaction->borrowItems
-            ->pluck('id')
-            ->mapWithKeys(fn($id) => [$id => true])
-            ->toArray();
-            
-        $this->selectAll = true;
         $this->returnRemarks = '';
         $this->showReturnModal = true;
-    }
-
-    public function toggleSelectAll()
-    {
-        if ($this->selectAll) {
-            $this->selectedItems = $this->selectedTransaction->borrowItems
-                ->pluck('id')
-                ->mapWithKeys(fn($id) => [$id => true])
-                ->toArray();
-        } else {
-            $this->selectedItems = [];
-        }
     }
 
     public function confirmReturn()
@@ -77,12 +59,7 @@ class UserReturnTransactions extends Component
             'returnRemarks' => 'nullable|string|max:500',
         ]);
         
-        // Check if at least one item is selected
-        if (count(array_filter($this->selectedItems))) {
-            $this->showConfirmationModal = true;
-        } else {
-            $this->errorMessage = 'Please select at least one asset to return!';
-        }
+        $this->showConfirmationModal = true;
     }
 
     public function processReturn()
@@ -90,49 +67,41 @@ class UserReturnTransactions extends Component
         $this->showConfirmationModal = false;
         
         try {
-            // Generate return code
-            $returnCode = $this->generateReturnCode();
-            $user = Auth::user();
-            
-            // Create return items
-            foreach ($this->selectedItems as $itemId => $selected) {
-                if (!$selected) continue;
+            DB::transaction(function () {
+                $returnCode = $this->generateReturnCode();
+                $user = Auth::user();
                 
-                $borrowItem = AssetBorrowItem::find($itemId);
+                // Create return request (not final return)
+                foreach ($this->selectedTransaction->borrowItems as $borrowItem) {
+                    AssetReturnItem::create([
+                        'return_code' => $returnCode,
+                        'borrow_item_id' => $borrowItem->id,
+                        'returned_by_user_id' => $user->id,
+                        'returned_by_department_id' => $user->department_id,
+                        'returned_at' => now(),
+                        'remarks' => $this->returnRemarks,
+                        'status' => 'Pending', // Awaiting admin approval
+                    ]);
+                }
                 
-                AssetReturnItem::create([
-                    'return_code' => $returnCode,
-                    'borrow_item_id' => $itemId,
-                    'returned_by_user_id' => $user->id,
-                    'returned_by_department_id' => $user->department_id,
-                    'returned_at' => now(),
-                    'remarks' => $this->returnRemarks,
+                // Generate PDF
+                $pdf = $this->generateReturnPDF($returnCode);
+                
+                // Send email notification to admin
+                $this->sendReturnRequestEmail($returnCode, $pdf);
+                
+                // Show success message
+                $this->successMessage = "Return request submitted for admin approval!";
+                
+                // Reset state
+                $this->reset([
+                    'showReturnModal', 
+                    'selectedTransaction', 
+                    'returnRemarks'
                 ]);
-            }
-            
-            // Generate PDF
-            $pdf = $this->generateReturnPDF($returnCode);
-            
-            // Send email notification
-            $this->sendReturnEmail($returnCode, $pdf);
-            
-            // Show success message
-            $this->successMessage = "Return request submitted successfully!";
-            
-            // Reset state
-            $this->reset([
-                'showReturnModal', 
-                'selectedTransaction', 
-                'selectedItems', 
-                'selectAll', 
-                'returnRemarks'
-            ]);
-            
-            // Open PDF in new tab
-            $this->dispatch('openPdf', returnCode: $returnCode);
-            
+            });
         } catch (\Exception $e) {
-            $this->errorMessage = "Failed to process return: " . $e->getMessage();
+            $this->errorMessage = "Failed to process return request: " . $e->getMessage();
         }
     }
     
@@ -157,7 +126,7 @@ class UserReturnTransactions extends Component
             ->where('return_code', $returnCode)
             ->get();
             
-        $pdf = Pdf::loadView('pdf.return-asset', [
+        $pdf = Pdf::loadView('pdf.return-request', [
             'returnCode' => $returnCode,
             'returnItems' => $returnItems,
             'user' => Auth::user(),
@@ -167,38 +136,69 @@ class UserReturnTransactions extends Component
         return $pdf;
     }
     
-    private function sendReturnEmail($returnCode, $pdf)
+    private function sendReturnRequestEmail($returnCode, $pdf)
     {
-        $emailService = new SendEmail();
-        $user = Auth::user();
-        $adminEmail = config('mail.admin_email'); // Set in your .env
-        
-        $emailService->send(
-            $adminEmail,
-            "Asset Return Request: {$returnCode}",
-            'emails.return-request',
-            [
-                'returnCode' => $returnCode,
-                'userName' => $user->name,
-                'returnDate' => now()->format('M d, Y H:i'),
-                'remarks' => $this->returnRemarks
-            ],
-            $pdf->output(),
-            "Return-{$returnCode}.pdf"
-        );
-        
-        // Also send to user
-        $emailService->send(
-            $user->email,
-            "Your Asset Return Request: {$returnCode}",
-            'emails.return-confirmation',
-            [
-                'returnCode' => $returnCode,
-                'returnDate' => now()->format('M d, Y H:i')
-            ],
-            $pdf->output(),
-            "Return-{$returnCode}.pdf"
-        );
+        try {
+            $emailService = new SendEmail();
+            $user = Auth::user();
+            
+            // Get admin emails
+            $superAdmin = User::whereHas('role', function($q) {
+                $q->where('name', 'Super Admin');
+            })->first();
+            
+            $admins = User::whereHas('role', function($q) {
+                $q->where('name', 'Admin');
+            })->get();
+            
+            $to = $superAdmin ? $superAdmin->email : config('mail.admin_email');
+            $cc = $admins->pluck('email')->toArray();
+            
+            // Filter valid emails
+            $validAdminEmail = filter_var($to, FILTER_VALIDATE_EMAIL);
+            $validUserEmail = filter_var($user->email, FILTER_VALIDATE_EMAIL);
+            
+            if ($validAdminEmail) {
+                $emailService->send(
+                    $to,
+                    "Return Request: {$returnCode}",
+                    [
+                        'emails.return-request-admin',
+                        [
+                            'returnCode' => $returnCode,
+                            'userName' => $user->name,
+                            'returnDate' => now()->format('M d, Y H:i'),
+                            'remarks' => $this->returnRemarks,
+                            'transaction' => $this->selectedTransaction
+                        ]
+                    ],
+                    $cc,
+                    $pdf->output(),
+                    "Return-Request-{$returnCode}.pdf",
+                    false
+                );
+            }
+            
+            if ($validUserEmail) {
+                $emailService->send(
+                    $user->email,
+                    "Your Return Request: {$returnCode}",
+                    [
+                        'emails.return-request-user',
+                        [
+                            'returnCode' => $returnCode,
+                            'returnDate' => now()->format('M d, Y H:i')
+                        ]
+                    ],
+                    [],
+                    $pdf->output(),
+                    "Return-Request-{$returnCode}.pdf",
+                    false
+                );
+            }
+        } catch (\Exception $e) {
+            Log::error("Return request email failed: " . $e->getMessage());
+        }
     }
 
     public function clearMessages()

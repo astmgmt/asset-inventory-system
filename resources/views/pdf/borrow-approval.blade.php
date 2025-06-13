@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            font-size: 12px;
+            font-size: 11px; /* Base font size */
         }
         .header {
             display: flex;
@@ -24,19 +24,19 @@
             margin-right: 50px; /* prevents overlap with logo */
         }
         .title {
-            font-size: 14px;
+            font-size: 14px; /* Keep this larger */
             font-weight: bold;
             margin: 0;
         }
         .subtitle {
-            font-size: 12px;
+            font-size: 11px;
             color: #555;
         }
         .section {
             margin-bottom: 20px;
         }
         .section-title {
-            font-size: 16px;
+            font-size: 11px; /* Match body font size */
             font-weight: bold;
             border-bottom: 2px solid #333;
             padding-bottom: 5px;
@@ -66,7 +66,7 @@
         .items-table td {
             padding: 8px;
             border: 1px solid #ddd;
-            text-align: center; /* Center alignment for both headers and rows */
+            text-align: center;
         }
         .items-table th {
             background-color: #f5f5f5;
@@ -95,9 +95,8 @@
             </div>
         </div>
 
-
         <div class="title-container">
-            <p class="title">Borrow Request Approval Form</p>
+            <p class="title">Borrower's Accountability Form</p>
             <p class="subtitle">Borrow Code: {{ $transaction->borrow_code }}</p>
             <p class="subtitle">Approval Date: {{ $approvalDate }}</p>
         </div>
@@ -155,6 +154,10 @@
                 @endforeach
             </tbody>
         </table>
+
+        <p class="accountability-message">
+            By signing this form, the borrower acknowledges receipt of the items and agrees to use them properly for their intended purpose. They accept full responsibility for the care, safekeeping, and timely return of the assets in good condition. Any loss, damage, or misuse may result in liability for repair or replacement costs.
+        </p>
     </div>
 
     <div class="footer">

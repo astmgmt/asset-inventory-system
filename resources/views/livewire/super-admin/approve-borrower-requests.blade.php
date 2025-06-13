@@ -209,7 +209,7 @@
                 </button>
                 <button 
                     wire:click="approveRequest" 
-                    class="btn btn-success ml-4"
+                    class="btn btn-danger ml-4"
                 >
                     <i class="fas fa-check mr-2"></i> Yes, Approve
                 </button>

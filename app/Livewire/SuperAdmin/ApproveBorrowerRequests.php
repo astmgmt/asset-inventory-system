@@ -150,7 +150,7 @@ class ApproveBorrowerRequests extends Component
             
             // Update transaction status
             $transaction->update([
-                'status' => 'Rejected',
+                'status' => 'Denied',
                 'remarks' => $this->denyRemarks
             ]);
             

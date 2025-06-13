@@ -24,11 +24,12 @@ class UserBorrowTransactions extends Component
     public function render()
     {
         $transactions = AssetBorrowTransaction::where('user_id', Auth::id())
+            ->whereIn('status', ['Pending', 'Denied']) // Add this line to filter by status
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('borrow_code', 'like', '%'.$this->search.'%')
-                      ->orWhere('status', 'like', '%'.$this->search.'%')
-                      ->orWhereDate('borrowed_at', 'like', '%'.$this->search.'%');
+                    ->orWhere('status', 'like', '%'.$this->search.'%')
+                    ->orWhereDate('borrowed_at', 'like', '%'.$this->search.'%');
                 });
             })
             ->orderBy('created_at', 'desc')
@@ -38,6 +39,7 @@ class UserBorrowTransactions extends Component
             'transactions' => $transactions
         ]);
     }
+
 
     public function showDetails($transactionId)
     {

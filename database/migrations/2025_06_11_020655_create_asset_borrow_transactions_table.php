@@ -39,7 +39,7 @@ return new class extends Migration
                 ->constrained('departments')
                 ->nullOnDelete();
 
-            $table->enum('status', ['Pending', 'Approved', 'Denied'])->default('Pending');
+            $table->enum('status', ['Pending', 'Approved', 'Denied','Returned','Defective', 'Disposed'])->default('Pending');
 
             $table->timestamp('borrowed_at')->nullable();
             $table->timestamp('approved_at')->nullable();
