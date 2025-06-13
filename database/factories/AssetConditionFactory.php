@@ -13,7 +13,7 @@ class AssetConditionFactory extends Factory
     {
         return [
             'condition_name' => fake()->unique()->randomElement([
-                'New', 'Damaged', 'Borrowed', 'Available', 'Disposed'
+                'New', 'Defective', 'Borrowed', 'Available', 'Disposed', 'Returned'
             ]),
         ];
     }

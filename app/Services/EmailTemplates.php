@@ -101,7 +101,7 @@ class EmailTemplates
             </table>
             
             <div style="text-align: center; margin-top: 30px;">
-                <a href="http://asset-management.test/borrow/requests" 
+                <a href="http://asset-management.test/approve/requests" 
                     style="display: inline-block; 
                         background-color: #2563eb; 
                         color: #ffffff; 

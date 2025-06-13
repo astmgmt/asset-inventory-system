@@ -22,6 +22,17 @@ class UserSeeder extends Seeder
         User::create([
             'role_id' => $superAdminRole->id,
             'department_id' => $departments->random()->id,
+            'name' => 'Super Administrator',
+            'username' => 'super',
+            'email' => 'ast.mgmt2025@gmail.com',
+            'password' => Hash::make('Super1234'),
+            'status' => 'Approved',
+        ]);
+
+
+        User::create([
+            'role_id' => $superAdminRole->id,
+            'department_id' => $departments->random()->id,
             'name' => 'Ryan Oliver Balboa',
             'username' => 'ryan',
             'email' => 'ryan@test.com',

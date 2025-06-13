@@ -20,6 +20,7 @@ use App\Livewire\SuperAdmin\AssetAssignments;
 use App\Livewire\SuperAdmin\SoftwareAssignments; 
 
 use App\Livewire\SuperAdmin\BorrowRequests; 
+use App\Livewire\SuperAdmin\ApproveBorrowerRequests; 
 
 use App\Livewire\User\UserBorrowAsset; 
 use App\Livewire\User\UserContainers;
@@ -27,6 +28,7 @@ use App\Livewire\User\UserBorrowTransactions;
 
 use App\Http\Controllers\SuperAdmin\AssetAssignmentPdfController; 
 use App\Http\Controllers\SuperAdmin\SoftwareAssignmentPDFController;
+use App\Http\Controllers\SuperAdmin\ApproveBorrowController;
 
 use App\Livewire\AccountProfile\EditProfile;
 
@@ -140,11 +142,21 @@ Route::middleware([
         ->name('account.edit.profile')
         ->middleware('role:Super Admin,Admin,User'); // CAN BE USED BY ALL ROLES TO EDIT THEIR PROFILE
 
-
+    //TO FINALIZE
     Route::get('/borrow/requests', BorrowRequests::class)
         ->name('borrow.request')
         ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
 
+
+
+
+    Route::get('/approve/requests', ApproveBorrowerRequests::class)
+        ->name('approve.requests')
+        ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
+
+    // Corrected the parameter name to match controller expectation
+    Route::get('/borrow-pdf/{borrow_code}', [ApproveBorrowController::class, 'generatePDF'])
+        ->name('borrow.pdf');
 
     // -------------------------------------------------------------------------------------------------
 

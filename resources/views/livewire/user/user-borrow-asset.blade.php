@@ -143,15 +143,18 @@
                                         <td data-label="Asset" class="text-center">
                                             {{ $asset['name'] }} ({{ $asset['code'] }})
                                         </td>
+
                                         <td data-label="Quantity" class="text-center">
                                             <input 
                                                 type="number" 
                                                 min="1" 
                                                 max="{{ $asset['max_quantity'] }}"
-                                                wire:model="selectedAssets.{{ $asset['id'] }}.quantity"
+                                                value="{{ $asset['quantity'] }}"
+                                                wire:change="updateCartQuantity({{ $asset['id'] }}, $event.target.value)"
                                                 class="form-input w-20 text-center"
                                             >
                                         </td>
+
                                         <td data-label="Purpose" class="text-center">
                                             <input 
                                                 type="text" 

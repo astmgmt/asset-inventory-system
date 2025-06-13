@@ -63,32 +63,46 @@ class UserBorrowAsset extends Component
 
     public function addToCart($assetId)
     {
-        $asset = Asset::join('borrow_asset_quantities', 'borrow_asset_quantities.asset_id', '=', 'assets.id')
-            ->where('assets.id', $assetId)
-            ->select('assets.*', 'borrow_asset_quantities.available_quantity')
-            ->first();
-        
-        if (!$asset || $asset->available_quantity < 1) {
-            $this->errorMessage = 'This asset is no longer available for borrowing';
-            return;
-        }
+        DB::transaction(function () use ($assetId) {
+            $assetQty = BorrowAssetQuantity::where('asset_id', $assetId)->lockForUpdate()->first();
+            
+            if (!$assetQty || $assetQty->available_quantity < 1) {
+                $this->errorMessage = 'This asset is no longer available for borrowing';
+                return;
+            }
 
-        if (!isset($this->selectedAssets[$assetId])) {
-            $this->selectedAssets[$assetId] = [
-                'id' => $asset->id,
-                'name' => $asset->name,
-                'code' => $asset->asset_code,
-                'quantity' => 1,
-                'max_quantity' => $asset->available_quantity,
-                'purpose' => ''
-            ];
-        } elseif ($this->selectedAssets[$assetId]['quantity'] < $this->selectedAssets[$assetId]['max_quantity']) {
-            $this->selectedAssets[$assetId]['quantity']++;
-        }
+            $asset = Asset::find($assetId);
+            $assetQty->decrement('available_quantity');
+
+            if (!isset($this->selectedAssets[$assetId])) {
+                $this->selectedAssets[$assetId] = [
+                    'id' => $asset->id,
+                    'name' => $asset->name,
+                    'code' => $asset->asset_code,
+                    'quantity' => 1,
+                    'max_quantity' => $assetQty->available_quantity + 1,
+                    'purpose' => ''
+                ];
+            } else {
+                $this->selectedAssets[$assetId]['quantity']++;
+                $this->selectedAssets[$assetId]['max_quantity'] = $assetQty->available_quantity + $this->selectedAssets[$assetId]['quantity'];
+            }
+        });
     }
 
     public function removeFromCart($assetId)
     {
+        if (!isset($this->selectedAssets[$assetId])) return;
+
+        $quantity = $this->selectedAssets[$assetId]['quantity'];
+        
+        DB::transaction(function () use ($assetId, $quantity) {
+            $assetQty = BorrowAssetQuantity::where('asset_id', $assetId)->lockForUpdate()->first();
+            if ($assetQty) {
+                $assetQty->increment('available_quantity', $quantity);
+            }
+        });
+
         unset($this->selectedAssets[$assetId]);
         $this->removeFromSelected($assetId);
     }
@@ -103,9 +117,49 @@ class UserBorrowAsset extends Component
 
     public function clearCart()
     {
+        foreach ($this->selectedAssets as $assetId => $asset) {
+            $quantity = $asset['quantity'];
+            DB::transaction(function () use ($assetId, $quantity) {
+                $assetQty = BorrowAssetQuantity::where('asset_id', $assetId)->lockForUpdate()->first();
+                if ($assetQty) {
+                    $assetQty->increment('available_quantity', $quantity);
+                }
+            });
+        }
+
         $this->selectedAssets = [];
         $this->selectedForBorrow = [];
         $this->remarks = '';
+    }
+
+    public function updateCartQuantity($assetId, $newQuantity)
+    {
+        $newQuantity = (int)$newQuantity;
+        if ($newQuantity < 1 || !isset($this->selectedAssets[$assetId])) return;
+
+        $currentQuantity = $this->selectedAssets[$assetId]['quantity'];
+        if ($newQuantity === $currentQuantity) return;
+
+        DB::transaction(function () use ($assetId, $currentQuantity, $newQuantity) {
+            $assetQty = BorrowAssetQuantity::where('asset_id', $assetId)->lockForUpdate()->first();
+            if (!$assetQty) return;
+
+            if ($newQuantity > $currentQuantity) {
+                $difference = $newQuantity - $currentQuantity;
+                if ($difference > $assetQty->available_quantity) {
+                    $this->addError('quantity_'.$assetId, 'Insufficient available quantity');
+                    $newQuantity = $currentQuantity + $assetQty->available_quantity;
+                    $difference = $assetQty->available_quantity;
+                }
+                $assetQty->decrement('available_quantity', $difference);
+            } else {
+                $difference = $currentQuantity - $newQuantity;
+                $assetQty->increment('available_quantity', $difference);
+            }
+
+            $this->selectedAssets[$assetId]['quantity'] = $newQuantity;
+            $this->selectedAssets[$assetId]['max_quantity'] = $assetQty->available_quantity + $newQuantity;
+        });
     }
 
     public function clearSearch()
@@ -165,7 +219,7 @@ class UserBorrowAsset extends Component
                         'purpose' => $item['purpose'] ?? null,
                     ]);
 
-                    $assetQty->decrement('available_quantity', $item['quantity']);
+                    //$assetQty->decrement('available_quantity', $item['quantity']);
                 }
             });
 
@@ -231,12 +285,15 @@ class UserBorrowAsset extends Component
         
         // Send email
         $emailService = new SendEmail();
+        $emailService = new SendEmail();
         $emailService->send(
-            config('mail.from.address'), // From address
-            "Borrow Request #{$transaction->borrow_code}", // Subject
-            $body, // HTML content
-            $to, // To (Super Admin)
-            $cc // CC (Admins)
+            $to,                                          
+            "Borrow Request #{$transaction->borrow_code}", 
+            $body,                                        
+            $cc,                                         
+            null,                                         
+            null,                                         
+            true                                         
         );
     }
 

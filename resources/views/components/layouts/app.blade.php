@@ -84,7 +84,7 @@
                     </div>
 
                     <!-- Borrow Asset -->
-                    <a href="#"><i class="fas fa-hand-holding"></i> Borrow Asset</a>
+                    <a href="{{ route('approve.requests') }}"><i class="fas fa-hand-holding"></i> Borrow Asset</a>
 
                     <!-- Return Asset -->
                     <a href="#"><i class="fas fa-undo-alt"></i> Return Asset</a>
