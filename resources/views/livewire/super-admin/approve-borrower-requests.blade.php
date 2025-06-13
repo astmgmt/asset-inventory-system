@@ -1,5 +1,5 @@
 <div class="superadmin-container">
-    <h1 class="page-title main-title">Pending Borrow Requests</h1>
+    <h1 class="page-title main-title">Approve Borrow Requests</h1>
     
     <!-- Success Message -->
     @if ($successMessage)
@@ -25,7 +25,7 @@
     <div class="search-bar mb-6 w-full md:w-1/3 relative">
         <input 
             type="text" 
-            placeholder="Search by borrow code, borrower, department..." 
+            placeholder="Search code, borrower, department..." 
             wire:model.live.debounce.300ms="search"
             class="search-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />

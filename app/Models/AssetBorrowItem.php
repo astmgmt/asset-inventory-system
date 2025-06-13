@@ -22,7 +22,6 @@ class AssetBorrowItem extends Model
     {
         return $this->belongsTo(AssetBorrowTransaction::class, 'borrow_transaction_id');
     }
-
     public function asset()
     {
         return $this->belongsTo(Asset::class);
@@ -37,5 +36,7 @@ class AssetBorrowItem extends Model
     {
         return $this->hasMany(Penalty::class, 'borrow_item_id');
     }
+    
+
 
 }

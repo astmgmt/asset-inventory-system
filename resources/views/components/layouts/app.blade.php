@@ -38,7 +38,7 @@
     <aside class="sidebar">
         <div class="sidebar-header text-center">
             <img src="{{ asset('images/logo.png') }}" alt="Asset Logo" class="logo mb-3">
-            <h1 class="header-title">Asset Management Inventory</h1>
+            <h1 class="header-title">Asset Inventory System (AIS)</h1>
             <p class="header-subtitle">Comprehensive tracking of organizational assets</p>
         </div>
 
@@ -87,7 +87,7 @@
                     <a href="{{ route('approve.requests') }}"><i class="fas fa-hand-holding"></i> Borrow Asset</a>
 
                     <!-- Return Asset -->
-                    <a href="#"><i class="fas fa-undo-alt"></i> Return Asset</a>
+                    <a href="{{ route('approve.return') }}"><i class="fas fa-undo-alt"></i> Return Asset</a>
 
                     <!-- Dispose Asset -->
                     <a href="#"><i class="fas fa-trash"></i> Dispose Asset</a>
@@ -115,10 +115,10 @@
                     <a href="{{ route('dashboard.admin') }}"><i class="fas fa-home"></i> Home</a>
 
                     <!-- Asset Management -->
-                    <a href="#"><i class="fas fa-boxes"></i> Asset Management</a>
+                    <a href="{{ route('manage.assets') }}"><i class="fas fa-boxes"></i> Asset Management</a>
 
                     <!-- Software Management -->
-                    <a href="#"><i class="fas fa-laptop-code"></i> Software Management</a>
+                    <a href="{{ route('manage.softwares') }}"><i class="fas fa-laptop-code"></i> Software Management</a>
 
                     <!-- Assignment -->
                     <button @click="open === 2 ? open = null : open = 2" class="nav-link-button" type="button">
@@ -126,15 +126,15 @@
                         <i class="fas" :class="open === 2 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 2" x-collapse class="nav-submenu">
-                        <a href="#"><i class="fas fa-box"></i> Asset Assignment</a>
-                        <a href="#"><i class="fas fa-desktop"></i> Software</a>
+                        <a href="{{ route('asset.assignment') }}"><i class="fas fa-box"></i> Asset</a>
+                        <a href="{{ route('software.assignment') }}"><i class="fas fa-desktop"></i> Software</a>
                     </div>
 
                     <!-- Borrow Asset -->
-                    <a href="#"><i class="fas fa-hand-holding"></i> Borrow Asset</a>
+                    <a href="{{ route('approve.requests') }}"><i class="fas fa-hand-holding"></i> Borrow Asset</a>
 
                     <!-- Return Asset -->
-                    <a href="#"><i class="fas fa-undo-alt"></i> Return Asset</a>
+                    <a href="{{ route('approve.return') }}"><i class="fas fa-undo-alt"></i> Return Asset</a>
 
                     <!-- Dispose Asset -->
                     <a href="#"><i class="fas fa-trash"></i> Dispose Asset</a>

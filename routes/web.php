@@ -21,6 +21,7 @@ use App\Livewire\SuperAdmin\SoftwareAssignments;
 
 use App\Livewire\SuperAdmin\BorrowRequests; 
 use App\Livewire\SuperAdmin\ApproveBorrowerRequests; 
+use App\Livewire\SuperAdmin\ApproveReturnRequests; 
 
 use App\Livewire\User\UserBorrowAsset; 
 use App\Livewire\User\UserContainers;
@@ -164,7 +165,9 @@ Route::middleware([
         ->name('admin.return-approve')
         ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
 
-
+    Route::get('/approve/return', ApproveReturnRequests::class)
+        ->name('approve.return')
+        ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
 
 
     // Corrected the parameter name to match controller expectation

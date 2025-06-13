@@ -17,7 +17,9 @@ class AssetReturnItem extends Model
     ];
 
     protected $casts = [
-        'return_date' => 'datetime',
+        'returned_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     public function borrowItem()
@@ -33,6 +35,10 @@ class AssetReturnItem extends Model
     public function returnedByDepartment()
     {
         return $this->belongsTo(Department::class, 'returned_by_department_id');
+    }
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by_user_id');
     }
 
 }
