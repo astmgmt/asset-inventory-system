@@ -25,6 +25,18 @@
         >
             Returned
         </button>
+
+        <button
+            @click="tab = 'history'"
+            :class="[
+                'user-tab-button py-2 px-4 text-sm font-medium focus:outline-none transition-colors duration-200',
+                tab === 'history' 
+                    ? 'user-tab-button-active dark:user-tab-button-active'
+                    : 'hover:text-amber-500 dark:hover:text-amber-300'
+            ]"
+        >
+            History
+        </button>
     </div>
 
     <!-- Tab Content -->
@@ -38,6 +50,12 @@
         <template x-if="tab === 'return'">
             <div class="user-table p-4 rounded shadow-sm">
                 <livewire:user.user-return-transactions />
+            </div>
+        </template>
+
+        <template x-if="tab === 'history'">
+            <div class="user-table p-4 rounded shadow-sm">
+                <livewire:user.user-history-transactions />
             </div>
         </template>
     </div>

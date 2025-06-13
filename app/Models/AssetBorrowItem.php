@@ -27,6 +27,10 @@ class AssetBorrowItem extends Model
         return $this->belongsTo(Asset::class);
     }
 
+    public function returnItem()
+    {
+        return $this->hasOne(AssetReturnItem::class, 'borrow_item_id');
+    }
     public function returnItems()
     {
         return $this->hasMany(AssetReturnItem::class, 'borrow_item_id');

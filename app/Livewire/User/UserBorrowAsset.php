@@ -10,7 +10,6 @@ use App\Models\AssetBorrowTransaction;
 use App\Models\AssetBorrowItem;
 use App\Models\AssetCondition;
 use App\Models\User;
-use App\Models\Role;
 use App\Models\Department;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -40,11 +39,17 @@ class UserBorrowAsset extends Component
     #[Layout('components.layouts.app')]
     public function render()
     {
+        // Get asset IDs that are fully reserved in cart
+        $fullyReservedIds = collect($this->selectedAssets)
+            ->filter(fn($asset) => $asset['quantity'] >= $asset['original_quantity'])
+            ->keys()
+            ->toArray();
+
         $assets = Asset::query()
             ->leftJoin('borrow_asset_quantities', 'borrow_asset_quantities.asset_id', '=', 'assets.id')
             ->join('asset_conditions', 'asset_conditions.id', '=', 'assets.condition_id')
             ->whereIn('asset_conditions.condition_name', ['New', 'Available'])
-            ->where(function ($query) {
+            ->where(function ($query) use ($fullyReservedIds) {
                 $query->where('borrow_asset_quantities.available_quantity', '>', 0)
                     ->orWhereNull('borrow_asset_quantities.available_quantity');
             })
@@ -55,6 +60,9 @@ class UserBorrowAsset extends Component
                     ->orWhere('asset_conditions.condition_name', 'like', '%'.$this->search.'%');
                 });
             })
+            ->when(!empty($fullyReservedIds), function ($query) use ($fullyReservedIds) {
+                $query->whereNotIn('assets.id', $fullyReservedIds);
+            })
             ->select('assets.*', 'borrow_asset_quantities.available_quantity')
             ->paginate(10);
 
@@ -63,48 +71,46 @@ class UserBorrowAsset extends Component
 
     public function addToCart($assetId)
     {
-        DB::transaction(function () use ($assetId) {
-            $assetQty = BorrowAssetQuantity::where('asset_id', $assetId)->lockForUpdate()->first();
-            
-            if (!$assetQty || $assetQty->available_quantity < 1) {
-                $this->errorMessage = 'This asset is no longer available for borrowing';
-                return;
-            }
+        $asset = Asset::find($assetId);
+        $assetQty = BorrowAssetQuantity::where('asset_id', $assetId)->first();
 
-            $asset = Asset::find($assetId);
-            $assetQty->decrement('available_quantity');
+        if (!$assetQty || $assetQty->available_quantity < 1) {
+            $this->errorMessage = 'This asset is no longer available for borrowing';
+            return;
+        }
 
-            if (!isset($this->selectedAssets[$assetId])) {
-                $this->selectedAssets[$assetId] = [
-                    'id' => $asset->id,
-                    'name' => $asset->name,
-                    'code' => $asset->asset_code,
-                    'quantity' => 1,
-                    'max_quantity' => $assetQty->available_quantity + 1,
-                    'purpose' => ''
-                ];
-            } else {
+        if (!isset($this->selectedAssets[$assetId])) {
+            $this->selectedAssets[$assetId] = [
+                'id' => $asset->id,
+                'name' => $asset->name,
+                'code' => $asset->asset_code,
+                'quantity' => 1,
+                'max_quantity' => $assetQty->available_quantity,
+                'original_quantity' => $assetQty->available_quantity,
+                'purpose' => ''
+            ];
+        } else {
+            // Only allow adding up to available quantity
+            if ($this->selectedAssets[$assetId]['quantity'] < $assetQty->available_quantity) {
                 $this->selectedAssets[$assetId]['quantity']++;
-                $this->selectedAssets[$assetId]['max_quantity'] = $assetQty->available_quantity + $this->selectedAssets[$assetId]['quantity'];
+            } else {
+                $this->errorMessage = 'Cannot add more than available quantity for ' . $asset->name;
             }
-        });
+        }
+        
+        // Refresh the table to potentially hide this asset
+        $this->resetPage();
     }
 
     public function removeFromCart($assetId)
     {
-        if (!isset($this->selectedAssets[$assetId])) return;
-
-        $quantity = $this->selectedAssets[$assetId]['quantity'];
-        
-        DB::transaction(function () use ($assetId, $quantity) {
-            $assetQty = BorrowAssetQuantity::where('asset_id', $assetId)->lockForUpdate()->first();
-            if ($assetQty) {
-                $assetQty->increment('available_quantity', $quantity);
-            }
-        });
-
-        unset($this->selectedAssets[$assetId]);
-        $this->removeFromSelected($assetId);
+        if (isset($this->selectedAssets[$assetId])) {
+            unset($this->selectedAssets[$assetId]);
+            $this->removeFromSelected($assetId);
+            
+            // Refresh the table to potentially show this asset again
+            $this->resetPage();
+        }
     }
 
     public function removeFromSelected($assetId)
@@ -117,19 +123,12 @@ class UserBorrowAsset extends Component
 
     public function clearCart()
     {
-        foreach ($this->selectedAssets as $assetId => $asset) {
-            $quantity = $asset['quantity'];
-            DB::transaction(function () use ($assetId, $quantity) {
-                $assetQty = BorrowAssetQuantity::where('asset_id', $assetId)->lockForUpdate()->first();
-                if ($assetQty) {
-                    $assetQty->increment('available_quantity', $quantity);
-                }
-            });
-        }
-
         $this->selectedAssets = [];
         $this->selectedForBorrow = [];
         $this->remarks = '';
+        
+        // Refresh the table to show all assets again
+        $this->resetPage();
     }
 
     public function updateCartQuantity($assetId, $newQuantity)
@@ -137,29 +136,21 @@ class UserBorrowAsset extends Component
         $newQuantity = (int)$newQuantity;
         if ($newQuantity < 1 || !isset($this->selectedAssets[$assetId])) return;
 
-        $currentQuantity = $this->selectedAssets[$assetId]['quantity'];
-        if ($newQuantity === $currentQuantity) return;
+        $assetQty = BorrowAssetQuantity::where('asset_id', $assetId)->first();
+        $available = $assetQty ? $assetQty->available_quantity : 0;
 
-        DB::transaction(function () use ($assetId, $currentQuantity, $newQuantity) {
-            $assetQty = BorrowAssetQuantity::where('asset_id', $assetId)->lockForUpdate()->first();
-            if (!$assetQty) return;
+        if ($newQuantity > $available) {
+            $this->addError('quantity_'.$assetId, 'Insufficient available quantity');
+            $newQuantity = $available;
+        }
 
-            if ($newQuantity > $currentQuantity) {
-                $difference = $newQuantity - $currentQuantity;
-                if ($difference > $assetQty->available_quantity) {
-                    $this->addError('quantity_'.$assetId, 'Insufficient available quantity');
-                    $newQuantity = $currentQuantity + $assetQty->available_quantity;
-                    $difference = $assetQty->available_quantity;
-                }
-                $assetQty->decrement('available_quantity', $difference);
-            } else {
-                $difference = $currentQuantity - $newQuantity;
-                $assetQty->increment('available_quantity', $difference);
-            }
-
-            $this->selectedAssets[$assetId]['quantity'] = $newQuantity;
-            $this->selectedAssets[$assetId]['max_quantity'] = $assetQty->available_quantity + $newQuantity;
-        });
+        $this->selectedAssets[$assetId]['quantity'] = $newQuantity;
+        $this->selectedAssets[$assetId]['max_quantity'] = $available;
+        
+        // Refresh table if quantity changes might affect visibility
+        if ($newQuantity === 0 || $newQuantity === $available) {
+            $this->resetPage();
+        }
     }
 
     public function clearSearch()
@@ -206,12 +197,36 @@ class UserBorrowAsset extends Component
                     if (!isset($this->selectedAssets[$assetId])) continue;
 
                     $item = $this->selectedAssets[$assetId];
-                    $assetQty = BorrowAssetQuantity::where('asset_id', $assetId)->first();
+                    
+                    // Lock the row for update to prevent race conditions
+                    $assetQty = BorrowAssetQuantity::where('asset_id', $assetId)->lockForUpdate()->first();
 
-                    if (!$assetQty || $assetQty->available_quantity < $item['quantity']) {
-                        throw new \Exception("Insufficient quantity for {$item['name']}");
+                    if (!$assetQty) {
+                        throw new \Exception("Asset '{$item['name']}' is no longer available for borrowing");
                     }
 
+                    // Verify if the quantity has changed since adding to cart
+                    $currentAvailable = $assetQty->available_quantity;
+                    $originalAvailable = $item['original_quantity'];
+                    
+                    if ($currentAvailable < $item['quantity']) {
+                        // Calculate how much was borrowed by others
+                        $borrowedByOthers = $originalAvailable - $currentAvailable;
+                        
+                        if ($borrowedByOthers > 0) {
+                            throw new \Exception(
+                                "Available quantity for '{$item['name']}' reduced by $borrowedByOthers due to other users. " .
+                                "Current available: $currentAvailable. You requested: {$item['quantity']}."
+                            );
+                        } else {
+                            throw new \Exception(
+                                "Insufficient quantity for '{$item['name']}'. " .
+                                "Available: $currentAvailable, Requested: {$item['quantity']}"
+                            );
+                        }
+                    }
+
+                    // Create borrow item
                     AssetBorrowItem::create([
                         'borrow_transaction_id' => $transaction->id,
                         'asset_id' => $assetId,
@@ -219,7 +234,8 @@ class UserBorrowAsset extends Component
                         'purpose' => $item['purpose'] ?? null,
                     ]);
 
-                    //$assetQty->decrement('available_quantity', $item['quantity']);
+                    // Decrement the available quantity
+                    $assetQty->decrement('available_quantity', $item['quantity']);
                 }
             });
 
@@ -236,6 +252,9 @@ class UserBorrowAsset extends Component
             $this->selectedForBorrow = [];
             
             $this->dispatch('clear-message');
+            
+            // Refresh the table to reflect new quantities
+            $this->resetPage();
             
         } catch (\Exception $e) {
             $this->errorMessage = 'Error: '.$e->getMessage();
@@ -284,7 +303,6 @@ class UserBorrowAsset extends Component
         $cc = $admins->pluck('email')->toArray();
         
         // Send email
-        $emailService = new SendEmail();
         $emailService = new SendEmail();
         $emailService->send(
             $to,                                          

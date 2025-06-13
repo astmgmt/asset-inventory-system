@@ -4,7 +4,7 @@
         <h1 class="page-title main-title">Approve Return Requests</h1>
         
         <!-- Real-time polling -->
-        <div wire:poll.5s>
+        <div wire:poll.10s>
             <!-- Success Message -->
             @if ($successMessage)
                 <div class="success-message mb-4" 
@@ -227,7 +227,7 @@
                         </button>
                         <button 
                             wire:click="approveRequest" 
-                            class="btn btn-success ml-4"
+                            class="btn btn-danger ml-4"
                         >
                             Confirm Approval
                         </button>

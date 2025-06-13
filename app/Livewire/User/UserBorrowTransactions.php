@@ -17,14 +17,16 @@ class UserBorrowTransactions extends Component
     public $selectedTransaction = null;
     public $showDetailsModal = false;
     public $showCancelModal = false;
+    public $showDeleteModal = false; // Added for delete modal
     public $transactionToCancel = null;
+    public $transactionToDelete = null; // Added for delete operation
     public $successMessage = '';
     public $errorMessage = '';
 
     public function render()
     {
         $transactions = AssetBorrowTransaction::where('user_id', Auth::id())
-            ->whereIn('status', ['Pending', 'Denied']) // Add this line to filter by status
+            ->whereIn('status', ['Pending', 'Denied'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('borrow_code', 'like', '%'.$this->search.'%')
@@ -40,7 +42,6 @@ class UserBorrowTransactions extends Component
         ]);
     }
 
-
     public function showDetails($transactionId)
     {
         $this->selectedTransaction = AssetBorrowTransaction::with('borrowItems.asset')
@@ -52,6 +53,13 @@ class UserBorrowTransactions extends Component
     {
         $this->transactionToCancel = AssetBorrowTransaction::findOrFail($transactionId);
         $this->showCancelModal = true;
+    }
+
+    // Added: Confirm delete method
+    public function confirmDelete($transactionId)
+    {
+        $this->transactionToDelete = AssetBorrowTransaction::findOrFail($transactionId);
+        $this->showDeleteModal = true;
     }
 
     public function cancelRequest()
@@ -95,6 +103,43 @@ class UserBorrowTransactions extends Component
         } catch (\Exception $e) {
             $this->errorMessage = "Failed to cancel request: " . $e->getMessage();
             $this->showCancelModal = false;
+        }
+    }
+
+    // Added: Delete request method
+    public function deleteRequest()
+    {
+        try {
+            if (!$this->transactionToDelete) {
+                $this->errorMessage = 'Invalid transaction!';
+                return;
+            }
+            
+            if ($this->transactionToDelete->status !== 'Denied') {
+                $this->errorMessage = 'Only denied requests can be deleted!';
+                $this->showDeleteModal = false;
+                return;
+            }
+            
+            // Capture transaction code before deletion
+            $borrowCode = $this->transactionToDelete->borrow_code;
+            
+            // Delete the transaction
+            $this->transactionToDelete->delete();
+            
+            // Reset modals and selection
+            if ($this->selectedTransaction && $this->selectedTransaction->id === $this->transactionToDelete->id) {
+                $this->selectedTransaction = null;
+                $this->showDetailsModal = false;
+            }
+            
+            $this->successMessage = "Request $borrowCode deleted successfully!";
+            $this->showDeleteModal = false;
+            $this->transactionToDelete = null;
+            
+        } catch (\Exception $e) {
+            $this->errorMessage = "Failed to delete request: " . $e->getMessage();
+            $this->showDeleteModal = false;
         }
     }
 

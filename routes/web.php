@@ -27,6 +27,7 @@ use App\Livewire\User\UserBorrowAsset;
 use App\Livewire\User\UserContainers;
 use App\Livewire\User\UserBorrowTransactions; 
 use App\Livewire\User\UserReturnTransactions; 
+use App\Livewire\User\UserHistoryTransactions;
 
 use App\Http\Controllers\SuperAdmin\AssetAssignmentPdfController; 
 use App\Http\Controllers\SuperAdmin\SoftwareAssignmentPDFController;
@@ -173,6 +174,10 @@ Route::middleware([
     // Corrected the parameter name to match controller expectation
     Route::get('/borrow-pdf/{borrow_code}', [ApproveBorrowController::class, 'generatePDF'])
         ->name('borrow.pdf');
+
+    Route::get('/user/history', UserHistoryTransactions::class)
+        ->name('user.history')
+        ->middleware('role:User');
 
     // -------------------------------------------------------------------------------------------------
 

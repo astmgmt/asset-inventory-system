@@ -1,7 +1,7 @@
 <div class="superadmin-container">
     <h1 class="page-title main-title">Return Assets</h1>
 
-    <div wire:poll.5s>
+    <div>
     
         <!-- Success Message -->
         @if ($successMessage)
@@ -42,7 +42,7 @@
 
         <!-- Transactions Table -->
         <div class="overflow-x-auto">
-            <table class="user-table">
+            <table class="user-table" wire:poll.5s>
                 <thead>
                     <tr>
                         <th>Borrow Code</th>

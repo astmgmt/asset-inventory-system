@@ -36,8 +36,30 @@ class UserReturnTransactions extends Component
             ->when($this->search, function ($query) {
                 $query->where('borrow_code', 'like', '%'.$this->search.'%');
             })
+            ->with(['borrowItems.returnItem'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
+
+        // Add computed property to each transaction
+        $transactions->getCollection()->transform(function ($transaction) {
+            $hasRejectedReturn = false;
+            $hasPendingReturn = false;
+            
+            foreach ($transaction->borrowItems as $borrowItem) {
+                if ($borrowItem->returnItem) {
+                    if ($borrowItem->returnItem->status === 'Rejected') {
+                        $hasRejectedReturn = true;
+                    }
+                    if ($borrowItem->returnItem->status === 'Pending') {
+                        $hasPendingReturn = true;
+                    }
+                }
+            }
+            
+            $transaction->hasRejectedReturn = $hasRejectedReturn;
+            $transaction->hasPendingReturn = $hasPendingReturn;
+            return $transaction;
+        });
 
         return view('livewire.user.user-return-transactions', [
             'transactions' => $transactions

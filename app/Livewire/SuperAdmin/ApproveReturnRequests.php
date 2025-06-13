@@ -10,6 +10,7 @@ use App\Models\BorrowAssetQuantity;
 use App\Models\Asset; 
 use App\Models\AssetBorrowTransaction; 
 use App\Models\User; 
+use App\Models\UserHistory; 
 use App\Services\SendEmail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
@@ -33,24 +34,19 @@ class ApproveReturnRequests extends Component
 
     public function render()
     {
-        // Get distinct return codes with pending status
-        $returnCodes = \App\Models\AssetReturnItem::where('status', 'Pending')
-            ->distinct('return_code')
-            ->pluck('return_code');
-
-        // Get the return requests
+        // Get paginated return requests grouped by return_code
         $returnRequests = \App\Models\AssetReturnItem::with([
-                'returnedBy', 
+                'returnedBy',
                 'borrowItem.transaction'
             ])
-            ->whereIn('return_code', $returnCodes)
+            ->where('status', 'Pending')
             ->select(
                 'return_code',
-                'returned_at',
-                'returned_by_user_id',
-                'status'
+                \DB::raw('MIN(returned_at) as returned_at'),
+                \DB::raw('MIN(returned_by_user_id) as returned_by_user_id'),
+                \DB::raw('MIN(status) as status')
             )
-            ->distinct()
+            ->groupBy('return_code')
             ->orderBy('returned_at', 'desc')
             ->paginate(10);
 
@@ -58,6 +54,7 @@ class ApproveReturnRequests extends Component
             'returnRequests' => $returnRequests
         ]);
     }
+
 
     public function showDetails($returnCode)
     {
@@ -100,6 +97,7 @@ class ApproveReturnRequests extends Component
         try {
             DB::transaction(function () {
                 $returnCode = $this->selectedReturn->first()->return_code;
+                $transactionId = $this->selectedReturn->first()->borrowItem->borrow_transaction_id;
                 $approver = Auth::user();
                 
                 // Update all items in this return request
@@ -126,7 +124,6 @@ class ApproveReturnRequests extends Component
                 }
                 
                 // Check if all items in parent transaction are returned
-                $transactionId = $this->selectedReturn->first()->borrowItem->borrow_transaction_id;
                 $allItems = AssetBorrowItem::where('borrow_transaction_id', $transactionId)->get();
                 $allReturned = true;
                 
@@ -150,6 +147,29 @@ class ApproveReturnRequests extends Component
                 
                 // Send email notifications
                 $this->sendApprovalEmails($returnCode, $pdf);
+                
+                // Fetch FRESH data for history
+                $returnItems = \App\Models\AssetReturnItem::with([
+                        'borrowItem.asset', 
+                        'returnedBy',
+                        'borrowItem.transaction'
+                    ])
+                    ->where('return_code', $returnCode)
+                    ->get();
+                
+                $transaction = AssetBorrowTransaction::with('borrowItems.asset')
+                    ->find($transactionId);
+
+                // Create history record
+                UserHistory::create([
+                    'user_id' => $returnItems->first()->returned_by_user_id,
+                    'borrow_code' => $transaction->borrow_code,
+                    'return_code' => $returnCode,
+                    'status' => 'Approved Return',
+                    'borrow_data' => $transaction->toArray(),
+                    'return_data' => $returnItems->toArray(),
+                    'action_date' => now()
+                ]);
                 
                 // Show success message
                 $this->successMessage = "Return request approved successfully!";
@@ -178,15 +198,12 @@ class ApproveReturnRequests extends Component
             DB::transaction(function () {
                 $returnCode = $this->selectedReturn->first()->return_code;
                 
-                // Update all items in this return request
+                // Use 'Rejected' instead of 'Denied' to match database constraints
                 \App\Models\AssetReturnItem::where('return_code', $returnCode)
                     ->update([
                         'status' => 'Rejected',
                         'remarks' => $this->denyRemarks
                     ]);
-                
-                // Send denial email
-                $this->sendDenialEmail($returnCode);
                 
                 // Show success message
                 $this->successMessage = "Return request denied successfully!";
@@ -208,7 +225,7 @@ class ApproveReturnRequests extends Component
         $returnItems = \App\Models\AssetReturnItem::with([
                 'borrowItem.asset', 
                 'returnedBy',
-                'borrowItem.transaction' // Removed approvedBy from here
+                'borrowItem.transaction'
             ])
             ->where('return_code', $returnCode)
             ->get();
@@ -217,7 +234,7 @@ class ApproveReturnRequests extends Component
             'returnCode' => $returnCode,
             'returnItems' => $returnItems,
             'approvalDate' => now()->format('M d, Y H:i'),
-            'approver' => Auth::user() // We already have the approver here
+            'approver' => Auth::user()
         ]);
         
         return $pdf;

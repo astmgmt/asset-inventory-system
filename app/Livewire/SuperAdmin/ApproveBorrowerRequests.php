@@ -8,6 +8,7 @@ use Livewire\Attributes\Layout;
 use App\Models\AssetBorrowTransaction;
 use App\Models\AssetBorrowItem;
 use App\Models\BorrowAssetQuantity;
+use App\Models\UserHistory;
 use App\Services\SendEmail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
@@ -129,6 +130,15 @@ class ApproveBorrowerRequests extends Component
             //$this->dispatch('openPdf', borrowCode: $transaction->borrow_code);
             //$this->dispatch('openPdf', ['borrowCode' => $transaction->borrow_code]);
             $this->dispatch('openPdf', $transaction->borrow_code);
+
+            // After approving a borrow request
+            UserHistory::create([
+                'user_id' => $transaction->user_id,
+                'borrow_code' => $transaction->borrow_code,
+                'status' => 'Approved Borrow',
+                'borrow_data' => $transaction->load('borrowItems.asset')->toArray(),
+                'action_date' => now()
+            ]);
 
             
         } catch (\Exception $e) {

@@ -39,7 +39,7 @@
     </div>
 
     <!-- Transactions Table -->
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto" wire:poll.10s>
         <table class="user-table">
             <thead>
                 <tr>
@@ -91,6 +91,15 @@
                                     class="cancel-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md ml-2 transition"
                                 >
                                     <i class="fas fa-times"></i> Cancel
+                                </button>
+                            @endif
+                            
+                            @if($transaction->status === 'Denied')
+                                <button 
+                                    wire:click="confirmDelete({{ $transaction->id }})"
+                                    class="delete-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md ml-2 transition"
+                                >
+                                    <i class="fas fa-trash"></i> Delete
                                 </button>
                             @endif
                         </td>
@@ -181,6 +190,39 @@
                     class="btn btn-danger ml-4"
                 >
                     Yes, Cancel Request
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal (Added) -->
+    <div class="modal-backdrop" x-data="{ show: @entangle('showDeleteModal') }" x-show="show">
+        <div class="modal" x-on:click.away="$wire.showDeleteModal = false">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirm Deletion</h2>
+                <button wire:click="$set('showDeleteModal', false)" class="modal-close">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="text-center p-6">
+                    <p class="text-lg mb-4">Do you really want to delete this denied request?</p>
+                    <p class="text-danger font-bold">This will delete your request permanently!</p>
+                    <p class="mt-4">Borrow Code: <strong>{{ $transactionToDelete->borrow_code ?? 'N/A' }}</strong></p>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button 
+                    wire:click="$set('showDeleteModal', false)" 
+                    class="btn btn-secondary"
+                >
+                    No, Keep It
+                </button>
+                <button 
+                    wire:click="deleteRequest" 
+                    class="btn btn-danger ml-4"
+                >
+                    Yes, Delete Request
                 </button>
             </div>
         </div>
