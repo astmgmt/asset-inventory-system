@@ -90,7 +90,7 @@
                     <a href="{{ route('approve.return') }}"><i class="fas fa-undo-alt"></i> Return Asset</a>
 
                     <!-- Dispose Asset -->
-                    <a href="#"><i class="fas fa-trash"></i> Dispose Asset</a>
+                    <a href="{{ route('asset.disposal') }}"><i class="fas fa-trash"></i> Dispose Asset</a>
 
                     <!-- Print Reports -->
                     <button @click="open === 3 ? open = null : open = 3" class="nav-link-button" type="button">
@@ -137,7 +137,7 @@
                     <a href="{{ route('approve.return') }}"><i class="fas fa-undo-alt"></i> Return Asset</a>
 
                     <!-- Dispose Asset -->
-                    <a href="#"><i class="fas fa-trash"></i> Dispose Asset</a>
+                    <a href="{{ route('asset.disposal') }}"><i class="fas fa-trash"></i> Dispose Asset</a>
 
                     <!-- Print Reports -->
                     <button @click="open === 3 ? open = null : open = 3" class="nav-link-button" type="button">

@@ -22,7 +22,7 @@ class AssetSeeder extends Seeder
             ->each(fn($name) => \App\Models\AssetCategory::create(['category_name' => $name]));
 
         // Seed fixed conditions
-        collect(['New', 'Damaged', 'Borrowed', 'Available', 'Disposed'])
+        collect(['New', 'Borrowed', 'Available', 'Defective', 'Disposed'])
             ->each(fn($name) => \App\Models\AssetCondition::create(['condition_name' => $name]));
 
         // Seed fixed locations

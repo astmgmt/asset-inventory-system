@@ -22,6 +22,7 @@ use App\Livewire\SuperAdmin\SoftwareAssignments;
 use App\Livewire\SuperAdmin\BorrowRequests; 
 use App\Livewire\SuperAdmin\ApproveBorrowerRequests; 
 use App\Livewire\SuperAdmin\ApproveReturnRequests; 
+use App\Livewire\SuperAdmin\AssetDisposals; 
 
 use App\Livewire\User\UserBorrowAsset; 
 use App\Livewire\User\UserContainers;
@@ -88,7 +89,7 @@ Route::middleware([
     'verified',
 ])->group(function () {
     // Super Admin Dashboard
-    Route::get('/dashboard/superadmin', [SuperAdminDashboard::class, 'render'])
+    Route::get('/dashboard/superadmin', SuperAdminDashboard::class)
         ->name('dashboard.superadmin')
         ->middleware('role:Super Admin');
 
@@ -169,7 +170,10 @@ Route::middleware([
     Route::get('/approve/return', ApproveReturnRequests::class)
         ->name('approve.return')
         ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
-
+        
+    Route::get('/asset/disposal', AssetDisposals::class)
+            ->name('asset.disposal')
+            ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
 
     // Corrected the parameter name to match controller expectation
     Route::get('/borrow-pdf/{borrow_code}', [ApproveBorrowController::class, 'generatePDF'])
