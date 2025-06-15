@@ -45,6 +45,11 @@ use App\Http\Controllers\SuperAdmin\UserController;
 
 use App\Http\Controllers\User\ReturnController;
 
+// TEST
+use Illuminate\Support\Facades\Mail;
+use App\Models\Asset;
+use App\Services\SendEmail;
+
 // DEFAULT LANDING PAGE
 Route::get('/', function () {
     return view('auth.login'); 
@@ -255,7 +260,8 @@ Route::middleware([
         return $pdf->stream("Return-$returnCode.pdf");
     })->name('return.pdf');
    
-    
+
+
 });
 
 // TO CATCH ERRORS FROM DASHBOARD ROUTES

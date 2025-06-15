@@ -1,0 +1,61 @@
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem; 
+    font-weight: 600;
+    border-radius: 9999px; 
+    line-height: 1.25;
+    white-space: nowrap;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.status-badge:hover {
+    opacity: 0.9;
+    cursor: pointer;
+}
+
+.expiration-table tbody tr:hover {
+    background-color: inherit !important;
+    color: inherit !important;
+    cursor: default !important;
+}
+
+.dark .expiration-table tbody tr:hover {
+    background-color: inherit !important;
+    color: inherit !important;
+    cursor: default !important;
+}
+
+
+/* DARK MODE: make all chart section text nearly white */
+.dark .chart-section {
+    color: #f3f4f6 !important; /* Tailwind's gray-100: very light gray */
+}
+
+/* Ensure all children inherit the light color */
+.dark .chart-section * {
+    color: #f3f4f6 !important;
+    fill: #f3f4f6 !important; /* affects chart axis text if needed */
+}
+
+/* Optional: style chart container background if needed */
+.dark .chart-section .box-body {
+    background-color: transparent; /* or rgba(255,255,255,0.02) for a very subtle tint */
+}
+
+
+.box-title {
+    font-size: 1rem !important;       /* 16px */
+    font-weight: 600 !important;      /* semi-bold for a clean, professional look */
+    color: #1f2937 !important;        /* Tailwind's gray-800: dark, readable text */
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+/* Dark mode: slightly lighter color for contrast */
+.dark .box-title {
+    color: #f3f4f6 !important;        /* near-white for dark background */
+}
+

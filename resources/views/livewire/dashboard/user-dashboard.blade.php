@@ -1,11 +1,6 @@
 <x-layouts.app>
     <div class="main-content-area">
-
-        <!-- Header Section -->
-        {{-- <div class="header flex justify-between items-center mb-6">
-            <h2>Asset Overview</h2>            
-        </div> --}}
-
+       
         <!-- Recent Activity Section -->
         <div class="content-card mt-6 bg-light p-4 rounded-lg">
             <h3 class="text-accent">Recent Activity</h3>

@@ -13,6 +13,7 @@
 @import './superadmin/manage-assets.css';
 @import './superadmin/view-details.css';
 @import './superadmin/assign-asset.css';
+@import './superadmin/expiration-badges.css';
 
 @tailwind base;
 @tailwind components;

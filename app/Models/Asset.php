@@ -21,7 +21,10 @@ class Asset extends Model
         'location_id',
         'vendor_id',
         'warranty_expiration',
-        'is_disposed'
+        'is_disposed',
+        'expiry_flag',       // Add this
+        'expiry_status',     // Add this
+        'last_notified_at',  // Add this
     ];
 
     protected $casts = [
@@ -69,5 +72,29 @@ class Asset extends Model
     public function borrowAssetQuantity()
     {
         return $this->hasOne(BorrowAssetQuantity::class);
+    }
+    public function updateExpiryStatus()
+    {
+        $now = now();
+        $expiryDate = $this->warranty_expiration;
+
+        if ($expiryDate <= $now) {
+            $this->expiry_status = 'expired';
+            $this->expiry_flag = true;
+        } elseif ($expiryDate <= $now->copy()->addMonth(1)) {
+            $this->expiry_status = 'warning_1m';
+            $this->expiry_flag = true;
+        } elseif ($expiryDate <= $now->copy()->addMonths(2)) {
+            $this->expiry_status = 'warning_2m';
+            $this->expiry_flag = true;
+        } elseif ($expiryDate <= $now->copy()->addMonths(3)) {
+            $this->expiry_status = 'warning_3m';
+            $this->expiry_flag = true;
+        } else {
+            $this->expiry_status = 'active';
+            $this->expiry_flag = false;
+        }
+
+        $this->save();
     }
 }
