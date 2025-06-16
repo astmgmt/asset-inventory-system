@@ -20,6 +20,10 @@ class SoftwareFactory extends Factory
             'installation_date' => fake()->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
             'expiry_date' => fake()->dateTimeBetween('now', '+1 year')->format('Y-m-d'),
             'responsible_user_id' => User::inRandomOrder()->first()->id ?? User::factory(),
+            'expiry_flag' => fake()->boolean(10),       
+            'expiry_status' => fake()->randomElement([
+                'warning_3m', 'warning_2m', 'warning_1m'
+            ]),
             'created_at' => now(),
             'updated_at' => now(),
         ];

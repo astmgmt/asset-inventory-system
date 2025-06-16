@@ -63,51 +63,44 @@
                         <i class="fas" :class="open === 1 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 1" x-collapse class="nav-submenu">
-                        <a href="{{route('superadmin.register')}}"><i class="fas fa-user-shield"></i> Create</a>
-                        <a href="{{route('superadmin.manage')}}"><i class="fas fa-users"></i> Manage</a>                        
+                        <a href="{{route('superadmin.register')}}"><i class="fas fa-user-plus"></i> Create</a>
+                        <a href="{{route('superadmin.manage')}}"><i class="fas fa-users-cog"></i> Manage</a>                        
                     </div>
 
                     <!-- Asset Management -->
-                    <a href="{{ route('manage.assets') }}"><i class="fas fa-boxes"></i> Asset Management</a>
-
-                    <!-- Software Management -->
-                    <a href="{{ route('manage.softwares') }}"><i class="fas fa-laptop-code"></i> Software Management</a>
-
-                    <!-- Assignment -->
                     <button @click="open === 2 ? open = null : open = 2" class="nav-link-button" type="button">
-                        <i class="fas fa-tasks"></i> Assignment
+                        <i class="fas fa-boxes"></i> Asset Management
                         <i class="fas" :class="open === 2 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 2" x-collapse class="nav-submenu">
-                        <a href="{{ route('asset.assignment') }}"><i class="fas fa-box"></i> Asset</a>
-                        <a href="{{ route('software.assignment') }}"><i class="fas fa-desktop"></i> Software</a>
+                        <a href="{{ route('manage.assets') }}"><i class="fas fa-plus-square"></i> Add Asset</a>
+                        <a href="{{ route('manage.assets') }}"><i class="fas fa-random"></i> Assign Asset</a>
+                        <a href="{{ route('approve.requests') }}"><i class="fas fa-hand-paper"></i> Borrow Request(s)</a>
+                        <a href="{{ route('approve.return') }}"><i class="fas fa-undo-alt"></i> Return Request(s)</a>
+                        <a href="{{ route('asset.disposal') }}"><i class="fas fa-trash-alt"></i> Dispose Asset</a>                                               
                     </div>
 
-                    <!-- Borrow Asset -->
-                    <a href="{{ route('approve.requests') }}"><i class="fas fa-hand-holding"></i> Borrow Asset</a>
-
-                    <!-- Return Asset -->
-                    <a href="{{ route('approve.return') }}"><i class="fas fa-undo-alt"></i> Return Asset</a>
-
-                    <!-- Dispose Asset -->
-                    <a href="{{ route('asset.disposal') }}"><i class="fas fa-trash"></i> Dispose Asset</a>
-
-                    <!-- Print Reports -->
+                    <!-- Software Management -->
                     <button @click="open === 3 ? open = null : open = 3" class="nav-link-button" type="button">
-                        <i class="fas fa-print"></i> Print Reports
+                        <i class="fas fa-laptop-code"></i> Software Management
                         <i class="fas" :class="open === 3 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 3" x-collapse class="nav-submenu">
-                        <a href="#">Asset Master List</a>
-                        <a href="#">Asset Request Form for Borrowing</a>
-                        <a href="#">Asset Assignment Report</a>
-                        <a href="#">Return Asset Report</a>
-                        <a href="#">History Return Asset</a>
-                        <a href="#">Disposed Asset Report</a>
-                        <a href="#">Software Inventory Report</a>
-                        <a href="#">Software Assignment Report</a>
-                        <a href="#">QRCode Sticker</a>
+                        <a href="{{route('manage.softwares')}}"><i class="fas fa-plus-circle"></i> Add Software</a>
+                        <a href="{{route('superadmin.manage')}}"><i class="fas fa-share-square"></i> Assign Software</a>                        
+                    </div>                   
+
+                    <!-- Print Reports -->
+                    <button @click="open === 4 ? open = null : open = 4" class="nav-link-button" type="button">
+                        <i class="fas fa-print"></i> Print Reports
+                        <i class="fas" :class="open === 4 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
+                    </button>
+                    <div x-show="open === 4" x-collapse class="nav-submenu">
+                        <a href="#"><i class="fas fa-file-alt"></i> Asset Master List</a>
+                        <a href="#"><i class="fas fa-file-code"></i> Software Master List</a>
+                        <a href="#"><i class="fas fa-qrcode"></i> QRCode Sticker</a>
                     </div>
+
                 
                 <!-- ADMIN MENUS -->
                 @elseif($user->isAdmin())
@@ -115,45 +108,37 @@
                     <a href="{{ route('dashboard.admin') }}"><i class="fas fa-home"></i> Home</a>
 
                     <!-- Asset Management -->
-                    <a href="{{ route('manage.assets') }}"><i class="fas fa-boxes"></i> Asset Management</a>
-
-                    <!-- Software Management -->
-                    <a href="{{ route('manage.softwares') }}"><i class="fas fa-laptop-code"></i> Software Management</a>
-
-                    <!-- Assignment -->
                     <button @click="open === 2 ? open = null : open = 2" class="nav-link-button" type="button">
-                        <i class="fas fa-tasks"></i> Assignment
+                        <i class="fas fa-boxes"></i> Asset Management
                         <i class="fas" :class="open === 2 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 2" x-collapse class="nav-submenu">
-                        <a href="{{ route('asset.assignment') }}"><i class="fas fa-box"></i> Asset</a>
-                        <a href="{{ route('software.assignment') }}"><i class="fas fa-desktop"></i> Software</a>
+                        <a href="{{ route('manage.assets') }}"><i class="fas fa-plus-square"></i> Add Asset</a>
+                        <a href="{{ route('manage.assets') }}"><i class="fas fa-random"></i> Assign Asset</a>
+                        <a href="{{ route('approve.requests') }}"><i class="fas fa-hand-paper"></i> Borrow Request(s)</a>
+                        <a href="{{ route('approve.return') }}"><i class="fas fa-undo-alt"></i> Return Request(s)</a>
+                        <a href="{{ route('asset.disposal') }}"><i class="fas fa-trash-alt"></i> Dispose Asset</a>                                               
                     </div>
 
-                    <!-- Borrow Asset -->
-                    <a href="{{ route('approve.requests') }}"><i class="fas fa-hand-holding"></i> Borrow Asset</a>
-
-                    <!-- Return Asset -->
-                    <a href="{{ route('approve.return') }}"><i class="fas fa-undo-alt"></i> Return Asset</a>
-
-                    <!-- Dispose Asset -->
-                    <a href="{{ route('asset.disposal') }}"><i class="fas fa-trash"></i> Dispose Asset</a>
-
-                    <!-- Print Reports -->
+                    <!-- Software Management -->
                     <button @click="open === 3 ? open = null : open = 3" class="nav-link-button" type="button">
-                        <i class="fas fa-print"></i> Print Reports
+                        <i class="fas fa-laptop-code"></i> Software Management
                         <i class="fas" :class="open === 3 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 3" x-collapse class="nav-submenu">
-                        <a href="#">Asset Master List</a>
-                        <a href="#">Asset Request Form for Borrowing</a>
-                        <a href="#">Asset Assignment Report</a>
-                        <a href="#">Return Asset Report</a>
-                        <a href="#">History Return Asset</a>
-                        <a href="#">Disposed Asset Report</a>
-                        <a href="#">Software Inventory Report</a>
-                        <a href="#">Software Assignment Report</a>
-                        <a href="#">QRCode Sticker</a>
+                        <a href="{{route('manage.softwares')}}"><i class="fas fa-plus-circle"></i> Add Software</a>
+                        <a href="{{route('superadmin.manage')}}"><i class="fas fa-share-square"></i> Assign Software</a>                        
+                    </div>                   
+
+                    <!-- Print Reports -->
+                    <button @click="open === 4 ? open = null : open = 4" class="nav-link-button" type="button">
+                        <i class="fas fa-print"></i> Print Reports
+                        <i class="fas" :class="open === 4 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
+                    </button>
+                    <div x-show="open === 4" x-collapse class="nav-submenu">
+                        <a href="#"><i class="fas fa-file-alt"></i> Asset Master List</a>
+                        <a href="#"><i class="fas fa-file-code"></i> Software Master List</a>
+                        <a href="#"><i class="fas fa-qrcode"></i> QRCode Sticker</a>
                     </div>
                 
                 <!-- USER MENUS -->

@@ -30,9 +30,9 @@ class AssetSeeder extends Seeder
             ->each(fn($name) => \App\Models\AssetLocation::create(['location_name' => $name]));
 
         // Seed 20 assets
-        Asset::factory()->count(20)->create();
+        Asset::factory()->count(10)->create();
 
         // Seed 20 disposals
-        AssetDisposal::factory()->count(20)->create();
+        AssetDisposal::factory()->count(10)->create();
     }
 }

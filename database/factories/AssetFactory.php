@@ -28,7 +28,11 @@ class AssetFactory extends Factory
             'location_id' => AssetLocation::inRandomOrder()->first()->id ?? AssetLocation::factory(),
             'vendor_id' => Vendor::inRandomOrder()->first()->id,
             'warranty_expiration' => fake()->dateTimeBetween('now', '+2 years')->format('Y-m-d'),
-            'is_disposed' => fake()->boolean(20),
+            'is_disposed' => fake()->boolean(10),
+            'expiry_flag' => fake()->boolean(10),       
+            'expiry_status' => fake()->randomElement([
+                'warning_3m', 'warning_2m', 'warning_1m'
+            ]),    
             'created_at' => now(),
             'updated_at' => now(),
         ];

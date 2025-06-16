@@ -81,9 +81,9 @@
 
                             <td data-label="Warranty">
                                 {{ $asset->warranty_expiration->format('M d, Y') }}
-                                @if($asset->warranty_expiration < now()->addDays(30))
+                                {{-- @if($asset->warranty_expiration < now()->addDays(30))
                                     <span class="text-xs font-medium text-red-600 bg-red-100 px-2 py-0.5 rounded">Expiring</span>
-                                @endif
+                                @endif --}}
                             </td>
                             <td data-label="Actions" class="text-center">
                                 <div class="flex justify-center gap-3">

@@ -115,22 +115,35 @@
                     <h2 class="modal-title">Borrow Details: {{ $selectedTransaction->borrow_code }}</h2>
                     <button wire:click="$set('showDetailsModal', false)" class="modal-close">&times;</button>
                 </div>
-                
-                <div class="modal-body">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div>
-                            <h3 class="font-semibold">Borrower Information</h3>
-                            <p><strong>Name:</strong> {{ $selectedTransaction->user->name }}</p>
-                            <p><strong>Department:</strong> {{ $selectedTransaction->userDepartment->name ?? 'N/A' }}</p>
+
+                <div class="modal-body text-[12px]">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 text-[12px] leading-tight">
+                        <div class="bg-white border border-gray-200 rounded shadow-sm p-4 space-y-1">
+                            <h3 class="font-semibold text-[14px] text-gray-900 mb-2">Borrower Information</h3>
+                            <p>
+                                <span class="font-medium text-gray-600">Name:</span>
+                                <span class="text-gray-900">{{ $selectedTransaction->user->name }}</span>
+                            </p>
+                            <p>
+                                <span class="font-medium text-gray-600">Department:</span>
+                                <span class="text-gray-900">{{ $selectedTransaction->userDepartment->name ?? 'N/A' }}</span>
+                            </p>
                         </div>
-                        <div>
-                            <h3 class="font-semibold">Request Information</h3>
-                            <p><strong>Requested By:</strong> {{ $selectedTransaction->requestedBy->name ?? 'N/A' }}</p>
-                            <p><strong>Borrow Date:</strong> {{ $selectedTransaction->borrowed_at ? $selectedTransaction->borrowed_at->format('M d, Y H:i') : 'N/A' }}</p>
+
+                        <div class="bg-white border border-gray-200 rounded shadow-sm p-4 space-y-1">
+                            <h3 class="font-semibold text-[14px] text-gray-900 mb-2">Request Information</h3>
+                            <p>
+                                <span class="font-medium text-gray-600">Requested By:</span>
+                                <span class="text-gray-900">{{ $selectedTransaction->requestedBy->name ?? 'N/A' }}</span>
+                            </p>
+                            <p>
+                                <span class="font-medium text-gray-600">Borrow Date:</span>
+                                <span class="text-gray-900">{{ $selectedTransaction->borrowed_at ? $selectedTransaction->borrowed_at->format('M d, Y H:i') : 'N/A' }}</span>
+                            </p>
                         </div>
                     </div>
-                    
-                    <table class="user-table">
+
+                    <table class="user-table w-full text-[12px]">
                         <thead>
                             <tr>
                                 <th>Asset Code</th>
@@ -159,7 +172,7 @@
                         </tbody>
                     </table>
                 </div>
-                
+
                 <div class="modal-footer">
                     <button 
                         wire:click="$set('showDetailsModal', false)" 
@@ -176,7 +189,7 @@
     <div class="modal-backdrop" x-data="{ show: @entangle('showApproveModal') }" x-show="show">
         <div class="modal" x-on:click.away="$wire.showApproveModal = false">
             <div class="modal-header">
-                <h2 class="modal-title">Confirm Approval</h2>
+                <h2 class="modal-title">Confirm</h2>
                 <button wire:click="$set('showApproveModal', false)" class="modal-close">&times;</button>
             </div>
             
@@ -221,7 +234,7 @@
     <div class="modal-backdrop" x-data="{ show: @entangle('showDenyModal') }" x-show="show">
         <div class="modal" x-on:click.away="$wire.showDenyModal = false">
             <div class="modal-header">
-                <h2 class="modal-title">Confirm Denial</h2>
+                <h2 class="modal-title">Confirm</h2>
                 <button wire:click="$set('showDenyModal', false)" class="modal-close">&times;</button>
             </div>
             
@@ -259,7 +272,7 @@
                     class="btn btn-danger ml-4"
                     :disabled="!$wire.denyRemarks"
                 >
-                    <i class="fas fa-ban mr-2"></i> Confirm Denial
+                    <i class="fas fa-ban mr-2"></i> Confirm 
                 </button>
             </div>
         </div>

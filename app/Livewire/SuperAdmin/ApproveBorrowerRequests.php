@@ -101,6 +101,14 @@ class ApproveBorrowerRequests extends Component
                 'approved_at' => now(),
                 'remarks' => $this->approveRemarks
             ]);
+
+            UserHistory::create([
+                'user_id' => $transaction->user_id,
+                'borrow_code' => $transaction->borrow_code,
+                'status' => 'Approved Borrow', // Matches ENUM value
+                'borrow_data' => $transaction->load('borrowItems.asset')->toArray(),
+                'action_date' => now()
+            ]);
             
             // Deduct quantities
             foreach ($transaction->borrowItems as $item) {
@@ -113,8 +121,7 @@ class ApproveBorrowerRequests extends Component
             // Send email notification to borrower
             $this->sendApprovalEmail($transaction);
             
-            // Show success message
-            //$this->successMessage = "Borrow request approved successfully!";
+           
             
             // Reset state
             $this->reset([
@@ -126,9 +133,7 @@ class ApproveBorrowerRequests extends Component
             // Show success message
             $this->successMessage = "Borrow request approved successfully!";
             
-            // Open PDF in new tab
-            //$this->dispatch('openPdf', borrowCode: $transaction->borrow_code);
-            //$this->dispatch('openPdf', ['borrowCode' => $transaction->borrow_code]);
+           
             $this->dispatch('openPdf', $transaction->borrow_code);
 
             // After approving a borrow request
@@ -160,15 +165,27 @@ class ApproveBorrowerRequests extends Component
             
             // Update transaction status
             $transaction->update([
-                'status' => 'Denied',
+                'status' => 'Rejected',
                 'remarks' => $this->denyRemarks
             ]);
             
-            // Send email notification to borrower
-            $this->sendDenialEmail($transaction);
+            // Capture remarks before reset
+            $denialRemarks = $this->denyRemarks;
+            
+            // Create history record with correct ENUM value
+            UserHistory::create([
+                'user_id' => $transaction->user_id,
+                'borrow_code' => $transaction->borrow_code,
+                'status' => 'Denied Borrow', // Matches ENUM value
+                'borrow_data' => $transaction->load('borrowItems.asset')->toArray(),
+                'action_date' => now()
+            ]);
+            
+            // Send email with captured remarks
+            $this->sendDenialEmail($transaction, $denialRemarks);
             
             // Show success message
-            $this->successMessage = "Borrow request denied successfully!";
+            $this->successMessage = "Borrow request denied sent!";
             
             // Reset state
             $this->reset([
@@ -222,11 +239,21 @@ class ApproveBorrowerRequests extends Component
     }
 
     
-    private function sendDenialEmail($transaction)
+    private function sendDenialEmail($transaction, $remarks)
     {
         try {
             $emailService = new SendEmail();
             $borrower = $transaction->user;
+
+            // Prepare asset details for email
+            $assetDetails = $transaction->borrowItems->map(function ($item) {
+                return [
+                    'asset_code' => $item->asset->asset_code ?? 'N/A',
+                    'name' => $item->asset->name ?? 'N/A',
+                    'quantity' => $item->quantity,
+                    'purpose' => $item->purpose ?: 'N/A'
+                ];
+            });
 
             $emailService->send(
                 $borrower->email,
@@ -234,12 +261,13 @@ class ApproveBorrowerRequests extends Component
                 ['emails.borrow-denial', [
                     'borrowCode' => $transaction->borrow_code,
                     'denialDate' => now()->format('M d, Y H:i'),
-                    'remarks' => $this->denyRemarks
+                    'remarks' => $remarks,
+                    'assetDetails' => $assetDetails  // Pass asset details to email
                 ]],
                 [],
                 null,
                 null,
-                false // Blade view mode
+                false
             );
 
         } catch (\Exception $e) {

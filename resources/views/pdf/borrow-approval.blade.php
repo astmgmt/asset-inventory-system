@@ -137,8 +137,9 @@
         <table class="items-table">
             <thead>
                 <tr>
-                    <th>Asset Code</th>
+                    <th>Asset Code</th>                    
                     <th>Asset Name</th>
+                    <th>Serial No.</th>
                     <th>Quantity</th>
                     <th>Purpose</th>
                 </tr>
@@ -148,6 +149,7 @@
                 <tr>
                     <td>{{ $item->asset->asset_code }}</td>
                     <td>{{ $item->asset->name }}</td>
+                    <td>{{ $item->asset->serial_number }}</td>
                     <td>{{ $item->quantity }}</td>
                     <td>{{ $item->purpose ?: 'N/A' }}</td>
                 </tr>

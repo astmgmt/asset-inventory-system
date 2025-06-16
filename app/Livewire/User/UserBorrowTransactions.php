@@ -26,7 +26,7 @@ class UserBorrowTransactions extends Component
     public function render()
     {
         $transactions = AssetBorrowTransaction::where('user_id', Auth::id())
-            ->whereIn('status', ['Pending', 'Denied'])
+            ->whereIn('status', ['Pending', 'Rejected'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('borrow_code', 'like', '%'.$this->search.'%')
@@ -115,7 +115,7 @@ class UserBorrowTransactions extends Component
                 return;
             }
             
-            if ($this->transactionToDelete->status !== 'Denied') {
+            if ($this->transactionToDelete->status !== 'Rejected') {
                 $this->errorMessage = 'Only denied requests can be deleted!';
                 $this->showDeleteModal = false;
                 return;

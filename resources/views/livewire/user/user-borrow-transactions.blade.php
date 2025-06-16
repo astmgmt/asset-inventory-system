@@ -94,7 +94,7 @@
                                 </button>
                             @endif
                             
-                            @if($transaction->status === 'Denied')
+                            @if($transaction->status === 'Rejected')
                                 <button 
                                     wire:click="confirmDelete({{ $transaction->id }})"
                                     class="delete-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md ml-2 transition"

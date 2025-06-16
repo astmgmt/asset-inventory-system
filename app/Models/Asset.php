@@ -22,9 +22,9 @@ class Asset extends Model
         'vendor_id',
         'warranty_expiration',
         'is_disposed',
-        'expiry_flag',       // Add this
-        'expiry_status',     // Add this
-        'last_notified_at',  // Add this
+        'expiry_flag',       
+        'expiry_status',     
+        'last_notified_at', 
     ];
 
     protected $casts = [

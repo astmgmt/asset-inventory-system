@@ -11,7 +11,7 @@
                     : 'hover:text-amber-500 dark:hover:text-amber-300'
             ]"
         >
-            Borrowed
+            Borrow
         </button>
 
         <button
@@ -23,7 +23,7 @@
                     : 'hover:text-amber-500 dark:hover:text-amber-300'
             ]"
         >
-            Returned
+            Return
         </button>
 
         <button
