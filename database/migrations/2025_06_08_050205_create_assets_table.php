@@ -10,10 +10,11 @@ return new class extends Migration
     {
         Schema::create('assets', function (Blueprint $table) {
             $table->id();
-            $table->string('asset_code', 20)->unique();
+            $table->string('asset_code', 30)->unique();
             $table->string('name', 100);
             $table->text('description')->nullable();
             $table->integer('quantity');
+            $table->integer('reserved_quantity')->default(0);
             $table->string('serial_number', 20)->unique();
             $table->string('model_number', 50);
             $table->foreignId('category_id')->constrained('asset_categories');

@@ -14,10 +14,10 @@ return new class extends Migration
             $table->string('borrow_code')->nullable();
             $table->string('return_code')->nullable();
             $table->enum('status', [
-                'Approved Borrow', 
-                'Denied Borrow', 
-                'Approved Return', 
-                'Denied Return'
+                'Borrow Approved', 
+                'Borrow Denied', 
+                'Return Approved', 
+                'Return Denied'
             ]);
             $table->json('borrow_data')->nullable();
             $table->json('return_data')->nullable();

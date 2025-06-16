@@ -1,7 +1,5 @@
 <div class="superadmin-container">
-    <h1 class="page-title main-title">Approve Borrow Requests</h1>
-    
-    <!-- Success Message -->
+    <!-- Success/Error Messages -->
     @if ($successMessage)
         <div class="success-message mb-4" 
             x-data="{ show: true }" 
@@ -11,12 +9,11 @@
         </div>
     @endif
 
-    <!-- Error Message -->
     @if ($errorMessage)
         <div class="error-message mb-4" 
             x-data="{ show: true }" 
             x-show="show"
-            x-init="setTimeout(() => show = false, 3000)">
+            x-init="setTimeout(() => show = false, 5000)">
             {{ $errorMessage }}
         </div>
     @endif
@@ -49,7 +46,7 @@
                         <th>Borrower</th>
                         <th>Borrower Department</th>
                         <th>Requested By</th>
-                        <th>Borrowed At</th>
+                        <th>Requested At</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -66,8 +63,8 @@
                             <td data-label="Requested By" class="text-center">
                                 {{ $transaction->requestedBy->name ?? 'N/A' }}
                             </td>
-                            <td data-label="Borrowed At" class="text-center">
-                                {{ $transaction->borrowed_at ? $transaction->borrowed_at->format('M d, Y H:i') : 'N/A' }}
+                            <td data-label="Requested At" class="text-center">
+                                {{ $transaction->created_at->format('M d, Y H:i') }}
                             </td>
                             <td data-label="Actions" class="text-center">
                                 <button 
@@ -137,8 +134,8 @@
                                 <span class="text-gray-900">{{ $selectedTransaction->requestedBy->name ?? 'N/A' }}</span>
                             </p>
                             <p>
-                                <span class="font-medium text-gray-600">Borrow Date:</span>
-                                <span class="text-gray-900">{{ $selectedTransaction->borrowed_at ? $selectedTransaction->borrowed_at->format('M d, Y H:i') : 'N/A' }}</span>
+                                <span class="font-medium text-gray-600">Request Date:</span>
+                                <span class="text-gray-900">{{ $selectedTransaction->created_at->format('M d, Y H:i') }}</span>
                             </p>
                         </div>
                     </div>
@@ -189,7 +186,7 @@
     <div class="modal-backdrop" x-data="{ show: @entangle('showApproveModal') }" x-show="show">
         <div class="modal" x-on:click.away="$wire.showApproveModal = false">
             <div class="modal-header">
-                <h2 class="modal-title">Confirm</h2>
+                <h2 class="modal-title">Confirm Approval</h2>
                 <button wire:click="$set('showApproveModal', false)" class="modal-close">&times;</button>
             </div>
             
@@ -224,7 +221,7 @@
                     wire:click="approveRequest" 
                     class="btn btn-danger ml-4"
                 >
-                    <i class="fas fa-check mr-2"></i> Yes, Approve
+                    <i class="fas fa-check mr-2"></i> Confirm
                 </button>
             </div>
         </div>
@@ -234,25 +231,25 @@
     <div class="modal-backdrop" x-data="{ show: @entangle('showDenyModal') }" x-show="show">
         <div class="modal" x-on:click.away="$wire.showDenyModal = false">
             <div class="modal-header">
-                <h2 class="modal-title">Confirm</h2>
+                <h2 class="modal-title">Confirm Rejection</h2>
                 <button wire:click="$set('showDenyModal', false)" class="modal-close">&times;</button>
             </div>
             
             <div class="modal-body">
                 <div class="text-center p-4">
-                    <p class="text-lg mb-4">Are you sure you want to deny this borrow request?</p>
+                    <p class="text-lg mb-4">Are you sure you want to reject this borrow request?</p>
                     <p class="mb-4">Borrow Code: <strong>{{ $selectedTransaction->borrow_code ?? 'N/A' }}</strong></p>
                     
                     <div class="mt-4">
                         <label for="deny-remarks" class="block text-sm font-medium text-gray-700 mb-1">
-                            Reason for Denial (Required)
+                            Reason for Rejection (Required)
                         </label>
                         <textarea 
                             id="deny-remarks" 
                             wire:model="denyRemarks" 
                             rows="3" 
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            placeholder="Please provide a reason for denial..."
+                            placeholder="Please provide a reason for rejection..."
                             required
                         ></textarea>
                         @error('denyRemarks') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
@@ -272,7 +269,7 @@
                     class="btn btn-danger ml-4"
                     :disabled="!$wire.denyRemarks"
                 >
-                    <i class="fas fa-ban mr-2"></i> Confirm 
+                    <i class="fas fa-ban mr-2"></i> Reject
                 </button>
             </div>
         </div>
@@ -283,12 +280,8 @@
     document.addEventListener('livewire:init', () => {
         Livewire.on('openPdf', (borrowCode) => {
             if (borrowCode) {
-                console.log('Received borrowCode:', borrowCode);
                 window.open(`/borrow-pdf/${borrowCode}`, '_blank');
-            } else {
-                console.error("Missing borrowCode from Livewire event.");
             }
         });
     });
 </script>
-

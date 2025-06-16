@@ -10,6 +10,8 @@ use App\Models\Vendor;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ManageAssets extends Component
 {
@@ -25,13 +27,29 @@ class ManageAssets extends Component
     public $assetId;
     public $name;
     public $description;
-    public $quantity;
+    public $quantity = 1;
     public $model_number;
     public $category_id;
     public $condition_id;
     public $location_id;
     public $vendor_id;
     public $warranty_expiration;
+    
+    // Search properties
+    public $modelInput = '';
+    public $modelSuggestions = [];
+    public $categorySearch = '';
+    public $categorySuggestions = [];
+    public $locationSearch = '';
+    public $locationSuggestions = [];
+    public $vendorSearch = '';
+    public $vendorSuggestions = [];
+    
+    // Dropdown visibility
+    public $showModelDropdown = false;
+    public $showCategoryDropdown = false;
+    public $showLocationDropdown = false;
+    public $showVendorDropdown = false;
     
     // Modals
     public $showAddModal = false;
@@ -49,14 +67,128 @@ class ManageAssets extends Component
     public function mount()
     {
         $this->categories = AssetCategory::all();
-        $this->conditions = AssetCondition::all();
+        $this->conditions = AssetCondition::all(); // Add this line
         $this->locations = AssetLocation::all();
         $this->vendors = Vendor::all();
+        
+        // Set default condition to "New"
+        $newCondition = AssetCondition::where('condition_name', 'New')->first();
+        $this->condition_id = $newCondition->id ?? null;
+        
+        // Set default warranty expiration to 1 year from now
+        $this->warranty_expiration = now()->addYear()->format('Y-m-d');
     }
 
     public function updatingSearch()
     {
         $this->resetPage();
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->resetPage();
+    }
+
+    // Live search handlers
+    public function updatedModelInput()
+    {
+        $this->showModelDropdown = !empty($this->modelInput);
+        
+        if (empty($this->modelInput)) {
+            $this->modelSuggestions = [];
+            return;
+        }
+        
+        $this->modelSuggestions = Asset::where('model_number', 'like', '%'.$this->modelInput.'%')
+            ->distinct('model_number')
+            ->pluck('model_number')
+            ->take(5)
+            ->toArray();
+    }
+
+    public function updatedCategorySearch()
+    {
+        $value = $this->categorySearch;
+        $this->showCategoryDropdown = !empty($value);
+        
+        if (empty($value)) {
+            $this->categorySuggestions = [];
+            return;
+        }
+        
+        $this->categorySuggestions = AssetCategory::where('category_name', 'like', '%'.$value.'%')
+            ->pluck('category_name')
+            ->take(5)
+            ->toArray();
+    }
+
+    public function updatedLocationSearch()
+    {
+        $value = $this->locationSearch;
+        $this->showLocationDropdown = !empty($value);
+        
+        if (empty($value)) {
+            $this->locationSuggestions = [];
+            return;
+        }
+        
+        $this->locationSuggestions = AssetLocation::where('location_name', 'like', '%'.$value.'%')
+            ->pluck('location_name')
+            ->take(5)
+            ->toArray();
+    }
+
+    public function updatedVendorSearch()
+    {
+        $value = $this->vendorSearch;
+        $this->showVendorDropdown = !empty($value);
+        
+        if (empty($value)) {
+            $this->vendorSuggestions = [];
+            return;
+        }
+        
+        $this->vendorSuggestions = Vendor::where('vendor_name', 'like', '%'.$value.'%')
+            ->pluck('vendor_name')
+            ->take(5)
+            ->toArray();
+    }
+
+    // Selection handlers
+    public function selectModelNumber($model)
+    {
+        $this->modelInput = $model;
+        $this->model_number = $model;
+        $this->modelSuggestions = [];
+        $this->showModelDropdown = false;
+    }
+
+    public function selectCategory($categoryName)
+    {
+        $category = AssetCategory::firstOrCreate(['category_name' => $categoryName]);
+        $this->category_id = $category->id;
+        $this->categorySearch = $category->category_name;
+        $this->categorySuggestions = [];
+        $this->showCategoryDropdown = false;
+    }
+
+    public function selectLocation($locationName)
+    {
+        $location = AssetLocation::firstOrCreate(['location_name' => $locationName]);
+        $this->location_id = $location->id;
+        $this->locationSearch = $location->location_name;
+        $this->locationSuggestions = [];
+        $this->showLocationDropdown = false;
+    }
+
+    public function selectVendor($vendorName)
+    {
+        $vendor = Vendor::firstOrCreate(['vendor_name' => $vendorName]);
+        $this->vendor_id = $vendor->id;
+        $this->vendorSearch = $vendor->vendor_name;
+        $this->vendorSuggestions = [];
+        $this->showVendorDropdown = false;
     }
 
     public function openAddModal()
@@ -74,6 +206,7 @@ class ManageAssets extends Component
         $this->description = $asset->description;
         $this->quantity = $asset->quantity;
         $this->model_number = $asset->model_number;
+        $this->modelInput = $asset->model_number;
         $this->category_id = $asset->category_id;
         $this->condition_id = $asset->condition_id;
         $this->location_id = $asset->location_id;
@@ -109,59 +242,121 @@ class ManageAssets extends Component
     {
         $this->reset([
             'assetId', 'name', 'description', 'quantity', 
-            'model_number', 'category_id', 'condition_id', 
-            'location_id', 'vendor_id', 'warranty_expiration'
+            'model_number', 'modelInput', 'category_id', 'condition_id', 
+            'location_id', 'vendor_id', 'warranty_expiration',
+            'modelSuggestions', 'categorySearch', 'categorySuggestions',
+            'locationSearch', 'locationSuggestions', 'vendorSearch', 'vendorSuggestions',
+            'showModelDropdown', 'showCategoryDropdown', 'showLocationDropdown', 'showVendorDropdown'
         ]);
         $this->resetErrorBag();
         $this->viewAsset = null;
+
+        $this->conditions = AssetCondition::all(); 
+        
+        // Reset condition to "New"
+        $newCondition = AssetCondition::where('condition_name', 'New')->first();
+        $this->condition_id = $newCondition->id ?? null;
+        
+        // Set default warranty expiration to 1 year from now
+        $this->warranty_expiration = now()->addYear()->format('Y-m-d');
     }
 
-    private function generateAssetCode()
+    private function generateAssetCode($lastNum = null)
     {
-        return implode('-', [
-            Str::upper(Str::random(4)),
-            Str::upper(Str::random(4)),
-            Str::upper(Str::random(4)),
-            Str::upper(Str::random(4))
-        ]);
+        $date = now()->format('mdY');
+        
+        // Get last used number if not provided
+        if ($lastNum === null) {
+            $lastAsset = Asset::where('asset_code', 'like', "AST-{$date}-%")
+                ->orderBy('asset_code', 'desc')
+                ->first();
+                
+            $lastNum = $lastAsset ? intval(substr($lastAsset->asset_code, -8)) : 0;
+        }
+        
+        $newNum = $lastNum + 1;
+        $formattedNum = str_pad($newNum, 8, '0', STR_PAD_LEFT);
+        
+        return [
+            'code' => "AST-{$date}-{$formattedNum}",
+            'nextNum' => $newNum
+        ];
     }
 
-    private function generateSerialNumber()
+    private function generateSerialNumber($lastId = null)
     {
-        $lastAsset = Asset::orderBy('id', 'desc')->first();
-        $lastId = $lastAsset ? $lastAsset->id : 0;
-        return str_pad($lastId + 1, 16, '0', STR_PAD_LEFT);
+        if ($lastId === null) {
+            $lastAsset = Asset::orderBy('id', 'desc')->first();
+            $lastId = $lastAsset ? $lastAsset->id : 0;
+        }
+        
+        $newId = $lastId + 1;
+        return 'SN' . str_pad($newId, 12, '0', STR_PAD_LEFT);
     }
 
     public function createAsset()
     {
+        // Ensure model number is set from input
+        $this->model_number = $this->modelInput;
+        
         $this->validate([
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
             'quantity' => 'required|integer|min:1',
             'model_number' => 'required|string|max:50',
             'category_id' => 'required|exists:asset_categories,id',
-            'condition_id' => 'required|exists:asset_conditions,id',
             'location_id' => 'required|exists:asset_locations,id',
             'vendor_id' => 'required|exists:vendors,id',
             'warranty_expiration' => 'required|date',
         ]);
 
-        Asset::create([
-            'asset_code' => $this->generateAssetCode(),
-            'serial_number' => $this->generateSerialNumber(),
-            'name' => $this->name,
-            'description' => $this->description,
-            'quantity' => $this->quantity,
-            'model_number' => $this->model_number,
-            'category_id' => $this->category_id,
-            'condition_id' => $this->condition_id,
-            'location_id' => $this->location_id,
-            'vendor_id' => $this->vendor_id,
-            'warranty_expiration' => $this->warranty_expiration,
-        ]);
+        // Generate multiple assets with unique codes
+        $assets = [];
+        
+        // Get the last asset to determine starting points
+        $lastAsset = Asset::orderBy('id', 'desc')->first();
+        $lastId = $lastAsset ? $lastAsset->id : 0;
+        $lastAssetCode = Asset::where('asset_code', 'like', 'AST-%')
+            ->orderBy('asset_code', 'desc')
+            ->first();
+            
+        $lastNum = $lastAssetCode ? intval(substr($lastAssetCode->asset_code, -8)) : 0;
+        
+        // Create assets with unique codes
+        for ($i = 0; $i < $this->quantity; $i++) {
+            // Generate asset code
+            $assetCodeData = $this->generateAssetCode($lastNum);
+            $assetCode = $assetCodeData['code'];
+            $lastNum = $assetCodeData['nextNum'];
+            
+            // Generate serial number
+            $serialNumber = $this->generateSerialNumber($lastId + $i);
+            
+            $assets[] = [
+                'asset_code' => $assetCode,
+                'serial_number' => $serialNumber,
+                'name' => $this->name,
+                'description' => $this->description,
+                'quantity' => 1, // Each asset has quantity 1
+                'model_number' => $this->model_number,
+                'category_id' => $this->category_id,
+                'condition_id' => $this->condition_id,
+                'location_id' => $this->location_id,
+                'vendor_id' => $this->vendor_id,
+                'warranty_expiration' => $this->warranty_expiration,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
 
-        $this->successMessage = 'Asset created successfully!';
+        DB::transaction(function () use ($assets) {
+            Asset::insert($assets);
+        });
+
+        $this->successMessage = $this->quantity > 1 
+            ? "{$this->quantity} assets created successfully!" 
+            : "Asset created successfully!";
+            
         $this->closeModals();
         $this->dispatch('clear-message');
     }
@@ -171,7 +366,6 @@ class ManageAssets extends Component
         $this->validate([
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
-            'quantity' => 'required|integer|min:1',
             'model_number' => 'required|string|max:50',
             'category_id' => 'required|exists:asset_categories,id',
             'condition_id' => 'required|exists:asset_conditions,id',
@@ -184,7 +378,6 @@ class ManageAssets extends Component
         $asset->update([
             'name' => $this->name,
             'description' => $this->description,
-            'quantity' => $this->quantity,
             'model_number' => $this->model_number,
             'category_id' => $this->category_id,
             'condition_id' => $this->condition_id,

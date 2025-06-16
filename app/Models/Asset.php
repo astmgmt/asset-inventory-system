@@ -97,4 +97,8 @@ class Asset extends Model
 
         $this->save();
     }
+    public function getAvailableQuantityAttribute()
+    {
+        return $this->quantity - $this->reserved_quantity;
+    }
 }

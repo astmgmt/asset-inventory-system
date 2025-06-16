@@ -125,28 +125,32 @@
                         <h2 class="modal-title">Return Details: {{ $selectedReturn->first()->return_code }}</h2>
                         <button wire:click="$set('showDetailsModal', false)" class="modal-close">&times;</button>
                     </div>
-                    
-                    <div class="modal-body">
-                        <div class="grid grid-cols-2 gap-4 mb-6">
-                            <div>
-                                <p class="font-medium">Returnee:</p>
-                                <p>{{ $selectedReturn->first()->returnedBy->name }}</p>
-                            </div>
-                            <div>
-                                <p class="font-medium">Department:</p>
-                                <p>{{ $selectedReturn->first()->returnedBy->department->name ?? 'N/A' }}</p>
-                            </div>
-                            <div>
-                                <p class="font-medium">Borrow Code:</p>
-                                <p>{{ $selectedReturn->first()->borrowItem->transaction->borrow_code }}</p>
-                            </div>
-                            <div>
-                                <p class="font-medium">Return Date:</p>
-                                <p>{{ $selectedReturn->first()->returned_at->format('M d, Y H:i') }}</p>
+
+                    <div class="modal-body text-[12px] leading-tight text-gray-800">
+                        <!-- Return Info Card -->
+                        <div class="bg-white border border-gray-200 rounded shadow-sm p-4 mb-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p class="font-medium text-gray-600">Returnee:</p>
+                                    <p class="text-gray-900">{{ $selectedReturn->first()->returnedBy->name }}</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-600">Department:</p>
+                                    <p class="text-gray-900">{{ $selectedReturn->first()->returnedBy->department->name ?? 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-600">Borrow Code:</p>
+                                    <p class="text-gray-900">{{ $selectedReturn->first()->borrowItem->transaction->borrow_code }}</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-600">Return Date:</p>
+                                    <p class="text-gray-900">{{ $selectedReturn->first()->returned_at->format('M d, Y H:i') }}</p>
+                                </div>
                             </div>
                         </div>
-                        
-                        <table class="user-table">
+
+                        <!-- Table Section -->
+                        <table class="user-table w-full text-[12px]">
                             <thead>
                                 <tr>
                                     <th>Asset Code</th>
@@ -175,7 +179,7 @@
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div class="modal-footer">
                         <button 
                             wire:click="$set('showDetailsModal', false)" 
@@ -186,6 +190,7 @@
                     </div>
                 </div>
             </div>
+
         @endif
 
         <!-- Approve Confirmation Modal -->

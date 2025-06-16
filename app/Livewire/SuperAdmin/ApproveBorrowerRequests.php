@@ -6,12 +6,13 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use App\Models\AssetBorrowTransaction;
+use App\Models\Asset;
 use App\Models\AssetBorrowItem;
-use App\Models\BorrowAssetQuantity;
 use App\Models\UserHistory;
 use App\Services\SendEmail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 #[Layout('components.layouts.app')]
@@ -32,7 +33,7 @@ class ApproveBorrowerRequests extends Component
     public function render()
     {
         $transactions = AssetBorrowTransaction::with(['user', 'userDepartment', 'requestedBy'])
-            ->where('status', 'Pending')
+            ->where('status', 'PendingBorrowApproval')
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('borrow_code', 'like', '%'.$this->search.'%')
@@ -45,7 +46,7 @@ class ApproveBorrowerRequests extends Component
                       ->orWhereHas('requestedBy', function ($requestedQuery) {
                           $requestedQuery->where('name', 'like', '%'.$this->search.'%');
                       })
-                      ->orWhereDate('borrowed_at', 'like', '%'.$this->search.'%');
+                      ->orWhereDate('created_at', 'like', '%'.$this->search.'%');
                 });
             })
             ->orderBy('created_at', 'desc')
@@ -89,39 +90,62 @@ class ApproveBorrowerRequests extends Component
         ]);
 
         try {
+            // Store transaction reference before DB operations
             $transaction = $this->selectedTransaction;
-            $user = Auth::user();
-            
-            // Update transaction status
-            $transaction->update([
-                'status' => 'Approved',
-                'approved_by_user_id' => $user->id,
-                'approved_by_department_id' => $user->department_id,
-                'borrowed_at' => now(),
-                'approved_at' => now(),
-                'remarks' => $this->approveRemarks
-            ]);
+            $borrowCode = $transaction->borrow_code;
 
-            UserHistory::create([
-                'user_id' => $transaction->user_id,
-                'borrow_code' => $transaction->borrow_code,
-                'status' => 'Approved Borrow', // Matches ENUM value
-                'borrow_data' => $transaction->load('borrowItems.asset')->toArray(),
-                'action_date' => now()
-            ]);
-            
-            // Deduct quantities
-            foreach ($transaction->borrowItems as $item) {
-                $assetQuantity = BorrowAssetQuantity::where('asset_id', $item->asset_id)->first();
-                if ($assetQuantity) {
-                    $assetQuantity->decrement('available_quantity', $item->quantity);
+            DB::transaction(function () use ($transaction) {
+                $user = Auth::user();
+                
+                // Lock all assets in this transaction
+                $assetIds = $transaction->borrowItems->pluck('asset_id')->toArray();
+                $assets = Asset::whereIn('id', $assetIds)->lockForUpdate()->get()->keyBy('id');
+                
+                // Verify quantities for ALL assets first
+                foreach ($transaction->borrowItems as $item) {
+                    $asset = $assets[$item->asset_id] ?? Asset::find($item->asset_id);
+                    
+                    if (!$asset) {
+                        throw new \Exception("Asset not found for ID: {$item->asset_id}");
+                    }
+                    
+                    if ($asset->quantity < $item->quantity) {
+                        throw new \Exception(
+                            "Insufficient quantity for asset: {$asset->name}. " .
+                            "Available: {$asset->quantity}, Requested: {$item->quantity}"
+                        );
+                    }
                 }
-            }
+                
+                // Now update quantities for all assets
+                foreach ($transaction->borrowItems as $item) {
+                    $asset = $assets[$item->asset_id];
+                    $asset->decrement('quantity', $item->quantity);
+                    $asset->decrement('reserved_quantity', $item->quantity);
+                }
+
+                // Update transaction status
+                $transaction->update([
+                    'status' => 'Borrowed',
+                    'approved_by_user_id' => $user->id,
+                    'approved_by_department_id' => $user->department_id,
+                    'borrowed_at' => now(),
+                    'approved_at' => now(),
+                    'remarks' => $this->approveRemarks
+                ]);
+
+                // Create history record
+                UserHistory::create([
+                    'user_id' => $transaction->user_id,
+                    'borrow_code' => $transaction->borrow_code,
+                    'status' => 'Borrow Approved',
+                    'borrow_data' => $transaction->load('borrowItems.asset')->toArray(),
+                    'action_date' => now()
+                ]);
+            });
             
             // Send email notification to borrower
             $this->sendApprovalEmail($transaction);
-            
-           
             
             // Reset state
             $this->reset([
@@ -133,24 +157,40 @@ class ApproveBorrowerRequests extends Component
             // Show success message
             $this->successMessage = "Borrow request approved successfully!";
             
-           
-            $this->dispatch('openPdf', $transaction->borrow_code);
-
-            // After approving a borrow request
-            UserHistory::create([
-                'user_id' => $transaction->user_id,
-                'borrow_code' => $transaction->borrow_code,
-                'status' => 'Approved Borrow',
-                'borrow_data' => $transaction->load('borrowItems.asset')->toArray(),
-                'action_date' => now()
-            ]);
-
+            // Open PDF using stored borrow code
+            $this->dispatch('openPdf', $borrowCode);
             
         } catch (\Exception $e) {
+            DB::rollBack();
             $this->errorMessage = "Failed to approve request: " . $e->getMessage();
             Log::error("Approve error: " . $e->getMessage());
+            
+            // Automatically reject request if quantity is insufficient
+            try {
+                if ($this->selectedTransaction) {
+                    $this->selectedTransaction->update([
+                        'status' => 'Rejected',
+                        'remarks' => 'Auto-rejected: ' . $e->getMessage()
+                    ]);
+                    
+                    // Create history record for auto-rejection
+                    UserHistory::create([
+                        'user_id' => $this->selectedTransaction->user_id,
+                        'borrow_code' => $this->selectedTransaction->borrow_code,
+                        'status' => 'Borrow Auto-Rejected',
+                        'borrow_data' => $this->selectedTransaction->load('borrowItems.asset')->toArray(),
+                        'action_date' => now()
+                    ]);
+                    
+                    $this->successMessage = "Request auto-rejected due to insufficient quantity";
+                    $this->reset(['showApproveModal', 'selectedTransaction']);
+                }
+            } catch (\Exception $updateEx) {
+                Log::error("Auto-reject failed: " . $updateEx->getMessage());
+            }
         }
     }
+
 
     public function denyRequest()
     {
@@ -172,11 +212,11 @@ class ApproveBorrowerRequests extends Component
             // Capture remarks before reset
             $denialRemarks = $this->denyRemarks;
             
-            // Create history record with correct ENUM value
+            // Create history record
             UserHistory::create([
                 'user_id' => $transaction->user_id,
                 'borrow_code' => $transaction->borrow_code,
-                'status' => 'Denied Borrow', // Matches ENUM value
+                'status' => 'Borrow Denied',
                 'borrow_data' => $transaction->load('borrowItems.asset')->toArray(),
                 'action_date' => now()
             ]);
@@ -185,7 +225,7 @@ class ApproveBorrowerRequests extends Component
             $this->sendDenialEmail($transaction, $denialRemarks);
             
             // Show success message
-            $this->successMessage = "Borrow request denied sent!";
+            $this->successMessage = "Borrow request denied!";
             
             // Reset state
             $this->reset([
@@ -195,8 +235,9 @@ class ApproveBorrowerRequests extends Component
             ]);
             
         } catch (\Exception $e) {
-            $this->errorMessage = "Failed to deny request: " . $e->getMessage();
-            Log::error("Deny error: " . $e->getMessage());
+            DB::rollBack();
+            $this->errorMessage = "Failed to approve request: " . $e->getMessage();
+            Log::error("Approve error: " . $e->getMessage());
         }
     }
     
@@ -220,17 +261,17 @@ class ApproveBorrowerRequests extends Component
             $pdf = $this->generateApprovalPDF($transaction);
 
             $emailService->send(
-                $borrower->email, // To
-                "Your Borrow Request Has Been Approved: {$transaction->borrow_code}", // Subject
-                ['emails.borrow-approval', [ // View + data wrapped in array
+                $borrower->email,
+                "Your Borrow Request Has Been Approved: {$transaction->borrow_code}",
+                ['emails.borrow-approval', [
                     'borrowCode' => $transaction->borrow_code,
                     'approvalDate' => now()->format('M d, Y H:i'),
                     'remarks' => $this->approveRemarks
                 ]],
-                [], // CC
+                [],
                 $pdf->output(),
                 "Approval-{$transaction->borrow_code}.pdf",
-                false // Blade view mode
+                false
             );
 
         } catch (\Exception $e) {
@@ -238,7 +279,6 @@ class ApproveBorrowerRequests extends Component
         }
     }
 
-    
     private function sendDenialEmail($transaction, $remarks)
     {
         try {
@@ -262,7 +302,7 @@ class ApproveBorrowerRequests extends Component
                     'borrowCode' => $transaction->borrow_code,
                     'denialDate' => now()->format('M d, Y H:i'),
                     'remarks' => $remarks,
-                    'assetDetails' => $assetDetails  // Pass asset details to email
+                    'assetDetails' => $assetDetails
                 ]],
                 [],
                 null,
@@ -274,7 +314,6 @@ class ApproveBorrowerRequests extends Component
             Log::error("Denial email error: " . $e->getMessage());
         }
     }
-
 
     public function clearMessages()
     {

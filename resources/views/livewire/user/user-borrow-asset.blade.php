@@ -52,7 +52,6 @@
                 @endif
             </button>
         </div>
-
     </div>
 
     <!-- Assets Table -->
@@ -69,25 +68,23 @@
             </thead>
             <tbody>
                 @forelse($assets as $asset)
-                    @php
-                        $condition = \App\Models\AssetCondition::find($asset->condition_id);
-                    @endphp
                     <tr>
                         <td data-label="Asset Code" class="text-center">{{ $asset->asset_code }}</td>
                         <td data-label="Name" class="text-center">{{ $asset->name }}</td>
-                        <td data-label="Available Qty" class="text-center">{{ $asset->available_quantity }}</td>
-                        <td data-label="Condition" class="text-center">{{ $condition ? $condition->condition_name : 'N/A' }}</td>
+                        <td data-label="Available Qty" class="text-center">
+                            {{ $asset->quantity }} 
+                        </td>
+                        <td data-label="Condition" class="text-center">{{ $asset->condition_name }}</td>
                         <td data-label="Actions" class="text-center">
                             <button 
                                 wire:click="addToCart({{ $asset->id }})" 
                                 class="borrow_icon bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-indigo-600 dark:text-indigo-400 font-medium py-1 px-3 rounded-md shadow-sm transition-colors duration-200"
-                                @disabled($asset->available_quantity < 1)
+                                @disabled($asset->quantity < 1)
                                 title="Borrow this asset"
                             >
                                 <i class="fas fa-plus"></i>
                             </button>
                         </td>
-
                     </tr>
                 @empty
                     <tr>
@@ -214,7 +211,7 @@
                             class="btn btn-secondary btn-update flex items-center gap-2"
                         >
                             <i class="fas fa-paper-plane"></i>
-                            Proceed
+                            Submit Request
                         </button>
                 </div>
             </div>

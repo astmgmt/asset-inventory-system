@@ -19,6 +19,7 @@ class UserHistory extends Model
     protected $casts = [
         'borrow_data' => 'array',
         'return_data' => 'array',
-        'action_date' => 'datetime'
+        'action_date' => 'datetime',
+        'status' => 'string',
     ];
 }
