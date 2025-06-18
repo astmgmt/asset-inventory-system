@@ -72,7 +72,7 @@
                         <td data-label="Asset Code" class="text-center">{{ $asset->asset_code }}</td>
                         <td data-label="Name" class="text-center">{{ $asset->name }}</td>
                         <td data-label="Available Qty" class="text-center">
-                            {{ $asset->quantity }} 
+                            {{ $asset->available_quantity }} 
                         </td>
                         <td data-label="Condition" class="text-center">{{ $asset->condition_name }}</td>
                         <td data-label="Actions" class="text-center">

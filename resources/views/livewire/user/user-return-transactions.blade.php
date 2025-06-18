@@ -48,7 +48,7 @@
                         <th>Borrow Code</th>
                         <th>Status</th>
                         <th>Borrowed At</th>
-                        <th>Approved At</th>
+                        <th>Return Requested</th>
                         <th>Remarks</th>
                         <th>Actions</th>
                     </tr>
@@ -56,33 +56,62 @@
                 <tbody>
                     @forelse($transactions as $transaction)
                         <tr>
-                            <td data-label="Borrow Code" class="text-center">{{ $transaction->borrow_code }}</td>
-                            <td data-label="Status" class="text-center">
-                                <span class="status-badge approved">
-                                    {{ $transaction->status }}
-                                </span>
-                            </td>
-                            <td data-label="Borrowed At" class="text-center">
-                                {{ $transaction->borrowed_at?->format('M d, Y') ?? 'N/A' }}
-                            </td>
-                            <td data-label="Approved At" class="text-center">
-                                {{ $transaction->approved_at?->format('M d, Y') ?? 'N/A' }}
-                            </td>
-                            <td data-label="Remarks" class="text-center">
-                                {{ $transaction->remarks ?: 'N/A' }}
-                            </td>
-                            <td data-label="Actions" class="text-center">
-                                <button 
-                                    wire:click="openReturnModal({{ $transaction->id }})"
-                                    class="return-btn bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded-md transition"
-                                >
-                                    <i class="fas fa-undo mr-1"></i> Return
+                            <td data-label="Borrow Code" class="text-center">
+                                <button wire:click="openViewModal({{ $transaction->id }})" 
+                                        class="text-blue-500 hover:underline">
+                                    {{ $transaction->borrow_code }}
                                 </button>
+                            </td>
+                            <td data-label="Status" class="text-center">
+                                @if($transaction->status === 'Borrowed')
+                                    <span class="status-badge borrowed">Borrowed</span>
+                                @elseif($transaction->status === 'PendingReturnApproval')
+                                    <span class="status-badge pending">Pending Approval</span>
+                                @elseif($transaction->status === 'ReturnRejected')
+                                    <span class="status-badge rejected">Rejected</span>
+                                @endif
+                            </td>
+
+                            <td data-label="Borrowed At" class="text-center">
+                                {{ $transaction->borrowed_at?->format('M d, Y') ?? '-' }}
+                            </td>
+                            <td data-label="Return Requested" class="text-center">
+                                @if($transaction->status === 'Rejected' || $transaction->status === 'PendingReturnApproval')
+                                    {{ $transaction->return_requested_at?->format('M d, Y') ?? '-' }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+
+                            <td data-label="Remarks" class="text-center">
+                                {{ $transaction->return_remarks ?: 'N/A' }}
+                            </td>
+                            
+                            <td data-label="Actions" class="text-center">
+                                @if($transaction->status === 'Borrowed')
+                                    <button 
+                                        wire:click="openReturnModal({{ $transaction->id }})"
+                                        class="return-btn bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded-md transition"
+                                    >
+                                        <i class="fas fa-undo mr-1"></i> Return
+                                    </button>
+                                @elseif($transaction->status === 'ReturnRejected')
+                                    <button 
+                                        wire:click="openReturnModal({{ $transaction->id }})"
+                                        class="return-btn bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md transition"
+                                    >
+                                        <i class="fas fa-redo mr-1"></i> Return Again
+                                    </button>
+                                @else
+                                    <button class="btn-disabled bg-gray-300 text-gray-500 py-1 px-3 rounded-md cursor-not-allowed">
+                                        <i class="fas fa-clock mr-1"></i> Pending
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="no-software-row">No approved borrow requests found.</td>
+                            <td colspan="6" class="no-software-row">No borrow transactions found</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -93,6 +122,82 @@
                 {{ $transactions->links() }}
             </div>
         </div>
+
+        <!-- View Modal -->
+        @if($showViewModal && $selectedTransaction)
+            <div class="modal-backdrop" x-data="{ show: @entangle('showViewModal') }" x-show="show">
+                <div class="modal" x-on:click.away="$wire.showViewModal = false">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Borrow Details: {{ $selectedTransaction->borrow_code }}</h2>
+                        <button wire:click="$set('showViewModal', false)" class="modal-close">&times;</button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <h3 class="font-semibold">Borrower:</h3>
+                                <p>{{ $selectedTransaction->user->name }}</p>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold">Department:</h3>
+                                <p>{{ $selectedTransaction->user->department->name }}</p>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold">Borrowed At:</h3>
+                                <p>{{ $selectedTransaction->borrowed_at?->format('M d, Y H:i') }}</p>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold">Status:</h3>
+                                <p>
+                                    @if($selectedTransaction->status === 'Borrowed')
+                                        <span class="status-badge borrowed">Borrowed</span>
+                                    @elseif($selectedTransaction->status === 'PendingReturnApproval')
+                                        <span class="status-badge pending">Pending Return</span>
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <h3 class="font-semibold mb-2">Borrowed Assets:</h3>
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>Asset Code</th>
+                                    <th>Name</th>
+                                    <th>Quantity</th>
+                                    <th>Purpose</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($selectedTransaction->borrowItems as $item)
+                                    <tr>
+                                        <td data-label="Asset Code" class="text-center">
+                                            {{ $item->asset->asset_code }}
+                                        </td>
+                                        <td data-label="Asset Name" class="text-center">
+                                            {{ $item->asset->name }}
+                                        </td>
+                                        <td data-label="Quantity" class="text-center">
+                                            {{ $item->quantity }}
+                                        </td>
+                                        <td data-label="Purpose" class="text-center">
+                                            {{ $item->purpose ?: 'N/A' }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button wire:click="$set('showViewModal', false)" class="btn btn-secondary">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
 
         <!-- Return Modal -->
         @if($showReturnModal && $selectedTransaction)

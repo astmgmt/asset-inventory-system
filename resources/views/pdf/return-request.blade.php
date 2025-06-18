@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Return Receipt - {{ $returnCode }}</title>
+    <title>Return Receipt - {{ $borrowCode }}</title>
     <style>
         body { font-family: Arial, sans-serif; }
         .header { text-align: center; margin-bottom: 20px; }
@@ -15,13 +15,13 @@
 <body>
     <div class="header">
         <h2>Asset Return Receipt</h2>
-        <p>Return Code: <strong>{{ $returnCode }}</strong></p>
+        <p>Borrow Code: <strong>{{ $borrowCode }}</strong></p>
         <p>Date: {{ $returnDate }}</p>
     </div>
 
     <div class="details">
-        <p>Returned by: {{ $user->name }}</p>
-        <p>Department: {{ $user->department->name ?? 'N/A' }}</p>
+        <p>Returned by: {{ $transaction->user->name }}</p>
+        <p>Department: {{ $transaction->user->department->name ?? 'N/A' }}</p>
     </div>
 
     <table>
@@ -33,11 +33,11 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($returnItems as $item)
+            @foreach($transaction->borrowItems as $item)
             <tr>
-                <td>{{ $item->borrowItem->asset->asset_code }}</td>
-                <td>{{ $item->borrowItem->asset->name }}</td>
-                <td>{{ $item->borrowItem->quantity }}</td>
+                <td>{{ $item->asset->asset_code }}</td>
+                <td>{{ $item->asset->name }}</td>
+                <td>{{ $item->quantity }}</td>
             </tr>
             @endforeach
         </tbody>

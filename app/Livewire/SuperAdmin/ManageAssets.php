@@ -214,12 +214,13 @@ class ManageAssets extends Component
         $this->warranty_expiration = $asset->warranty_expiration->format('Y-m-d');
         
         $this->showEditModal = true;
-    }
-    
+    }    
+
     public function openViewModal($id)
     {
         $this->viewAsset = Asset::with(['category', 'condition', 'location', 'vendor'])
-            ->findOrFail($id);
+            ->findOrFail($id)
+            ->fresh(); // This will reload the latest data from database            
         $this->showViewModal = true;
     }
 

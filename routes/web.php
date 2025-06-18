@@ -224,7 +224,7 @@ Route::middleware([
         ->middleware('role:Admin');
     
     // User Dashboard
-    Route::get('/dashboard/user', [UserDashboard::class, 'render'])
+    Route::get('/dashboard/user', UserDashboard::class)
         ->name('dashboard.user')
         ->middleware('role:User');
 
@@ -259,7 +259,24 @@ Route::middleware([
 
         return $pdf->stream("Return-$returnCode.pdf");
     })->name('return.pdf');
-   
+
+
+    // PRINT PDF FOR USER HISTORY TRANSACTIONS
+    Route::get('/user/history/pdf/{id}', function ($id) {
+        $history = App\Models\UserHistory::findOrFail($id);
+        
+        // Verify user owns this history record
+        if ($history->user_id !== auth()->id()) {
+            abort(403);
+        }
+        
+        $pdf = PDF::loadView('pdf.borrow-history', [
+            'history' => $history,
+            'user' => auth()->user()
+        ]);
+        
+        return $pdf->download("history-{$history->borrow_code}.pdf");
+    })->middleware('auth')->name('user.history.pdf');
 
 
 });

@@ -4,331 +4,224 @@ namespace App\Livewire\SuperAdmin;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
-use App\Models\AssetBorrowItem; 
-use App\Models\BorrowAssetQuantity; 
-use App\Models\Asset; 
-use App\Models\AssetBorrowTransaction; 
-use App\Models\User; 
-use App\Models\UserHistory; 
+use App\Models\AssetBorrowTransaction;
+use App\Models\Asset;
+use App\Models\UserHistory;
 use App\Services\SendEmail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-#[Layout('components.layouts.app')]
 class ApproveReturnRequests extends Component
 {
     use WithPagination;
 
     public $search = '';
-    public $selectedReturn = null;
-    public $showDetailsModal = false;
+    public $selectedTransaction = null;
     public $showApproveModal = false;
-    public $showDenyModal = false;
+    public $showRejectModal = false;
     public $approveRemarks = '';
-    public $denyRemarks = '';
+    public $rejectRemarks = '';
     public $successMessage = '';
     public $errorMessage = '';
 
     public function render()
     {
-        // Get paginated return requests grouped by return_code
-        $returnRequests = \App\Models\AssetReturnItem::with([
-                'returnedBy',
-                'borrowItem.transaction'
-            ])
-            ->where('status', 'Pending')
-            ->select(
-                'return_code',
-                \DB::raw('MIN(returned_at) as returned_at'),
-                \DB::raw('MIN(returned_by_user_id) as returned_by_user_id'),
-                \DB::raw('MIN(status) as status')
-            )
-            ->groupBy('return_code')
-            ->orderBy('returned_at', 'desc')
+        $transactions = AssetBorrowTransaction::where('status', 'PendingReturnApproval')
+            ->when($this->search, function ($query) {
+                $query->where('borrow_code', 'like', '%'.$this->search.'%');
+            })
+            ->with(['user', 'borrowItems.asset'])
+            ->orderBy('return_requested_at', 'desc')
             ->paginate(10);
 
         return view('livewire.super-admin.approve-return-requests', [
-            'returnRequests' => $returnRequests
+            'transactions' => $transactions
         ]);
     }
 
-
-    public function showDetails($returnCode)
+    public function openApproveModal($transactionId)
     {
-        $this->selectedReturn = \App\Models\AssetReturnItem::with([
-                'borrowItem.asset',
-                'returnedBy',
-                'borrowItem.transaction'
-            ])
-            ->where('return_code', $returnCode)
-            ->get();
-            
-        $this->showDetailsModal = true;
-    }
-
-    public function confirmApprove($returnCode)
-    {
-        $this->selectedReturn = \App\Models\AssetReturnItem::with(['borrowItem.asset'])
-            ->where('return_code', $returnCode)
-            ->get();
-            
-        $this->approveRemarks = '';
+        $this->selectedTransaction = AssetBorrowTransaction::with('borrowItems.asset')
+            ->findOrFail($transactionId);
         $this->showApproveModal = true;
     }
 
-    public function confirmDeny($returnCode)
+    public function openRejectModal($transactionId)
     {
-        $this->selectedReturn = \App\Models\AssetReturnItem::where('return_code', $returnCode)
-            ->get();
-            
-        $this->denyRemarks = '';
-        $this->showDenyModal = true;
+        $this->selectedTransaction = AssetBorrowTransaction::with('borrowItems.asset')
+            ->findOrFail($transactionId);
+        $this->showRejectModal = true;
     }
 
-    public function approveRequest()
+    public function approveReturn()
     {
         $this->validate([
             'approveRemarks' => 'nullable|string|max:500',
         ]);
 
         try {
-            DB::transaction(function () {
-                $returnCode = $this->selectedReturn->first()->return_code;
-                $transactionId = $this->selectedReturn->first()->borrowItem->borrow_transaction_id;
-                $approver = Auth::user();
+            $returnCode = null;
+            $transaction = null;
+            
+            DB::transaction(function () use (&$returnCode, &$transaction) {
+                $transaction = $this->selectedTransaction;
+                $returnCode = $this->generateReturnCode();
                 
-                // Update all items in this return request
-                \App\Models\AssetReturnItem::where('return_code', $returnCode)
-                    ->update([
-                        'status' => 'Approved',
-                        'approved_by_user_id' => $approver->id,
-                        'approved_at' => now(),
-                        'remarks' => $this->approveRemarks
+                // Update assets quantities
+                foreach ($transaction->borrowItems as $item) {
+                    $asset = Asset::find($item->asset_id);
+                    $asset->increment('quantity', $item->quantity);
+                }
+                
+                // Update transaction status
+                $transaction->update([
+                    'status' => 'Returned',
+                    'returned_at' => now(),
+                    'approved_by_user_id' => Auth::id(),
+                    'approved_at' => now(),
+                    'remarks' => $this->approveRemarks
+                ]);
+                
+                // Find existing history record and update it
+                $history = UserHistory::where('borrow_code', $transaction->borrow_code)
+                    ->whereNull('return_code')
+                    ->first();
+                
+                if ($history) {
+                    $history->update([
+                        'return_code' => $returnCode,
+                        'status' => 'Return Approved',
+                        'return_data' => [
+                            'return_items' => $transaction->borrowItems->map(function ($item) {
+                                return [
+                                    'borrow_item' => [
+                                        'asset' => $item->asset->toArray(),
+                                        'quantity' => $item->quantity,
+                                        'purpose' => $item->purpose,
+                                        'created_at' => $item->created_at
+                                    ],
+                                    'status' => 'Returned',
+                                    'created_at' => now()
+                                ];
+                            })->toArray()
+                        ],
+                        'action_date' => now()
                     ]);
-                
-                // Process each returned item
-                foreach ($this->selectedReturn as $item) {
-                    // Update asset quantity
-                    $quantityRecord = BorrowAssetQuantity::firstOrNew(['asset_id' => $item->borrowItem->asset_id]);
-                    $quantityRecord->available_quantity += $item->borrowItem->quantity;
-                    $quantityRecord->save();
-                    
-                    // Update asset status
-                    $asset = Asset::find($item->borrowItem->asset_id);
-                    if ($asset->condition_name !== 'Available') {
-                        $asset->update(['condition_name' => 'Available']);
-                    }
+                } else {
+                    // Create new history if no existing record found
+                    UserHistory::create([
+                        'user_id' => $transaction->user_id,
+                        'borrow_code' => $transaction->borrow_code,
+                        'return_code' => $returnCode,
+                        'status' => 'Return Approved',
+                        'return_data' => [
+                            'return_items' => $transaction->borrowItems->map(function ($item) {
+                                return [
+                                    'borrow_item' => [
+                                        'asset' => $item->asset->toArray(),
+                                        'quantity' => $item->quantity,
+                                        'purpose' => $item->purpose,
+                                        'created_at' => $item->created_at
+                                    ],
+                                    'status' => 'Returned',
+                                    'created_at' => now()
+                                ];
+                            })->toArray()
+                        ],
+                        'action_date' => now()
+                    ]);
                 }
-                
-                // Check if all items in parent transaction are returned
-                $allItems = AssetBorrowItem::where('borrow_transaction_id', $transactionId)->get();
-                $allReturned = true;
-                
-                foreach ($allItems as $borrowItem) {
-                    $returnItem = \App\Models\AssetReturnItem::where('borrow_item_id', $borrowItem->id)
-                        ->where('status', 'Approved')
-                        ->exists();
-                        
-                    if (!$returnItem) {
-                        $allReturned = false;
-                        break;
-                    }
-                }
-                
-                if ($allReturned) {
-                    AssetBorrowTransaction::find($transactionId)->update(['status' => 'Returned']);
-                }
-                
-                // Generate PDF
-                $pdf = $this->generateApprovalPDF($returnCode);
-                
-                // Send email notifications
-                $this->sendApprovalEmails($returnCode, $pdf);
-                
-                // Fetch FRESH data for history
-                $returnItems = \App\Models\AssetReturnItem::with([
-                        'borrowItem.asset', 
-                        'returnedBy',
-                        'borrowItem.transaction'
-                    ])
-                    ->where('return_code', $returnCode)
-                    ->get();
-                
-                $transaction = AssetBorrowTransaction::with('borrowItems.asset')
-                    ->find($transactionId);
-
-                // Create history record
-                UserHistory::create([
-                    'user_id' => $returnItems->first()->returned_by_user_id,
-                    'borrow_code' => $transaction->borrow_code,
-                    'return_code' => $returnCode,
-                    'status' => 'Approved Return',
-                    'borrow_data' => $transaction->toArray(),
-                    'return_data' => $returnItems->toArray(),
-                    'action_date' => now()
-                ]);
-                
-                // Show success message
-                $this->successMessage = "Return request approved successfully!";
-                
-                // Reset state
-                $this->reset([
-                    'showApproveModal', 
-                    'selectedReturn', 
-                    'approveRemarks'
-                ]);
             });
+            
+            // Generate PDF
+            $pdfContent = $this->generateReturnApprovalPDF($transaction, $returnCode);
+            
+            // Send email notification to user
+            $this->sendReturnApprovalEmail($transaction, $returnCode, $pdfContent);
+            
+            $this->successMessage = "Return approved successfully!";
+            $this->reset(['showApproveModal', 'selectedTransaction', 'approveRemarks']);
         } catch (\Exception $e) {
-            $this->errorMessage = "Failed to approve request: " . $e->getMessage();
+            $this->errorMessage = "Error approving return: " . $e->getMessage();
+            Log::error("Approve return error: " . $e->getMessage());
         }
     }
 
-    public function denyRequest()
+    
+    private function generateReturnCode()
     {
-        $this->validate([
-            'denyRemarks' => 'required|string|max:500',
-        ], [
-            'denyRemarks.required' => 'Please provide a reason for denial.'
-        ]);
-
-        try {
-            DB::transaction(function () {
-                $returnCode = $this->selectedReturn->first()->return_code;
-                
-                // Use 'Rejected' instead of 'Denied' to match database constraints
-                \App\Models\AssetReturnItem::where('return_code', $returnCode)
-                    ->update([
-                        'status' => 'Rejected',
-                        'remarks' => $this->denyRemarks
-                    ]);
-                
-                // Show success message
-                $this->successMessage = "Return request denied successfully!";
-                
-                // Reset state
-                $this->reset([
-                    'showDenyModal', 
-                    'selectedReturn', 
-                    'denyRemarks'
-                ]);
-            });
-        } catch (\Exception $e) {
-            $this->errorMessage = "Failed to deny request: " . $e->getMessage();
-        }
+        $date = now()->format('Ymd');
+        $lastReturn = UserHistory::where('return_code', 'like', "RT-{$date}-%")
+            ->orderBy('return_code', 'desc')
+            ->first();
+            
+        $number = $lastReturn ? (int)substr($lastReturn->return_code, -8) + 1 : 1;
+        
+        return sprintf("RT-%s-%08d", $date, $number);
     }
     
-    private function generateApprovalPDF($returnCode)
+    private function generateReturnApprovalPDF($transaction, $returnCode)
     {
-        $returnItems = \App\Models\AssetReturnItem::with([
-                'borrowItem.asset', 
-                'returnedBy',
-                'borrowItem.transaction'
-            ])
-            ->where('return_code', $returnCode)
-            ->get();
-            
         $pdf = Pdf::loadView('pdf.return-approval', [
+            'transaction' => $transaction,
             'returnCode' => $returnCode,
-            'returnItems' => $returnItems,
             'approvalDate' => now()->format('M d, Y H:i'),
-            'approver' => Auth::user()
+            'approver' => Auth::user(),
         ]);
         
-        return $pdf;
+        return $pdf->output();
     }
     
-    private function sendApprovalEmails($returnCode, $pdf)
+    private function sendReturnApprovalEmail($transaction, $returnCode, $pdfContent)
     {
         try {
             $emailService = new SendEmail();
-            $returnItems = \App\Models\AssetReturnItem::with([
-                    'returnedBy', 
-                    'borrowItem.asset',
-                    'borrowItem.transaction'
-                ])
-                ->where('return_code', $returnCode)
-                ->get();
+            $user = $transaction->user;
+            $approverName = Auth::user()->name;
             
-            $user = $returnItems->first()->returnedBy;
-            $approver = Auth::user();
-            
-            // Send to admin
-            $emailService->send(
-                $approver->email,
-                "Return Approved: {$returnCode}",
+            // Prepare email content in required format
+            $emailContent = [
+                'emails.return-approved-user',
                 [
-                    'emails.return-approved-admin',
-                    [
-                        'returnCode' => $returnCode,
-                        'userName' => $user->name,
-                        'userDepartment' => $user->department->name ?? 'N/A',
-                        'returnDate' => $returnItems->first()->returned_at->format('M d, Y H:i'),
-                        'approverName' => $approver->name,
-                        'approverDepartment' => $approver->department->name ?? 'N/A',
-                        'approvalDate' => now()->format('M d, Y H:i'),
-                        'remarks' => $this->approveRemarks,
-                        'returnItems' => $returnItems
-                    ]
-                ],
-                [],
-                $pdf->output(),
-                "Return-Approval-{$returnCode}.pdf",
-                false
-            );
+                    'returnCode' => $returnCode,
+                    'approverName' => $approverName,
+                    'approvalDate' => now()->format('M d, Y H:i')
+                ]
+            ];
             
-            // Send to user
+            // Send email using your service's required format
             $emailService->send(
                 $user->email,
-                "Your Return Approved: {$returnCode}",
-                [
-                    'emails.return-approved-user',
-                    [
-                        'returnCode' => $returnCode,
-                        'approvalDate' => now()->format('M d, Y H:i'),
-                        'approverName' => $approver->name
-                    ]
-                ],
-                [],
-                $pdf->output(),
+                "Return Approved: {$returnCode}",
+                $emailContent,         // Content as array [view, data]
+                [],                     // CC addresses
+                $pdfContent,            // PDF content
                 "Return-Approval-{$returnCode}.pdf",
-                false
+                false                   // isHtml = false (using view template)
             );
         } catch (\Exception $e) {
-            Log::error("Approval email failed: " . $e->getMessage());
+            Log::error("Return approval email failed: " . $e->getMessage());
         }
     }
-    
-    private function sendDenialEmail($returnCode)
+
+    public function rejectReturn()
     {
+        $this->validate([
+            'rejectRemarks' => 'required|string|max:500',
+        ]);
+
         try {
-            $emailService = new SendEmail();
-            $returnItems = \App\Models\AssetReturnItem::with(['returnedBy'])
-                ->where('return_code', $returnCode)
-                ->get();
+            $this->selectedTransaction->update([
+                'status' => 'ReturnRejected',
+                'remarks' => $this->rejectRemarks
+            ]);
             
-            $user = $returnItems->first()->returnedBy;
-            
-            $emailService->send(
-                $user->email,
-                "Return Request Denied: {$returnCode}",
-                [
-                    'emails.return-denied-user',
-                    [
-                        'returnCode' => $returnCode,
-                        'denialDate' => now()->format('M d, Y H:i'),
-                        'remarks' => $this->denyRemarks
-                    ]
-                ],
-                [],
-                null,
-                null,
-                false
-            );
+            $this->successMessage = "Return rejected successfully!";
+            $this->reset(['showRejectModal', 'selectedTransaction', 'rejectRemarks']);
         } catch (\Exception $e) {
-            Log::error("Denial email failed: " . $e->getMessage());
+            $this->errorMessage = "Error rejecting return: " . $e->getMessage();
         }
     }
 

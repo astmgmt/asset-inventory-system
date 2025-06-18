@@ -6,16 +6,14 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\AssetBorrowTransaction;
 use App\Models\AssetBorrowItem;
-use App\Models\AssetReturnItem;
-use App\Models\BorrowAssetQuantity;
 use App\Models\Asset;
+use App\Models\User;
+use App\Models\Department;
+use App\Models\Role;
 use App\Services\SendEmail;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use App\Models\User;
-
 
 class UserReturnTransactions extends Component
 {
@@ -24,6 +22,7 @@ class UserReturnTransactions extends Component
     public $search = '';
     public $selectedTransaction = null;
     public $showReturnModal = false;
+    public $showViewModal = false;
     public $showConfirmationModal = false;
     public $returnRemarks = '';
     public $successMessage = '';
@@ -32,34 +31,13 @@ class UserReturnTransactions extends Component
     public function render()
     {
         $transactions = AssetBorrowTransaction::where('user_id', Auth::id())
-            ->where('status', 'Approved')
+            ->whereIn('status', ['Borrowed', 'PendingReturnApproval', 'ReturnRejected'])
             ->when($this->search, function ($query) {
                 $query->where('borrow_code', 'like', '%'.$this->search.'%');
             })
-            ->with(['borrowItems.returnItem'])
+            ->with(['borrowItems.asset', 'user.department']) // Add department relationship
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-
-        // Add computed property to each transaction
-        $transactions->getCollection()->transform(function ($transaction) {
-            $hasRejectedReturn = false;
-            $hasPendingReturn = false;
-            
-            foreach ($transaction->borrowItems as $borrowItem) {
-                if ($borrowItem->returnItem) {
-                    if ($borrowItem->returnItem->status === 'Rejected') {
-                        $hasRejectedReturn = true;
-                    }
-                    if ($borrowItem->returnItem->status === 'Pending') {
-                        $hasPendingReturn = true;
-                    }
-                }
-            }
-            
-            $transaction->hasRejectedReturn = $hasRejectedReturn;
-            $transaction->hasPendingReturn = $hasPendingReturn;
-            return $transaction;
-        });
 
         return view('livewire.user.user-return-transactions', [
             'transactions' => $transactions
@@ -73,6 +51,13 @@ class UserReturnTransactions extends Component
             
         $this->returnRemarks = '';
         $this->showReturnModal = true;
+    }
+
+    public function openViewModal($transactionId)
+    {
+        $this->selectedTransaction = AssetBorrowTransaction::with('borrowItems.asset')
+            ->findOrFail($transactionId);
+        $this->showViewModal = true;
     }
 
     public function confirmReturn()
@@ -90,27 +75,20 @@ class UserReturnTransactions extends Component
         
         try {
             DB::transaction(function () {
-                $returnCode = $this->generateReturnCode();
-                $user = Auth::user();
+                $transaction = $this->selectedTransaction;
                 
-                // Create return request (not final return)
-                foreach ($this->selectedTransaction->borrowItems as $borrowItem) {
-                    AssetReturnItem::create([
-                        'return_code' => $returnCode,
-                        'borrow_item_id' => $borrowItem->id,
-                        'returned_by_user_id' => $user->id,
-                        'returned_by_department_id' => $user->department_id,
-                        'returned_at' => now(),
-                        'remarks' => $this->returnRemarks,
-                        'status' => 'Pending', // Awaiting admin approval
-                    ]);
-                }
+                // Update transaction status
+                $transaction->update([
+                    'status' => 'PendingReturnApproval',
+                    'return_requested_at' => now(),
+                    'return_remarks' => $this->returnRemarks
+                ]);
                 
                 // Generate PDF
-                $pdf = $this->generateReturnPDF($returnCode);
+                $pdf = $this->generateReturnPDF($transaction->borrow_code);
                 
                 // Send email notification to admin
-                $this->sendReturnRequestEmail($returnCode, $pdf);
+                $this->sendReturnRequestEmail($transaction->borrow_code, $pdf);
                 
                 // Show success message
                 $this->successMessage = "Return request submitted for admin approval!";
@@ -127,42 +105,39 @@ class UserReturnTransactions extends Component
         }
     }
     
-    private function generateReturnCode()
+    
+    private function generateReturnPDF($borrowCode)
     {
-        $today = now()->format('Ymd');
-        $lastReturn = AssetReturnItem::where('return_code', 'like', "RT-{$today}-%")
-            ->orderBy('return_code', 'desc')
+        $transaction = AssetBorrowTransaction::with([
+                'borrowItems.asset',
+                'user.department' // Load user and department relationship
+            ])
+            ->where('borrow_code', $borrowCode)
             ->first();
             
-        $number = $lastReturn ? (int)substr($lastReturn->return_code, -8) + 1 : 1;
-        
-        return sprintf("RT-%s-%08d", $today, $number);
-    }
-    
-    private function generateReturnPDF($returnCode)
-    {
-        $returnItems = AssetReturnItem::with([
-                'borrowItem.asset', 
-                'borrowItem.transaction'
-            ])
-            ->where('return_code', $returnCode)
-            ->get();
-            
         $pdf = Pdf::loadView('pdf.return-request', [
-            'returnCode' => $returnCode,
-            'returnItems' => $returnItems,
-            'user' => Auth::user(),
-            'returnDate' => now()->format('M d, Y H:i')
+            'borrowCode' => $borrowCode,
+            'transaction' => $transaction, // Pass entire transaction
+            'returnDate' => now()->format('M d, Y H:i'),
+            'remarks' => $this->returnRemarks
         ]);
         
         return $pdf;
     }
-    
-    private function sendReturnRequestEmail($returnCode, $pdf)
+
+    private function sendReturnRequestEmail($borrowCode, $pdf)
     {
         try {
             $emailService = new SendEmail();
-            $user = Auth::user();
+            $transaction = AssetBorrowTransaction::with('user')
+                ->where('borrow_code', $borrowCode)
+                ->first();
+            
+            if (!$transaction || !$transaction->user) {
+                throw new \Exception("User information not found for transaction");
+            }
+            
+            $user = $transaction->user;
             
             // Get admin emails
             $superAdmin = User::whereHas('role', function($q) {
@@ -183,20 +158,20 @@ class UserReturnTransactions extends Component
             if ($validAdminEmail) {
                 $emailService->send(
                     $to,
-                    "Return Request: {$returnCode}",
+                    "Return Request: {$borrowCode}",
                     [
                         'emails.return-request-admin',
                         [
-                            'returnCode' => $returnCode,
+                            'borrowCode' => $borrowCode,
                             'userName' => $user->name,
                             'returnDate' => now()->format('M d, Y H:i'),
                             'remarks' => $this->returnRemarks,
-                            'transaction' => $this->selectedTransaction
+                            'transaction' => $transaction
                         ]
                     ],
                     $cc,
                     $pdf->output(),
-                    "Return-Request-{$returnCode}.pdf",
+                    "Return-Request-{$borrowCode}.pdf",
                     false
                 );
             }
@@ -204,17 +179,17 @@ class UserReturnTransactions extends Component
             if ($validUserEmail) {
                 $emailService->send(
                     $user->email,
-                    "Your Return Request: {$returnCode}",
+                    "Your Return Request: {$borrowCode}",
                     [
                         'emails.return-request-user',
                         [
-                            'returnCode' => $returnCode,
+                            'borrowCode' => $borrowCode,
                             'returnDate' => now()->format('M d, Y H:i')
                         ]
                     ],
                     [],
                     $pdf->output(),
-                    "Return-Request-{$returnCode}.pdf",
+                    "Return-Request-{$borrowCode}.pdf",
                     false
                 );
             }
@@ -222,6 +197,8 @@ class UserReturnTransactions extends Component
             Log::error("Return request email failed: " . $e->getMessage());
         }
     }
+    
+
 
     public function clearMessages()
     {

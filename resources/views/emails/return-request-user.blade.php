@@ -2,17 +2,18 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Your Return Request: {{ $returnCode }}</title>
+    <title>Your Return Approved: {{ $returnCode }}</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
         .header { text-align: center; padding: 20px 0; }
         .logo { height: 50px; }
         .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 30px; }
-        .title { font-size: 24px; color: #2563eb; margin-bottom: 20px; text-align: center; }
+        .title { font-size: 24px; color: #10B981; margin-bottom: 20px; text-align: center; }
         .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 12px; }
         .info-item { margin-bottom: 10px; text-align: center; }
-        .info-label { font-weight: 600; color: #1f2937; }
+        .signature-section { margin-top: 30px; display: flex; justify-content: space-between; }
+        .signature-box { width: 45%; border-top: 1px solid #ccc; padding-top: 10px; }
     </style>
 </head>
 <body>
@@ -23,17 +24,30 @@
         </div>
 
         <div class="card">
-            <h1 class="title">📬 Return Request Submitted: {{ $returnCode }}</h1>
+            <h1 class="title">✅ Return Approved: {{ $returnCode }}</h1>
             
             <div class="info-item">
-                <p>Your return request has been submitted to the admin for approval.</p>
-                <p>Request Date: <strong>{{ $returnDate }}</strong></p>
+                <p>Your return request has been approved by <strong>{{ $approverName }}</strong>.</p>
+                <p>Approval Date: <strong>{{ $approvalDate }}</strong></p>
             </div>
             
             <p class="text-center mt-6">
-                You'll receive another notification once your return has been approved. 
-                The attached document confirms your return request details.
+                The assets have been successfully returned to inventory. 
+                Please see the attached PDF for the complete return approval summary.
             </p>
+            
+            <div class="signature-section">
+                <div class="signature-box">
+                    <p>Returnee Signature:</p>
+                    <p>_________________________</p>
+                    <p>Date: ___________________</p>
+                </div>
+                <div class="signature-box">
+                    <p>Approver Signature:</p>
+                    <p>_________________________</p>
+                    <p>Date: ___________________</p>
+                </div>
+            </div>
         </div>
         
         <div class="footer">

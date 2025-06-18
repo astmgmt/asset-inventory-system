@@ -9,6 +9,7 @@ use App\Models\AssetBorrowTransaction;
 use App\Models\Asset;
 use App\Models\AssetBorrowItem;
 use App\Models\UserHistory;
+use App\Models\AssetCondition;
 use App\Services\SendEmail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
@@ -83,6 +84,8 @@ class ApproveBorrowerRequests extends Component
         $this->showDenyModal = true;
     }
 
+    
+
     public function approveRequest()
     {
         $this->validate([
@@ -90,23 +93,38 @@ class ApproveBorrowerRequests extends Component
         ]);
 
         try {
-            // Store transaction reference before DB operations
             $transaction = $this->selectedTransaction;
             $borrowCode = $transaction->borrow_code;
 
             DB::transaction(function () use ($transaction) {
                 $user = Auth::user();
-                
-                // Lock all assets in this transaction
                 $assetIds = $transaction->borrowItems->pluck('asset_id')->toArray();
                 $assets = Asset::whereIn('id', $assetIds)->lockForUpdate()->get()->keyBy('id');
                 
-                // Verify quantities for ALL assets first
+                // Get "Borrowed" condition ID
+                $borrowedCondition = AssetCondition::where('condition_name', 'Borrowed')->first();
+                if (!$borrowedCondition) {
+                    throw new \Exception("Borrowed condition not found!");
+                }
+
+                // Add condition checks
+                $disallowedConditions = ['Defective', 'Disposed'];
                 foreach ($transaction->borrowItems as $item) {
                     $asset = $assets[$item->asset_id] ?? Asset::find($item->asset_id);
                     
                     if (!$asset) {
                         throw new \Exception("Asset not found for ID: {$item->asset_id}");
+                    }
+                    
+                    // Check if asset can be borrowed
+                    if ($asset->is_disposed) {
+                        throw new \Exception("Asset {$asset->name} is disposed and cannot be borrowed.");
+                    }
+                    
+                    if (in_array($asset->condition->condition_name, $disallowedConditions)) {
+                        throw new \Exception(
+                            "Asset {$asset->name} is in {$asset->condition->condition_name} condition and cannot be borrowed."
+                        );
                     }
                     
                     if ($asset->quantity < $item->quantity) {
@@ -116,12 +134,24 @@ class ApproveBorrowerRequests extends Component
                         );
                     }
                 }
-                
-                // Now update quantities for all assets
+
+                // Track updated assets
+                $updatedAssets = [];
+
                 foreach ($transaction->borrowItems as $item) {
                     $asset = $assets[$item->asset_id];
-                    $asset->decrement('quantity', $item->quantity);
-                    $asset->decrement('reserved_quantity', $item->quantity);
+                    
+                    // Update quantities
+                    $asset->quantity -= $item->quantity;
+                    $asset->reserved_quantity -= $item->quantity;
+                    
+                    // Update condition if not already updated
+                    if (!in_array($asset->id, $updatedAssets)) {
+                        $asset->condition_id = $borrowedCondition->id;
+                        $updatedAssets[] = $asset->id;
+                    }
+                    
+                    $asset->save();
                 }
 
                 // Update transaction status
@@ -159,7 +189,7 @@ class ApproveBorrowerRequests extends Component
             
             // Open PDF using stored borrow code
             $this->dispatch('openPdf', $borrowCode);
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             $this->errorMessage = "Failed to approve request: " . $e->getMessage();
@@ -168,6 +198,13 @@ class ApproveBorrowerRequests extends Component
             // Automatically reject request if quantity is insufficient
             try {
                 if ($this->selectedTransaction) {
+                    foreach ($this->selectedTransaction->borrowItems as $item) {
+                        $asset = Asset::find($item->asset_id);
+                        if ($asset) {
+                            $asset->decrement('reserved_quantity', $item->quantity);
+                        }
+                    }
+
                     $this->selectedTransaction->update([
                         'status' => 'Rejected',
                         'remarks' => 'Auto-rejected: ' . $e->getMessage()
@@ -203,12 +240,20 @@ class ApproveBorrowerRequests extends Component
         try {
             $transaction = $this->selectedTransaction;
             
+            // Release reserved quantities
+            foreach ($transaction->borrowItems as $item) {
+                $asset = Asset::find($item->asset_id);
+                if ($asset) {
+                    $asset->decrement('reserved_quantity', $item->quantity);
+                }
+            }
+
             // Update transaction status
             $transaction->update([
-                'status' => 'Rejected',
+                'status' => 'BorrowRejected',
                 'remarks' => $this->denyRemarks
             ]);
-            
+
             // Capture remarks before reset
             $denialRemarks = $this->denyRemarks;
             
@@ -232,12 +277,12 @@ class ApproveBorrowerRequests extends Component
                 'showDenyModal', 
                 'selectedTransaction', 
                 'denyRemarks'
-            ]);
+            ]);       
             
         } catch (\Exception $e) {
-            DB::rollBack();
-            $this->errorMessage = "Failed to approve request: " . $e->getMessage();
-            Log::error("Approve error: " . $e->getMessage());
+                DB::rollBack();
+                $this->errorMessage = "Failed to approve request: " . $e->getMessage();
+                Log::error("Approve error: " . $e->getMessage());
         }
     }
     

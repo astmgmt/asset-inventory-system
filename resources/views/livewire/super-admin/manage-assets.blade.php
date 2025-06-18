@@ -397,7 +397,6 @@
             </div>
         @endif
 
-        <!-- ... (other modals remain the same) ... -->
         @if ($showViewModal)
             <div class="modal-backdrop">
                 <div class="modal">
@@ -468,7 +467,7 @@
                                 @if($viewAsset->is_disposed)
                                     <span class="status-badge disposed">Disposed</span>
                                 @else
-                                    <span class="status-badge available">Available</span>
+                                    <span class="status-badge available">On-hand</span>
                                 @endif
                             </p>
                         </div>

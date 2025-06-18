@@ -40,17 +40,19 @@ return new class extends Migration
                 ->nullOnDelete();
 
             $table->enum('status', [
-                'PendingBorrowApproval',   // When user requests to borrow
-                'Borrowed',                // When admin approves borrowing
-                'PendingReturnApproval',   // When user requests to return
-                'Returned',                // When admin approves return
-                'Rejected',                // For both borrow and return rejections
+                'PendingBorrowApproval',   
+                'Borrowed',                
+                'PendingReturnApproval',   
+                'Returned',                
+                'BorrowRejected',   
+                'ReturnRejected'    
             ])->default('PendingBorrowApproval');
 
             $table->timestamp('borrowed_at')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->text('remarks')->nullable();
-
+            $table->timestamp('return_requested_at')->nullable();
+            $table->text('return_remarks')->nullable();
             $table->timestamps();
         });
     }

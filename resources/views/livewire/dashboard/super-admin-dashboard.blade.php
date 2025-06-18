@@ -1,4 +1,4 @@
-<div class="superadmin-container" wire:poll.60s="fetchData">
+<div class="superadmin-container">
     <h1 class="page-title main-title">Warranty & Subscription Monitoring</h1>
 
     <!-- First Section: Asset Monitoring -->
@@ -11,7 +11,7 @@
                     <h2 class="box-title">Assets Expiring</h2>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="user-table expiration-table">
+                    <table class="user-table expiration-table mb-2">
                         <thead>
                             <tr>
                                 <th>Asset Name</th>
@@ -43,6 +43,11 @@
                             @endforelse
                         </tbody>
                     </table>
+
+                    <div mt-6 pagination-container>
+                        {{ $expiringAssets->links() }}
+                    </div>
+                    
                 </div>
             </div>
 
@@ -54,6 +59,7 @@
                 <div class="box-body"
                     x-data="assetChart(@js($assetCounts))"
                     x-init="init()"
+                    wire:key="asset-chart-{{ $expiringAssets->currentPage() }}"
                     x-on:chartDataUpdated.window="updateData($event.detail.assetCounts)">
                     <canvas id="assetExpiryChart" height="250"></canvas>
                 </div>
@@ -71,7 +77,7 @@
                     <h2 class="box-title">Software Subscriptions Expiring</h2>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="user-table expiration-table">
+                    <table class="user-table expiration-table mb-2">
                         <thead>
                             <tr>
                                 <th>Software Name</th>
@@ -103,6 +109,10 @@
                             @endforelse
                         </tbody>
                     </table>
+
+                    <div mt-6 pagination-container>
+                        {{ $expiringSoftware->links() }}
+                    </div>
                 </div>
             </div>
 
@@ -114,6 +124,7 @@
                 <div class="box-body"
                     x-data="softwareChart(@js($softwareCounts))"
                     x-init="init()"
+                    wire:key="software-chart-{{ $expiringSoftware->currentPage() }}"
                     x-on:chartDataUpdated.window="updateData($event.detail.softwareCounts)">
                     <canvas id="softwareExpiryChart" height="250"></canvas>
                 </div>
@@ -227,4 +238,11 @@
             }
         };
     }
+
+
+    document.addEventListener('livewire:load', () => {
+        setInterval(() => {
+            Livewire.emit('pollChartData');
+        }, 60000); // 1 minute
+    });
 </script>

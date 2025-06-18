@@ -8,6 +8,8 @@ use Livewire\Attributes\Layout;
 use App\Models\UserHistory;
 use App\Services\SendEmail;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 
 #[Layout('components.layouts.app')]
 class UserHistoryTransactions extends Component
@@ -23,22 +25,14 @@ class UserHistoryTransactions extends Component
 
     public function render()
     {
-        $history = \App\Models\UserHistory::where('user_id', Auth::id())
+        $history = UserHistory::where('user_id', Auth::id())
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('borrow_code', 'like', '%'.$this->search.'%')
-                    ->orWhere('return_code', 'like', '%'.$this->search.'%')
-                    ->orWhere('status', 'like', '%'.$this->search.'%');
+                      ->orWhere('return_code', 'like', '%'.$this->search.'%')
+                      ->orWhere('status', 'like', '%'.$this->search.'%');
                 });
             })
-            ->select(
-                \DB::raw('MAX(id) as id'), // important!
-                'borrow_code',
-                \DB::raw('MIN(return_code) as return_code'),
-                \DB::raw('MIN(status) as status'),
-                \DB::raw('MIN(action_date) as action_date')
-            )
-            ->groupBy('borrow_code')
             ->orderBy('action_date', 'desc')
             ->paginate(10);
 
@@ -47,11 +41,9 @@ class UserHistoryTransactions extends Component
         ]);
     }
 
-
-
     public function showDetails($historyId)
     {
-        $this->selectedHistory = UserHistory::findOrFail($historyId);
+        $this->selectedHistory = UserHistory::findOrFail($historyId)->fresh();
         $this->showDetailsModal = true;
     }
 
@@ -64,25 +56,33 @@ class UserHistoryTransactions extends Component
     public function deleteHistory()
     {
         try {
-            $borrowCode = $this->selectedHistory->borrow_code;
+            $history = $this->selectedHistory;
+            $this->sendDeletionEmail($history);
+            $history->delete();
 
-            // Optionally send email for each record
-            $historyItems = UserHistory::where('borrow_code', $borrowCode)->get();
-            foreach ($historyItems as $item) {
-                $this->sendDeletionEmail($item);
-            }
-
-            // Delete all records with the same borrow_code
-            UserHistory::where('borrow_code', $borrowCode)->delete();
-
-            $this->successMessage = "All records with Borrow Code {$borrowCode} were deleted successfully!";
+            $this->successMessage = "History record deleted successfully!";
             $this->reset(['showDeleteModal', 'selectedHistory']);
         } catch (\Exception $e) {
             $this->errorMessage = "Failed to delete history: " . $e->getMessage();
         }
     }
-
     
+    public function generatePdf($historyId)
+    {
+        $history = UserHistory::findOrFail($historyId);
+        $user = Auth::user();
+        
+        $pdf = Pdf::loadView('pdf.borrow-history', [
+            'history' => $history,
+            'user' => $user
+        ]);
+        
+        return response()->streamDownload(
+            fn () => print($pdf->output()),
+            "history-{$history->borrow_code}.pdf"
+        );
+    }
+
     private function sendDeletionEmail($history)
     {
         try {

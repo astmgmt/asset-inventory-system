@@ -3,6 +3,7 @@
 namespace App\Livewire\Dashboard;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use App\Models\Asset;
 use App\Models\Software;
@@ -10,57 +11,43 @@ use App\Models\Software;
 #[Layout('components.layouts.app')]
 class SuperAdminDashboard extends Component
 {
-    public $expiringAssets = [];
-    public $expiringSoftware = [];
+    use WithPagination;
+
     public $assetCounts = [];
     public $softwareCounts = [];
 
-    public function fetchData()
-    {
-        $this->expiringAssets = $this->getExpiringAssets();
-        $this->expiringSoftware = $this->getExpiringSoftware();
-
-        $newAssetCounts = $this->getAssetCounts();
-        $newSoftwareCounts = $this->getSoftwareCounts();
-
-        if ($newAssetCounts != $this->assetCounts || $newSoftwareCounts != $this->softwareCounts) {
-            $this->assetCounts = $newAssetCounts;
-            $this->softwareCounts = $newSoftwareCounts;
-
-            $this->dispatch('chartDataUpdated', [
-                'assetCounts' => $this->assetCounts,
-                'softwareCounts' => $this->softwareCounts
-            ]);
-        }
-    }
-
-
+    protected $listeners = ['pollChartData'];
+ 
     public function mount()
     {
-        $this->expiringAssets = $this->getExpiringAssets();
-        $this->expiringSoftware = $this->getExpiringSoftware();
+        $this->refreshExpiryStatuses();
+        $this->loadCounts();
+    }
+
+    public function pollChartData()
+    {
+        $this->refreshExpiryStatuses();
+        $this->loadCounts();
+
+        $this->dispatchBrowserEvent('chartDataUpdated', [
+            'assetCounts' => $this->assetCounts,
+            'softwareCounts' => $this->softwareCounts,
+        ]);
+    }
+
+    protected function refreshExpiryStatuses()
+    {
+        Asset::all()->each(fn ($asset) => $asset->updateExpiryStatus());
+        Software::all()->each(fn ($software) => $software->updateExpiryStatus());
+    }
+
+    protected function loadCounts()
+    {
         $this->assetCounts = $this->getAssetCounts();
         $this->softwareCounts = $this->getSoftwareCounts();
     }
 
-
-    public function getExpiringAssets()
-    {
-        return Asset::whereIn('expiry_status', ['warning_3m', 'warning_2m', 'warning_1m'])
-            ->orderBy('warranty_expiration', 'asc')
-            ->get()
-            ->each(fn ($asset) => $asset->updateExpiryStatus());
-    }
-
-    public function getExpiringSoftware()
-    {
-        return Software::whereIn('expiry_status', ['warning_3m', 'warning_2m', 'warning_1m'])
-            ->orderBy('expiry_date', 'asc')
-            ->get()
-            ->each(fn ($software) => $software->updateExpiryStatus());
-    }
-
-    public function getAssetCounts()
+    protected function getAssetCounts()
     {
         return [
             '3m' => Asset::where('expiry_status', 'warning_3m')->count(),
@@ -69,7 +56,7 @@ class SuperAdminDashboard extends Component
         ];
     }
 
-    public function getSoftwareCounts()
+    protected function getSoftwareCounts()
     {
         return [
             '3m' => Software::where('expiry_status', 'warning_3m')->count(),
@@ -78,8 +65,51 @@ class SuperAdminDashboard extends Component
         ];
     }
 
+    /**
+     * Paginated expiring assets query.
+     */
+    public function getExpiringAssetsProperty()
+    {
+        return Asset::whereIn('expiry_status', ['warning_3m', 'warning_2m', 'warning_1m'])
+            ->orderBy('warranty_expiration', 'asc')
+            ->paginate(5); // Adjust the number as you want
+    }
+
+    /**
+     * Paginated expiring software query.
+     */
+    public function getExpiringSoftwareProperty()
+    {
+        return Software::whereIn('expiry_status', ['warning_3m', 'warning_2m', 'warning_1m'])
+            ->orderBy('expiry_date', 'asc')
+            ->paginate(5);
+    }
+
     public function render()
     {
-        return view('livewire.dashboard.super-admin-dashboard');
+        return view('livewire.dashboard.super-admin-dashboard', [
+            'expiringAssets' => $this->expiringAssets,
+            'expiringSoftware' => $this->expiringSoftware,
+        ]);
     }
+
+    // Because we use computed properties, add these accessors:
+
+    public function getExpiringAssets()
+    {
+        return $this->expiringAssetsProperty;
+    }
+
+    public function getExpiringSoftware()
+    {
+        return $this->expiringSoftwareProperty;
+    }
+    public function updatedPage()
+    {
+        $this->dispatch('chartDataUpdated', [
+            'assetCounts' => $this->assetCounts,
+            'softwareCounts' => $this->softwareCounts,
+        ]);
+    }
+
 }

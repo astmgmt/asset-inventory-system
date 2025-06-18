@@ -104,7 +104,6 @@ class AssetDisposals extends Component
     public function performDisposal()
     {
         try {
-            // Re-fetch asset with lock to prevent concurrent disposal
             $asset = Asset::where('id', $this->selectedAsset->id)
                 ->where('is_disposed', false)
                 ->lockForUpdate()
@@ -128,8 +127,17 @@ class AssetDisposals extends Component
                     'approved_at' => now(),
                 ]);
 
-                // Mark asset as disposed
-                $asset->update(['is_disposed' => true]);
+                // Get or create "Disposed" condition
+                $disposedCondition = \App\Models\AssetCondition::firstOrCreate(
+                    ['condition_name' => 'Disposed'],
+                    ['condition_name' => 'Disposed']
+                );
+
+                // Update asset condition and disposal status
+                $asset->update([
+                    'is_disposed' => true,
+                    'condition_id' => $disposedCondition->id // Update condition
+                ]);
 
                 // Send email notification
                 $this->sendDisposalEmail($disposal, $asset);
@@ -138,8 +146,6 @@ class AssetDisposals extends Component
             $this->successMessage = 'Asset has been disposed successfully!';
             $this->closeModal();
             $this->resetDisposalForm();
-            
-            // Auto-hide success message after 3 seconds
             $this->dispatch('notify', message: $this->successMessage);
             
         } catch (\Exception $e) {
@@ -157,8 +163,6 @@ class AssetDisposals extends Component
             $q->whereIn('name', ['Super Admin', 'Admin']);
         })->get();
         
-        $to = $admins->pluck('email')->toArray();
-        
         // Generate email body directly using view
         $emailContent = view('emails.asset-disposal', [
             'disposalId' => $disposal->id,
@@ -173,17 +177,19 @@ class AssetDisposals extends Component
             'notes' => $this->notes
         ])->render();
         
-        // Send email
+        // Send email to each admin individually
         $emailService = new SendEmail();
-        $emailService->send(
-            $to,
-            "Asset Disposal: {$asset->asset_code} - {$asset->name}",
-            $emailContent,
-            [],
-            null,
-            null,
-            true
-        );
+        foreach ($admins as $admin) {
+            $emailService->send(
+                $admin->email,  // Single email address
+                "Asset Disposal: {$asset->asset_code} - {$asset->name}",
+                $emailContent,
+                [],
+                null,
+                null,
+                true
+            );
+        }
     }
 
     public function closeModal()

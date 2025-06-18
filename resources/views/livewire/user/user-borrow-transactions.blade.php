@@ -1,5 +1,5 @@
 <div class="superadmin-container">
-    <h1 class="page-title main-title">Borrow Requests</h1>
+    <h1 class="page-title main-title">Pending Borrow Requests</h1>
     
     <!-- Success Message -->
     @if ($successMessage)
@@ -25,7 +25,7 @@
     <div class="search-bar mb-6 w-full md:w-1/3 relative">
         <input 
             type="text" 
-            placeholder="Search by code, status, date..." 
+            placeholder="Search by code or date..." 
             wire:model.live.debounce.300ms="search"
             class="search-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
@@ -39,74 +39,53 @@
     </div>
 
     <!-- Transactions Table -->
-    <div class="overflow-x-auto" wire:poll.10s>
+    <div class="overflow-x-auto">
         <table class="user-table">
             <thead>
                 <tr>
                     <th>Borrow Code</th>
                     <th>Status</th>
-                    <th>Date Request</th>
+                    <th>Date Requested</th>
                     <th>Remarks</th>
-                    <th>Borrowed At</th>
-                    <th>Approved At</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($transactions as $transaction)
                     <tr>
-                        <td data-label="Borrow Code" class="text-center">{{ $transaction->borrow_code }}</td>
-                        <td data-label="Status" class="text-center">
-                            <span class="status-badge {{ strtolower($transaction->status) }}">
-                                {{ $transaction->status }}
-                            </span>
+                        <td data-label="Borrow Code" class="text-center">
+                            <button wire:click="showDetails({{ $transaction->id }})" class="text-blue-500 hover:underline">
+                                {{ $transaction->borrow_code }}
+                            </button>
                         </td>
-                        <td data-label="Date Request" class="text-center">
-                            {{ $transaction->created_at->format('F d, Y')}}
+                        <td data-label="Status" class="text-center">
+                            <span class="status-badge pending">Pending</span>
+                        </td>
+                        <td data-label="Date Requested" class="text-center">
+                            {{ $transaction->created_at->format('M d, Y h:i A') }}
                         </td>
                         <td data-label="Remarks" class="text-center">
                             {{ $transaction->remarks ?: 'N/A' }}
-                        </td>
-                        <td data-label="Borrowed At" class="text-center">
-                            {{ $transaction->borrowed_at ? $transaction->borrowed_at->format('F d, Y') : 'N/A' }}
-                        </td>
-                        <td data-label="Approved At" class="text-center">
-                            @if($transaction->status === 'Approved' && $transaction->approved_at)
-                                {{ $transaction->approved_at->format('F d, Y') }}
-                            @else
-                                N/A
-                            @endif
                         </td>
                         <td data-label="Actions" class="text-center">
                             <button 
                                 wire:click="showDetails({{ $transaction->id }})"
                                 class="view-btn bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md transition"
                             >
-                                <i class="fas fa-eye"></i> View
+                                <i class="fas fa-eye mr-1"></i> View
                             </button>
                             
-                            @if($transaction->status === 'Pending')
-                                <button 
-                                    wire:click="confirmCancel({{ $transaction->id }})"
-                                    class="cancel-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md ml-2 transition"
-                                >
-                                    <i class="fas fa-times"></i> Cancel
-                                </button>
-                            @endif
-                            
-                            @if($transaction->status === 'Rejected')
-                                <button 
-                                    wire:click="confirmDelete({{ $transaction->id }})"
-                                    class="delete-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md ml-2 transition"
-                                >
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
-                            @endif
+                            <button 
+                                wire:click="confirmCancel({{ $transaction->id }})"
+                                class="cancel-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md ml-2 transition"
+                            >
+                                <i class="fas fa-times mr-1"></i> Cancel
+                            </button>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="no-software-row">No borrow requests found.</td>
+                        <td colspan="5" class="no-software-row">No pending borrow requests found.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -163,68 +142,37 @@
     @endif
 
     <!-- Cancel Confirmation Modal -->
-    <div class="modal-backdrop" x-data="{ show: @entangle('showCancelModal') }" x-show="show">
-        <div class="modal" x-on:click.away="$wire.showCancelModal = false">
-            <div class="modal-header">
-                <h2 class="modal-title">Confirm Cancellation</h2>
-                <button wire:click="$set('showCancelModal', false)" class="modal-close">&times;</button>
-            </div>
-            
-            <div class="modal-body">
-                <div class="text-center p-6">
-                    <p class="text-lg mb-4">Do you really want to cancel this request?</p>
-                    <p class="text-danger font-bold">This will delete your request permanently!</p>
-                    <p class="mt-4">Borrow Code: <strong>{{ $transactionToCancel->borrow_code ?? 'N/A' }}</strong></p>
+    @if($showCancelModal)
+        <div class="modal-backdrop" x-data="{ show: @entangle('showCancelModal') }" x-show="show">
+            <div class="modal" x-on:click.away="$wire.showCancelModal = false">
+                <div class="modal-header">
+                    <h2 class="modal-title">Confirm Cancellation</h2>
+                    <button wire:click="$set('showCancelModal', false)" class="modal-close">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="text-center p-6">
+                        <p class="text-lg mb-4">Do you really want to cancel this borrow request?</p>
+                        <p class="text-danger font-bold">This will release all reserved assets!</p>
+                        <p class="mt-4">Borrow Code: <strong>{{ $transactionToCancel->borrow_code ?? 'N/A' }}</strong></p>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button 
+                        wire:click="$set('showCancelModal', false)" 
+                        class="btn btn-secondary"
+                    >
+                        No, Keep Request
+                    </button>
+                    <button 
+                        wire:click="cancelRequest" 
+                        class="btn btn-danger ml-4"
+                    >
+                        Yes, Cancel Request
+                    </button>
                 </div>
             </div>
-            
-            <div class="modal-footer">
-                <button 
-                    wire:click="$set('showCancelModal', false)" 
-                    class="btn btn-secondary"
-                >
-                    No, Keep It
-                </button>
-                <button 
-                    wire:click="cancelRequest" 
-                    class="btn btn-danger ml-4"
-                >
-                    Yes, Cancel Request
-                </button>
-            </div>
         </div>
-    </div>
-    
-    <!-- Delete Confirmation Modal (Added) -->
-    <div class="modal-backdrop" x-data="{ show: @entangle('showDeleteModal') }" x-show="show">
-        <div class="modal" x-on:click.away="$wire.showDeleteModal = false">
-            <div class="modal-header">
-                <h2 class="modal-title">Confirm Deletion</h2>
-                <button wire:click="$set('showDeleteModal', false)" class="modal-close">&times;</button>
-            </div>
-            
-            <div class="modal-body">
-                <div class="text-center p-6">
-                    <p class="text-lg mb-4">Do you really want to delete this denied request?</p>
-                    <p class="text-danger font-bold">This will delete your request permanently!</p>
-                    <p class="mt-4">Borrow Code: <strong>{{ $transactionToDelete->borrow_code ?? 'N/A' }}</strong></p>
-                </div>
-            </div>
-            
-            <div class="modal-footer">
-                <button 
-                    wire:click="$set('showDeleteModal', false)" 
-                    class="btn btn-secondary"
-                >
-                    No, Keep It
-                </button>
-                <button 
-                    wire:click="deleteRequest" 
-                    class="btn btn-danger ml-4"
-                >
-                    Yes, Delete Request
-                </button>
-            </div>
-        </div>
-    </div>
+    @endif
 </div>

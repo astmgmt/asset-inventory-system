@@ -22,4 +22,6 @@ class UserHistory extends Model
         'action_date' => 'datetime',
         'status' => 'string',
     ];
+
+
 }

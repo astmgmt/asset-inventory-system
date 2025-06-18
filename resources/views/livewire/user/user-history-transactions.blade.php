@@ -2,22 +2,21 @@
     <h1 class="page-title main-title">Transaction History</h1>
     <div wire:poll.10s>
 
-        <!-- Success Message -->
+        <!-- Success/Error Messages -->
         @if ($successMessage)
             <div class="success-message mb-4" 
-                    x-data="{ show: true }" 
-                    x-show="show"
-                    x-init="setTimeout(() => { show = false; $wire.clearMessages(); }, 3000)">
+                 x-data="{ show: true }" 
+                 x-show="show"
+                 x-init="setTimeout(() => { show = false; $wire.clearMessages(); }, 3000)">
                 {{ $successMessage }}
             </div>
         @endif
 
-        <!-- Error Message -->
         @if ($errorMessage)
             <div class="error-message mb-4" 
-                    x-data="{ show: true }" 
-                    x-show="show"
-                    x-init="setTimeout(() => { show = false; $wire.clearMessages(); }, 3000)">
+                 x-data="{ show: true }" 
+                 x-show="show"
+                 x-init="setTimeout(() => { show = false; $wire.clearMessages(); }, 3000)">
                 {{ $errorMessage }}
             </div>
         @endif
@@ -62,18 +61,16 @@
                             </td>
                             <td data-label="Status" class="text-center">
                                 @php
-                                    $returnCode = $record->return_code ?? '';
-                                    $status = $record->status;
-                                    $statusClass = strtolower(str_replace(' ', '-', $status));
-                                    
-                                    // Show "Approved Return" when return code exists and isn't 'N/A'
-                                    if ($returnCode && $returnCode !== 'N/A') {
-                                        $status = 'Approved Return';
-                                        $statusClass = 'approved-return';
-                                    }
+                                    $statusClass = match($record->status) {
+                                        'Borrow Approved' => 'approved-borrow',
+                                        'Borrow Denied' => 'rejected-borrow',
+                                        'Return Approved' => 'approved-return',
+                                        'Return Denied' => 'rejected-return',
+                                        default => ''
+                                    };
                                 @endphp
                                 <span class="status-badge {{ $statusClass }}">
-                                    {{ $status }}
+                                    {{ $record->status }}
                                 </span>
                             </td>
                             <td data-label="Date" class="text-center">
@@ -114,39 +111,68 @@
                 <div class="modal max-w-6xl" x-on:click.away="$wire.showDetailsModal = false">
                     <div class="modal-header">
                         <h2 class="modal-title">Transaction Details</h2>
-                        <button wire:click="$set('showDetailsModal', false)" class="modal-close">&times;</button>
+                        <div class="flex items-center">
+                            <button 
+                                wire:click="generatePdf({{ $selectedHistory->id }})"
+                                class="print-btn bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded-md transition mr-2"
+                            >
+                                <i class="fas fa-print mr-1"></i> Print PDF
+                            </button>
+                            <button wire:click="$set('showDetailsModal', false)" class="modal-close">&times;</button>
+                        </div>
                     </div>
                     
                     <div class="modal-body">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">                           
                             <!-- Borrow Details -->
                             <div class="borrow-details">
                                 <h3 class="text-lg font-semibold mb-3">Borrow Details</h3>
-                                @if($selectedHistory->borrow_data)
-                                    <div class="overflow-x-auto">
-                                        <table class="details-table text-xs">
-                                            <thead>
-                                                <tr>
-                                                    <th>Asset Code</th>
-                                                    <th>Asset Name</th>
-                                                    <th>Quantity</th>
-                                                    <th>Purpose</th>
-                                                    <th>Date</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($selectedHistory->borrow_data['borrow_items'] as $item)
+                                @if($selectedHistory->borrow_data && is_array($selectedHistory->borrow_data))
+                                    @php
+                                        $borrowItems = is_array($selectedHistory->borrow_data) 
+                                            ? ($selectedHistory->borrow_data['borrow_items'] ?? [])
+                                            : [];
+                                    @endphp
+                                    
+                                    @if(count($borrowItems))
+                                        <div class="overflow-x-auto">
+                                            <table class="details-table text-xs">
+                                                <thead>
                                                     <tr>
-                                                        <td>{{ $item['asset']['asset_code'] ?? 'N/A' }}</td>
-                                                        <td>{{ $item['asset']['name'] ?? 'N/A' }}</td>
-                                                        <td>{{ $item['quantity'] }}</td>
-                                                        <td>{{ $item['purpose'] ?: 'N/A' }}</td>
-                                                        <td>{{ \Carbon\Carbon::parse($item['created_at'])->format('M d, Y') }}</td>
+                                                        <th>Asset Code</th>
+                                                        <th>Asset Name</th>
+                                                        <th>Quantity</th>
+                                                        <th>Purpose</th>
+                                                        <th>Date</th>
                                                     </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($borrowItems as $item)
+                                                        @php
+                                                            $asset = $item['asset'] ?? [];
+                                                        @endphp
+                                                        <tr>
+                                                            <td>{{ $asset['asset_code'] ?? 'N/A' }}</td>
+                                                            <td>{{ $asset['name'] ?? 'N/A' }}</td>
+                                                            <td>{{ $item['quantity'] ?? 'N/A' }}</td>
+                                                            <td>{{ $item['purpose'] ?? 'N/A' }}</td>
+                                                            <td>
+                                                                @if(isset($item['created_at']))
+                                                                    {{ \Carbon\Carbon::parse($item['created_at'])->format('M d, Y') }}
+                                                                @else
+                                                                    N/A
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @else
+                                        <div class="text-center py-8 text-gray-500">
+                                            <p>No borrow items found</p>
+                                        </div>
+                                    @endif
                                 @else
                                     <div class="text-center py-8 text-gray-500">
                                         <p>No borrow data available</p>
@@ -157,35 +183,55 @@
                             <!-- Return Details -->
                             <div class="return-details">
                                 <h3 class="text-lg font-semibold mb-3">Return Details</h3>
-                                @if($selectedHistory->return_data)
-                                    <div class="overflow-x-auto">
-                                        <table class="details-table text-xs">
-                                            <thead>
-                                                <tr>
-                                                    <th>Asset Code</th>
-                                                    <th>Asset Name</th>
-                                                    <th>Quantity</th>
-                                                    <th>Date</th>
-                                                    <th>Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($selectedHistory->return_data as $item)
+                                @if($selectedHistory->return_data && is_array($selectedHistory->return_data))
+                                    @php
+                                        $returnItems = $selectedHistory->return_data['return_items'] ?? [];
+                                    @endphp
+
+                                    @if(count($returnItems))
+                                        <div class="overflow-x-auto">
+                                            <table class="details-table text-xs">
+                                                <thead>
                                                     <tr>
-                                                        <td>{{ $item['borrow_item']['asset']['asset_code'] ?? 'N/A' }}</td>
-                                                        <td>{{ $item['borrow_item']['asset']['name'] ?? 'N/A' }}</td>
-                                                        <td>{{ $item['borrow_item']['quantity'] }}</td>
-                                                        <td>{{ \Carbon\Carbon::parse($item['created_at'])->format('M d, Y') }}</td>
-                                                        <td>
-                                                            <span class="status-badge {{ strtolower($item['status']) }}">
-                                                                {{ $item['status'] }}
-                                                            </span>
-                                                        </td>
+                                                        <th>Asset Code</th>
+                                                        <th>Asset Name</th>
+                                                        <th>Quantity</th>
+                                                        <th>Date</th>
+                                                        <th>Status</th>
                                                     </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($returnItems as $item)
+                                                        @php
+                                                            $borrowItem = $item['borrow_item'] ?? [];
+                                                            $asset = $borrowItem['asset'] ?? [];
+                                                        @endphp
+                                                        <tr>
+                                                            <td>{{ $asset['asset_code'] ?? 'N/A' }}</td>
+                                                            <td>{{ $asset['name'] ?? 'N/A' }}</td>
+                                                            <td>{{ $borrowItem['quantity'] ?? 'N/A' }}</td>
+                                                            <td>
+                                                                @if(isset($item['created_at']))
+                                                                    {{ \Carbon\Carbon::parse($item['created_at'])->format('M d, Y') }}
+                                                                @else
+                                                                    N/A
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                <span class="status-badge {{ strtolower($item['status'] ?? '') }}">
+                                                                    {{ $item['status'] ?? 'N/A' }}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @else
+                                        <div class="text-center py-8 text-gray-500">
+                                            <p>No return items found</p>
+                                        </div>
+                                    @endif
                                 @else
                                     <div class="text-center py-8 text-gray-500">
                                         <i class="fas fa-undo text-4xl mb-3"></i>
@@ -193,6 +239,7 @@
                                     </div>
                                 @endif
                             </div>
+                           
                         </div>
                     </div>
                     
@@ -208,6 +255,8 @@
             </div>
         @endif
 
+
+
         <!-- Delete Confirmation Modal -->
         <div class="modal-backdrop" x-data="{ show: @entangle('showDeleteModal') }" x-show="show">
             <div class="modal" x-on:click.away="$wire.showDeleteModal = false">
@@ -218,10 +267,10 @@
                 
                 <div class="modal-body">
                     <div class="text-center p-6">
-                        <p class="text-lg mb-4">Are you sure you want to delete this history record?</p>
-                        <p class="text-danger font-bold">This action cannot be undone!</p>
+                        <p class="text-lg mb-4">Do you really want to delete this history record?</p>
+                        <p class="text-danger font-bold">This will be deleted permanently from your account!</p>
                         <p class="mt-4">Borrow Code: <strong>{{ $selectedHistory->borrow_code ?? 'N/A' }}</strong></p>
-                        <p class="mt-2">Return Code: <strong>{{ $selectedHistory->return_code ?? 'N/A' }}</strong></p>
+                        <p class="mt-2">Status: <strong>{{ $selectedHistory->status ?? 'N/A' }}</strong></p>
                     </div>
                 </div>
                 
@@ -236,7 +285,7 @@
                         wire:click="deleteHistory" 
                         class="btn btn-danger ml-4"
                     >
-                        Yes, Delete Record
+                        Yes, Delete Permanently
                     </button>
                 </div>
             </div>
@@ -247,40 +296,23 @@
             width: 100%;
             font-size: 11px;
         }
-
-        .details-table th, 
-        .details-table td {
+        .details-table th, .details-table td {
             padding: 6px 8px;
             border: 1px solid #e2e8f0;
         }
-
         .details-table th {
             background-color: #f7fafc;
         }
-
-        .borrow-details, 
-        .return-details {
+        .borrow-details, .return-details {
             max-height: 400px;
             overflow-y: auto;
         }
-
         .status-badge {
             @apply px-2 py-1 rounded-full text-xs font-medium;
         }
-
-        .status-badge.approved-borrow,
-        .status-badge.approved-return {
-            @apply bg-green-100 text-green-800;
-        }
-
-        .status-badge.rejected-borrow,
-        .status-badge.rejected-return {
-            @apply bg-red-100 text-red-800;
-        }
-
-        .status-badge.pending-return {
-            @apply bg-yellow-100 text-yellow-800;
-        }
+        .status-badge.approved-borrow { @apply bg-green-100 text-green-800; }
+        .status-badge.rejected-borrow { @apply bg-red-100 text-red-800; }
+        .status-badge.approved-return { @apply bg-green-100 text-green-800; }
+        .status-badge.rejected-return { @apply bg-red-100 text-red-800; }
     </style>
 </div>
-

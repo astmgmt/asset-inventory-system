@@ -210,20 +210,22 @@
                 </div>
             </div>
             
-            <div class="modal-footer">
+            <div class="modal-footer flex justify-end space-x-3 mt-4">
                 <button 
                     wire:click="$set('showApproveModal', false)" 
-                    class="btn btn-secondary"
+                    class="inline-flex items-center bg-gray-500 hover:bg-gray-600 text-white font-medium py-1.5 px-4 rounded text-sm transition duration-150 ease-in-out"
                 >
                     Cancel
                 </button>
+
                 <button 
                     wire:click="approveRequest" 
-                    class="btn btn-danger ml-4"
+                    class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-medium py-1.5 px-4 rounded text-sm transition duration-150 ease-in-out"
                 >
                     <i class="fas fa-check mr-2"></i> Confirm
                 </button>
             </div>
+
         </div>
     </div>
 
@@ -257,21 +259,23 @@
                 </div>
             </div>
             
-            <div class="modal-footer">
+            <div class="modal-footer flex justify-end space-x-3 mt-4">
                 <button 
                     wire:click="$set('showDenyModal', false)" 
-                    class="btn btn-secondary"
+                    class="inline-flex items-center bg-gray-500 hover:bg-gray-600 text-white font-medium py-1.5 px-4 rounded text-sm transition duration-150 ease-in-out"
                 >
                     Cancel
                 </button>
+
                 <button 
                     wire:click="denyRequest" 
-                    class="btn btn-danger ml-4"
                     :disabled="!$wire.denyRemarks"
+                    class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-4 rounded text-sm transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <i class="fas fa-ban mr-2"></i> Reject
                 </button>
             </div>
+
         </div>
     </div>
 </div>

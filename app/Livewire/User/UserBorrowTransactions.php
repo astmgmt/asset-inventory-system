@@ -5,9 +5,9 @@ namespace App\Livewire\User;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\AssetBorrowTransaction;
-use App\Models\AssetBorrowItem;
-use App\Models\BorrowAssetQuantity;
+use App\Models\Asset;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UserBorrowTransactions extends Component
 {
@@ -17,21 +17,18 @@ class UserBorrowTransactions extends Component
     public $selectedTransaction = null;
     public $showDetailsModal = false;
     public $showCancelModal = false;
-    public $showDeleteModal = false; // Added for delete modal
     public $transactionToCancel = null;
-    public $transactionToDelete = null; // Added for delete operation
     public $successMessage = '';
     public $errorMessage = '';
 
     public function render()
     {
         $transactions = AssetBorrowTransaction::where('user_id', Auth::id())
-            ->whereIn('status', ['Pending', 'Rejected'])
+            ->where('status', 'PendingBorrowApproval') // Only pending requests
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('borrow_code', 'like', '%'.$this->search.'%')
-                    ->orWhere('status', 'like', '%'.$this->search.'%')
-                    ->orWhereDate('borrowed_at', 'like', '%'.$this->search.'%');
+                    ->orWhereDate('created_at', 'like', '%'.$this->search.'%');
                 });
             })
             ->orderBy('created_at', 'desc')
@@ -55,13 +52,6 @@ class UserBorrowTransactions extends Component
         $this->showCancelModal = true;
     }
 
-    // Added: Confirm delete method
-    public function confirmDelete($transactionId)
-    {
-        $this->transactionToDelete = AssetBorrowTransaction::findOrFail($transactionId);
-        $this->showDeleteModal = true;
-    }
-
     public function cancelRequest()
     {
         try {
@@ -70,25 +60,28 @@ class UserBorrowTransactions extends Component
                 return;
             }
             
-            if ($this->transactionToCancel->status !== 'Pending') {
+            if ($this->transactionToCancel->status !== 'PendingBorrowApproval') {
                 $this->errorMessage = 'Only pending requests can be cancelled!';
                 $this->showCancelModal = false;
                 return;
             }
             
-            // Restore quantities
-            foreach ($this->transactionToCancel->borrowItems as $item) {
-                $assetQuantity = BorrowAssetQuantity::where('asset_id', $item->asset_id)->first();
-                if ($assetQuantity) {
-                    $assetQuantity->increment('available_quantity', $item->quantity);
+            // Release reserved quantities
+            DB::transaction(function () {
+                foreach ($this->transactionToCancel->borrowItems as $item) {
+                    $asset = Asset::find($item->asset_id);
+                    if ($asset) {
+                        // Release the reserved quantity
+                        $asset->decrement('reserved_quantity', $item->quantity);
+                    }
                 }
-            }
+                
+                // Delete the transaction
+                $this->transactionToCancel->delete();
+            });
             
-            // Capture transaction code before deletion
+            // Capture transaction code for message
             $borrowCode = $this->transactionToCancel->borrow_code;
-            
-            // Delete the transaction
-            $this->transactionToCancel->delete();
             
             // Reset modals and selection
             if ($this->selectedTransaction && $this->selectedTransaction->id === $this->transactionToCancel->id) {
@@ -96,50 +89,13 @@ class UserBorrowTransactions extends Component
                 $this->showDetailsModal = false;
             }
             
-            $this->successMessage = "Request $borrowCode cancelled successfully!";
+            $this->successMessage = "Request $borrowCode cancelled successfully! Assets are now available.";
             $this->showCancelModal = false;
             $this->transactionToCancel = null;
             
         } catch (\Exception $e) {
             $this->errorMessage = "Failed to cancel request: " . $e->getMessage();
             $this->showCancelModal = false;
-        }
-    }
-
-    // Added: Delete request method
-    public function deleteRequest()
-    {
-        try {
-            if (!$this->transactionToDelete) {
-                $this->errorMessage = 'Invalid transaction!';
-                return;
-            }
-            
-            if ($this->transactionToDelete->status !== 'Rejected') {
-                $this->errorMessage = 'Only denied requests can be deleted!';
-                $this->showDeleteModal = false;
-                return;
-            }
-            
-            // Capture transaction code before deletion
-            $borrowCode = $this->transactionToDelete->borrow_code;
-            
-            // Delete the transaction
-            $this->transactionToDelete->delete();
-            
-            // Reset modals and selection
-            if ($this->selectedTransaction && $this->selectedTransaction->id === $this->transactionToDelete->id) {
-                $this->selectedTransaction = null;
-                $this->showDetailsModal = false;
-            }
-            
-            $this->successMessage = "Request $borrowCode deleted successfully!";
-            $this->showDeleteModal = false;
-            $this->transactionToDelete = null;
-            
-        } catch (\Exception $e) {
-            $this->errorMessage = "Failed to delete request: " . $e->getMessage();
-            $this->showDeleteModal = false;
         }
     }
 
