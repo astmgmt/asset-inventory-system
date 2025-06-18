@@ -1,4 +1,4 @@
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6" wire:poll.60s>
 
     <!-- Pie Chart Card -->
     <div class="box-container">
@@ -6,6 +6,7 @@
             <h2 class="box-title">My Transaction Overview</h2>
         </div>
         <div class="box-body"
+            wire:ignore
             x-data="userTransactionChart({ borrowed: {{ $borrowedCount }}, returned: {{ $returnedCount }} })"
             x-init="init()"
             x-on:chartDataUpdated.window="updateData($event.detail)">
@@ -76,7 +77,9 @@
     </div>
 </div>
 
+
 <script>
+    
     function userTransactionChart(initialData) {
         return {
             chart: null,
@@ -109,12 +112,8 @@
                             }
                         }
                     }
-                });
-
-                // Refresh chart data every 60 seconds
-                setInterval(() => {
-                    Livewire.dispatch('updateChartData');
-                }, 60000);
+                });              
+                
             },
             updateData(newData) {
                 this.data = newData;

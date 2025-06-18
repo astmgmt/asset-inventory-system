@@ -17,7 +17,7 @@ class UserDashboard extends Component
 
     public function mount()
     {
-        $this->updateStats();
+        //$this->updateStats();
     }
 
     public function updateStats()
@@ -52,6 +52,7 @@ class UserDashboard extends Component
 
     public function render()
     {
+        $this->updateStats();
         return view('livewire.dashboard.user-dashboard', [
             'recentActivities' => $this->recentActivities,
         ]);
