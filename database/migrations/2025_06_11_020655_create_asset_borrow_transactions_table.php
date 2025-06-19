@@ -43,6 +43,7 @@ return new class extends Migration
                 'PendingBorrowApproval',   
                 'Borrowed',                
                 'PendingReturnApproval',   
+                'PartiallyReturned',
                 'Returned',                
                 'BorrowRejected',   
                 'ReturnRejected'    
@@ -54,6 +55,7 @@ return new class extends Migration
             $table->timestamp('return_requested_at')->nullable();
             $table->text('return_remarks')->nullable();
             $table->timestamps();
+            
         });
     }
 

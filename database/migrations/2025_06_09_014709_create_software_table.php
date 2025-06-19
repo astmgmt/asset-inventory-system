@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('license_key', 100);
             $table->date('installation_date');
             $table->date('expiry_date');
-            $table->foreignId('responsible_user_id')->constrained('users');
+            $table->foreignId('added_by')->constrained('users')->onDelete('cascade');
             $table->boolean('expiry_flag')->default(false);
             $table->enum('expiry_status', ['active', 'warning_3m', 'warning_2m', 'warning_1m', 'expired'])->default('active');
             $table->timestamp('last_notified_at')->nullable();

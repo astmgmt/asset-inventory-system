@@ -14,16 +14,18 @@
                     <table class="user-table expiration-table mb-2">
                         <thead>
                             <tr>
-                                <th>Asset Name</th>
+                                <th>Brand</th>
+                                <th>Model</th>
                                 <th>Asset Code</th>
-                                <th>Expiration Date</th>
+                                <th>Exp. Date</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($expiringAssets as $asset)
                                 <tr class="hover:bg-gray-50">
-                                    <td data-label="Asset Name" class="text-center">{{ $asset->name }}</td>
+                                    <td data-label="Brand" class="text-center">{{ $asset->name }}</td>
+                                    <td data-label="Model" class="text-center">{{ $asset->model_number }}</td>
                                     <td data-label="Asset Code" class="text-center">{{ $asset->asset_code }}</td>
                                     <td data-label="Expiration Date" class="text-center">{{ $asset->warranty_expiration->format('M d, Y') }}</td>
                                     <td data-label="Status" class="text-center">

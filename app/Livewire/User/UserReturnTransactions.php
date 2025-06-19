@@ -6,14 +6,13 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\AssetBorrowTransaction;
 use App\Models\AssetBorrowItem;
-use App\Models\Asset;
+use App\Models\AssetReturnItem;
 use App\Models\User;
 use App\Models\Department;
-use App\Models\Role;
 use App\Services\SendEmail;
 use Illuminate\Support\Facades\Auth;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserReturnTransactions extends Component
 {
@@ -27,6 +26,8 @@ class UserReturnTransactions extends Component
     public $returnRemarks = '';
     public $successMessage = '';
     public $errorMessage = '';
+    public $selectedItems = [];
+    public $selectAll = true;
 
     public function render()
     {
@@ -35,7 +36,7 @@ class UserReturnTransactions extends Component
             ->when($this->search, function ($query) {
                 $query->where('borrow_code', 'like', '%'.$this->search.'%');
             })
-            ->with(['borrowItems.asset', 'user.department']) // Add department relationship
+            ->with(['borrowItems.asset', 'user.department'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -50,6 +51,8 @@ class UserReturnTransactions extends Component
             ->findOrFail($transactionId);
             
         $this->returnRemarks = '';
+        $this->selectedItems = $this->selectedTransaction->borrowItems->pluck('id')->toArray();
+        $this->selectAll = true;
         $this->showReturnModal = true;
     }
 
@@ -60,11 +63,29 @@ class UserReturnTransactions extends Component
         $this->showViewModal = true;
     }
 
+    public function updatedSelectAll($value)
+    {
+        $this->selectedItems = $value
+            ? $this->selectedTransaction->borrowItems->pluck('id')->toArray()
+            : [];
+    }
+
+    public function updatedSelectedItems()
+    {
+        $this->selectAll = count($this->selectedItems) === 
+                          $this->selectedTransaction->borrowItems->count();
+    }
+
     public function confirmReturn()
     {
         $this->validate([
             'returnRemarks' => 'nullable|string|max:500',
         ]);
+        
+        if (empty($this->selectedItems)) {
+            $this->errorMessage = "Please select at least one asset to return.";
+            return;
+        }
         
         $this->showConfirmationModal = true;
     }
@@ -77,6 +98,39 @@ class UserReturnTransactions extends Component
             DB::transaction(function () {
                 $transaction = $this->selectedTransaction;
                 
+                // Create a new return transaction
+                $returnCode = 'RT-' . now()->format('Ymd') . '-' . str_pad(AssetReturnItem::count() + 1, 8, '0', STR_PAD_LEFT);
+                
+                // Get selected borrow items
+                $selectedBorrowItems = AssetBorrowItem::whereIn('id', $this->selectedItems)
+                    ->with('asset')
+                    ->get();
+                
+                // Create return items only for selected assets
+                foreach ($selectedBorrowItems as $borrowItem) {
+                    AssetReturnItem::create([
+                        'return_code' => $returnCode,
+                        'borrow_item_id' => $borrowItem->id,
+                        'returned_by_user_id' => Auth::id(),
+                        'returned_by_department_id' => Auth::user()->department_id,
+                        'remarks' => $this->returnRemarks,
+                        'returned_at' => null, // Will be set when approved
+                    ]);
+                    
+                    // Update item status to PendingReturnApproval
+                    $borrowItem->update(['status' => 'PendingReturnApproval']);
+                }
+                
+                // Get unselected items
+                $unselectedItems = $transaction->borrowItems()
+                    ->whereNotIn('id', $this->selectedItems)
+                    ->get();
+                
+                // Keep unselected items as Borrowed
+                foreach ($unselectedItems as $item) {
+                    $item->update(['status' => 'Borrowed']);
+                }
+                
                 // Update transaction status
                 $transaction->update([
                     'status' => 'PendingReturnApproval',
@@ -84,11 +138,8 @@ class UserReturnTransactions extends Component
                     'return_remarks' => $this->returnRemarks
                 ]);
                 
-                // Generate PDF
-                $pdf = $this->generateReturnPDF($transaction->borrow_code);
-                
-                // Send email notification to admin
-                $this->sendReturnRequestEmail($transaction->borrow_code, $pdf);
+                // Send email notification to admin with selected items
+                $this->sendReturnRequestEmail($transaction->borrow_code, $returnCode, $selectedBorrowItems);
                 
                 // Show success message
                 $this->successMessage = "Return request submitted for admin approval!";
@@ -97,39 +148,21 @@ class UserReturnTransactions extends Component
                 $this->reset([
                     'showReturnModal', 
                     'selectedTransaction', 
-                    'returnRemarks'
+                    'returnRemarks',
+                    'selectedItems',
+                    'selectAll'
                 ]);
             });
         } catch (\Exception $e) {
             $this->errorMessage = "Failed to process return request: " . $e->getMessage();
         }
     }
-    
-    
-    private function generateReturnPDF($borrowCode)
-    {
-        $transaction = AssetBorrowTransaction::with([
-                'borrowItems.asset',
-                'user.department' // Load user and department relationship
-            ])
-            ->where('borrow_code', $borrowCode)
-            ->first();
-            
-        $pdf = Pdf::loadView('pdf.return-request', [
-            'borrowCode' => $borrowCode,
-            'transaction' => $transaction, // Pass entire transaction
-            'returnDate' => now()->format('M d, Y H:i'),
-            'remarks' => $this->returnRemarks
-        ]);
-        
-        return $pdf;
-    }
 
-    private function sendReturnRequestEmail($borrowCode, $pdf)
+    private function sendReturnRequestEmail($borrowCode, $returnCode, $selectedBorrowItems)
     {
         try {
             $emailService = new SendEmail();
-            $transaction = AssetBorrowTransaction::with('user')
+            $transaction = AssetBorrowTransaction::with(['user'])
                 ->where('borrow_code', $borrowCode)
                 ->first();
             
@@ -139,66 +172,60 @@ class UserReturnTransactions extends Component
             
             $user = $transaction->user;
             
-            // Get admin emails
+            // Get admin emails with proper fallback
+            $to = config('mail.admin_email', 'admin@example.com');
+            
+            // Get super admin email if available
             $superAdmin = User::whereHas('role', function($q) {
                 $q->where('name', 'Super Admin');
             })->first();
             
+            // Get admin emails
             $admins = User::whereHas('role', function($q) {
                 $q->where('name', 'Admin');
             })->get();
             
-            $to = $superAdmin ? $superAdmin->email : config('mail.admin_email');
-            $cc = $admins->pluck('email')->toArray();
+            $cc = $admins->pluck('email')->filter()->toArray();
+            
+            // Use super admin email if available
+            if ($superAdmin && $superAdmin->email) {
+                $to = $superAdmin->email;
+            }
             
             // Filter valid emails
             $validAdminEmail = filter_var($to, FILTER_VALIDATE_EMAIL);
-            $validUserEmail = filter_var($user->email, FILTER_VALIDATE_EMAIL);
             
             if ($validAdminEmail) {
+                // Prepare email data
+                $emailData = [
+                    'returnCode' => $returnCode,
+                    'borrowCode' => $borrowCode,
+                    'userName' => $user->name,
+                    'returnDate' => now()->format('M d, Y H:i'),
+                    'remarks' => $this->returnRemarks,
+                    'selectedBorrowItems' => $selectedBorrowItems
+                ];
+                
+                // Send using correct email structure
                 $emailService->send(
                     $to,
-                    "Return Request: {$borrowCode}",
+                    "Return Request: {$returnCode}",
                     [
-                        'emails.return-request-admin',
-                        [
-                            'borrowCode' => $borrowCode,
-                            'userName' => $user->name,
-                            'returnDate' => now()->format('M d, Y H:i'),
-                            'remarks' => $this->returnRemarks,
-                            'transaction' => $transaction
-                        ]
+                        'emails.return-request-admin',  // View name
+                        $emailData                     // Data array
                     ],
                     $cc,
-                    $pdf->output(),
-                    "Return-Request-{$borrowCode}.pdf",
-                    false
+                    null,   // No PDF attachment
+                    null,   // No attachment name
+                    false   // Use view instead of raw HTML
                 );
-            }
-            
-            if ($validUserEmail) {
-                $emailService->send(
-                    $user->email,
-                    "Your Return Request: {$borrowCode}",
-                    [
-                        'emails.return-request-user',
-                        [
-                            'borrowCode' => $borrowCode,
-                            'returnDate' => now()->format('M d, Y H:i')
-                        ]
-                    ],
-                    [],
-                    $pdf->output(),
-                    "Return-Request-{$borrowCode}.pdf",
-                    false
-                );
+            } else {
+                Log::error("Invalid admin email: " . ($to ?? 'NULL'));
             }
         } catch (\Exception $e) {
             Log::error("Return request email failed: " . $e->getMessage());
         }
     }
-    
-
 
     public function clearMessages()
     {

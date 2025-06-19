@@ -48,7 +48,8 @@
             <thead>
                 <tr>
                     <th>Asset Code</th>
-                    <th>Name</th>
+                    <th>Brand</th>
+                    <th>Model</th>
                     <th>Category</th>
                     <th>Quantity</th>
                     <th>Condition</th>
@@ -64,6 +65,7 @@
                         <!-- Added data attributes for mobile labels -->
                         <td data-label="Asset Code">{{ $asset->asset_code }}</td>
                         <td data-label="Name">{{ $asset->name }}</td>
+                        <td data-label="Name">{{ $asset->model_number }}</td>
                         <td data-label="Category">{{ $asset->category->category_name }}</td>
                         <td data-label="Quantity">{{ $asset->quantity }}</td>
                         <td data-label="Condition">
@@ -121,7 +123,7 @@
                     <form wire:submit.prevent="createAsset">
                         <div class="form-grid">
                             <div class="form-group">
-                                <label>Name *</label>
+                                <label>Brand *</label>
                                 <input type="text" wire:model="name" class="form-input">
                                 @error('name') <span class="error">{{ $message }}</span> @enderror
                             </div>
@@ -134,7 +136,7 @@
                             
                             <!-- Model Number (Live Search) -->
                             <div class="form-group">
-                                <label>Model Number *</label>
+                                <label>Model *</label>
                                 <div class="relative">
                                     <input 
                                         type="text" 
@@ -237,7 +239,7 @@
                             
                             <!-- Vendor (Live Search) -->
                             <div class="form-group">
-                                <label>Vendor *</label>
+                                <label>Vendor/Supplier *</label>
                                 <div class="relative">
                                     <input 
                                         type="text" 
@@ -309,7 +311,7 @@
                     <form wire:submit.prevent="updateAsset">
                         <div class="form-grid">
                             <div class="form-group">
-                                <label>Name *</label>
+                                <label>Brand *</label>
                                 <input type="text" wire:model="name" class="form-input">
                                 @error('name') <span class="error">{{ $message }}</span> @enderror
                             </div>
@@ -317,7 +319,7 @@
                             <!-- REMOVED QUANTITY HERE -->
                             
                             <div class="form-group">
-                                <label>Model Number *</label>
+                                <label>Model *</label>
                                 <input type="text" wire:model="model_number" class="form-input">
                                 @error('model_number') <span class="error">{{ $message }}</span> @enderror
                             </div>
@@ -356,7 +358,7 @@
                             </div>
                             
                             <div class="form-group">
-                                <label>Vendor *</label>
+                                <label>Vendor/Supplier *</label>
                                 <select wire:model="vendor_id" class="form-input">
                                     <option value="">Select Vendor</option>
                                     @foreach($vendors as $vendor)
@@ -417,10 +419,15 @@
                         </div>
                         
                         <div class="detail-group">
-                            <label>Name:</label>
+                            <label>Brand:</label>
                             <p>{{ $viewAsset->name }}</p>
                         </div>
                         
+                        <div class="detail-group">
+                            <label>Model:</label>
+                            <p>{{ $viewAsset->model_number }}</p>
+                        </div>
+
                         <div class="detail-group">
                             <label>Description:</label>
                             <p>{{ $viewAsset->description }}</p>
@@ -429,12 +436,7 @@
                         <div class="detail-group">
                             <label>Quantity:</label>
                             <p>{{ $viewAsset->quantity }}</p>
-                        </div>
-                        
-                        <div class="detail-group">
-                            <label>Model Number:</label>
-                            <p>{{ $viewAsset->model_number }}</p>
-                        </div>
+                        </div>                      
                         
                         <div class="detail-group">
                             <label>Category:</label>
@@ -452,7 +454,7 @@
                         </div>
                         
                         <div class="detail-group">
-                            <label>Vendor:</label>
+                            <label>Vendor/Supplier:</label>
                             <p>{{ $viewAsset->vendor->vendor_name }}</p>
                         </div>
                         

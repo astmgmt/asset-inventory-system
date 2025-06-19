@@ -45,6 +45,7 @@ use App\Http\Controllers\SuperAdmin\UserController;
 
 use App\Http\Controllers\User\ReturnController;
 
+
 // TEST
 use Illuminate\Support\Facades\Mail;
 use App\Models\Asset;
@@ -276,7 +277,7 @@ Route::middleware([
         ]);
         
         return $pdf->download("history-{$history->borrow_code}.pdf");
-    })->middleware('auth')->name('user.history.pdf');
+    })->middleware('auth')->name('user.history.pdf');   
 
 
 });

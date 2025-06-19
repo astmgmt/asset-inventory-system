@@ -15,6 +15,15 @@ return new class extends Migration
             $table->foreignId('asset_id')->constrained('assets')->onDelete('cascade');
             $table->unsignedInteger('quantity');
             $table->text('purpose')->nullable();
+            $table->enum('status', [
+                'PendingBorrowApproval',   
+                'Borrowed',                
+                'PendingReturnApproval',   
+                'PartiallyReturned',
+                'Returned',                
+                'BorrowRejected',   
+                'ReturnRejected'
+            ])->default('Borrowed');
 
             $table->timestamps();
         });

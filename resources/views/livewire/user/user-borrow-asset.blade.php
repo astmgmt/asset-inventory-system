@@ -60,7 +60,8 @@
             <thead>
                 <tr>
                     <th>Asset Code</th>
-                    <th>Name</th>
+                    <th>Brand</th>
+                    <th>Model</th>
                     <th>Available Qty</th>
                     <th>Condition</th>
                     <th class="actions-column">Actions</th>
@@ -70,7 +71,8 @@
                 @forelse($assets as $asset)
                     <tr>
                         <td data-label="Asset Code" class="text-center">{{ $asset->asset_code }}</td>
-                        <td data-label="Name" class="text-center">{{ $asset->name }}</td>
+                        <td data-label="Brand" class="text-center">{{ $asset->name }}</td>
+                        <td data-label="Model" class="text-center">{{ $asset->model_number }}</td>
                         <td data-label="Available Qty" class="text-center">
                             {{ $asset->available_quantity }} 
                         </td>

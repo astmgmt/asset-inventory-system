@@ -2,23 +2,21 @@
     <h1 class="page-title main-title">Return Assets</h1>
 
     <div>
-    
-        <!-- Success Message -->
+        <!-- Flash Messages -->
         @if ($successMessage)
             <div class="success-message mb-4" 
                  x-data="{ show: true }" 
                  x-show="show"
-                 x-init="setTimeout(() => { show = false; $wire.clearMessages(); }, 3000)">
+                 x-init="setTimeout(() => { show = false; $wire.clearMessages(); }, 5000)">
                 {{ $successMessage }}
             </div>
         @endif
 
-        <!-- Error Message -->
         @if ($errorMessage)
             <div class="error-message mb-4" 
                  x-data="{ show: true }" 
                  x-show="show"
-                 x-init="setTimeout(() => { show = false; $wire.clearMessages(); }, 3000)">
+                 x-init="setTimeout(() => { show = false; $wire.clearMessages(); }, 5000)">
                 {{ $errorMessage }}
             </div>
         @endif
@@ -42,7 +40,7 @@
 
         <!-- Transactions Table -->
         <div class="overflow-x-auto">
-            <table class="user-table" wire:poll.5s>
+            <table class="user-table">
                 <thead>
                     <tr>
                         <th>Borrow Code</th>
@@ -66,27 +64,24 @@
                                 @if($transaction->status === 'Borrowed')
                                     <span class="status-badge borrowed">Borrowed</span>
                                 @elseif($transaction->status === 'PendingReturnApproval')
-                                    <span class="status-badge pending">Pending Approval</span>
+                                    <span class="status-badge pending">Pending</span>
                                 @elseif($transaction->status === 'ReturnRejected')
                                     <span class="status-badge rejected">Rejected</span>
                                 @endif
                             </td>
-
                             <td data-label="Borrowed At" class="text-center">
                                 {{ $transaction->borrowed_at?->format('M d, Y') ?? '-' }}
                             </td>
                             <td data-label="Return Requested" class="text-center">
-                                @if($transaction->status === 'Rejected' || $transaction->status === 'PendingReturnApproval')
+                                @if($transaction->status === 'ReturnRejected' || $transaction->status === 'PendingReturnApproval')
                                     {{ $transaction->return_requested_at?->format('M d, Y') ?? '-' }}
                                 @else
                                     -
                                 @endif
                             </td>
-
                             <td data-label="Remarks" class="text-center">
                                 {{ $transaction->return_remarks ?: 'N/A' }}
                             </td>
-                            
                             <td data-label="Actions" class="text-center">
                                 @if($transaction->status === 'Borrowed')
                                     <button 
@@ -152,7 +147,7 @@
                                     @if($selectedTransaction->status === 'Borrowed')
                                         <span class="status-badge borrowed">Borrowed</span>
                                     @elseif($selectedTransaction->status === 'PendingReturnApproval')
-                                        <span class="status-badge pending">Pending Return</span>
+                                        <span class="status-badge pending">Pending</span>
                                     @endif
                                 </p>
                             </div>
@@ -198,7 +193,6 @@
             </div>
         @endif
 
-
         <!-- Return Modal -->
         @if($showReturnModal && $selectedTransaction)
             <div class="modal-backdrop" x-data="{ show: @entangle('showReturnModal') }" x-show="show">
@@ -212,6 +206,12 @@
                         <table class="user-table">
                             <thead>
                                 <tr>
+                                    <th class="w-10">
+                                        <input type="checkbox" 
+                                            wire:model.live="selectAll"
+                                            class="form-checkbox h-4 w-4 text-blue-600"
+                                        >
+                                    </th>
                                     <th>Asset Code</th>
                                     <th>Asset Name</th>
                                     <th>Quantity</th>
@@ -221,6 +221,13 @@
                             <tbody>
                                 @foreach($selectedTransaction->borrowItems as $item)
                                     <tr>
+                                        <td class="text-center">
+                                            <input type="checkbox" 
+                                                wire:model.live="selectedItems"
+                                                value="{{ $item->id}}"
+                                                class="form-checkbox h-4 w-4 text-blue-600"
+                                            >
+                                        </td>
                                         <td data-label="Asset Code" class="text-center">
                                             {{ $item->asset->asset_code }}
                                         </td>
@@ -262,9 +269,16 @@
                         </button>
                         <button 
                             wire:click="confirmReturn" 
-                            class="btn btn-danger ml-4"
+                            wire:loading.attr="disabled"
+                            class="btn btn-danger ml-4 {{ empty($selectedItems) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                            @if(empty($selectedItems)) disabled @endif
                         >
-                            <i class="fas fa-paper-plane mr-2"></i> Confirm Return
+                            <span wire:loading.remove>
+                                <i class="fas fa-paper-plane mr-2"></i> Submit Return Request
+                            </span>
+                            <span wire:loading>
+                                <i class="fas fa-spinner fa-spin mr-2"></i> Processing...
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -272,44 +286,45 @@
         @endif
 
         <!-- Confirmation Modal -->
-        <div class="modal-backdrop" x-data="{ show: @entangle('showConfirmationModal') }" x-show="show">
-            <div class="modal" x-on:click.away="$wire.showConfirmationModal = false">
-                <div class="modal-header">
-                    <h2 class="modal-title">Confirm Return</h2>
-                    <button wire:click="$set('showConfirmationModal', false)" class="modal-close">&times;</button>
-                </div>
-                
-                <div class="modal-body">
-                    <div class="text-center p-6">
-                        <p class="text-lg mb-4">Do you really want to return all assets for this borrow request?</p>
-                        <p class="text-danger font-bold">This action cannot be undone!</p>
-                        <p class="mt-4">Borrow Code: <strong>{{ $selectedTransaction->borrow_code ?? 'N/A' }}</strong></p>
+        @if($showConfirmationModal)
+            <div class="modal-backdrop" x-data="{ show: @entangle('showConfirmationModal') }" x-show="show">
+                <div class="modal" x-on:click.away="$wire.showConfirmationModal = false">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Confirm Return Request</h2>
+                        <button wire:click="$set('showConfirmationModal', false)" class="modal-close">&times;</button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <div class="text-center p-6">
+                            <p class="text-lg mb-4">Do you really want to return the selected asset(s) now?</p>
+                            <p class="mt-4">Borrow Code: <strong>{{ $selectedTransaction->borrow_code ?? 'N/A' }}</strong></p>
+                            <p class="mt-2">Number of Assets: <strong>{{ count($selectedItems) }}</strong></p>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button 
+                            wire:click="$set('showConfirmationModal', false)" 
+                            class="btn btn-secondary"
+                        >
+                            No, Cancel
+                        </button>
+                        <button 
+                            wire:click="processReturn" 
+                            class="btn btn-danger ml-4"
+                        >
+                            Yes, Return Asset(s)
+                        </button>
                     </div>
                 </div>
-                
-                <div class="modal-footer">
-                    <button 
-                        wire:click="$set('showConfirmationModal', false)" 
-                        class="btn btn-secondary"
-                    >
-                        No, Cancel
-                    </button>
-                    <button 
-                        wire:click="processReturn" 
-                        class="btn btn-danger ml-4"
-                    >
-                        Yes, Return Assets
-                    </button>
-                </div>
             </div>
-        </div>
+        @endif
     </div>
+    <style>
+        .btn:disabled {
+            pointer-events: none;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
 </div>
-
-<script>
-    document.addEventListener('livewire:init', () => {
-        Livewire.on('openPdf', (returnCode) => {
-            window.open(`/return-pdf/${returnCode}`, '_blank');
-        });
-    });
-</script>

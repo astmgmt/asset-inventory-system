@@ -17,7 +17,7 @@ class Software extends Model
         'license_key',
         'installation_date',
         'expiry_date',
-        'responsible_user_id',
+        'added_by',
         'expiry_flag',       // Add this
         'expiry_status',     // Add this
         'last_notified_at',  // Add this
@@ -28,9 +28,9 @@ class Software extends Model
         'expiry_date' => 'date'
     ];
     
-    public function responsibleUser()
+    public function addedBy()
     {
-        return $this->belongsTo(User::class, 'responsible_user_id');
+        return $this->belongsTo(User::class, 'added_by');
     }
     public function updateExpiryStatus()
     {

@@ -35,7 +35,7 @@ class UserSeeder extends Seeder
             'department_id' => $departments->random()->id,
             'name' => 'Ryan Oliver Balboa',
             'username' => 'ryan',
-            'email' => 'ryan@test.com',
+            'email' => 'balboaryanoliver@gmail.com',
             'password' => Hash::make('Super1234'),
             'status' => 'Approved',
         ]);
@@ -45,7 +45,7 @@ class UserSeeder extends Seeder
             'department_id' => $departments->random()->id,
             'name' => 'John Leo Nacional',
             'username' => 'jomz',
-            'email' => 'jomz@test.com',
+            'email' => 'jomznacional@gmail.com',
             'password' => Hash::make('Admin1234'),
             'status' => 'Approved',
         ]);

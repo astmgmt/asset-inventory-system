@@ -49,6 +49,11 @@ class UserDashboard extends Component
             ->latest()
             ->paginate(5);
     }
+    
+    public function updateChartData()
+    {
+        $this->updateStats();
+    }
 
     public function render()
     {

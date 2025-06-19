@@ -34,20 +34,8 @@
             <p class="text-center mt-6">
                 The assets have been successfully returned to inventory. 
                 Please see the attached PDF for the complete return approval summary.
-            </p>
-            
-            <div class="signature-section">
-                <div class="signature-box">
-                    <p>Returnee Signature:</p>
-                    <p>_________________________</p>
-                    <p>Date: ___________________</p>
-                </div>
-                <div class="signature-box">
-                    <p>Approver Signature:</p>
-                    <p>_________________________</p>
-                    <p>Date: ___________________</p>
-                </div>
-            </div>
+            </p>           
+
         </div>
         
         <div class="footer">

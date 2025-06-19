@@ -79,52 +79,55 @@
 
 
 <script>
-    
-    function userTransactionChart(initialData) {
-        return {
-            chart: null,
-            data: initialData,
-            init() {
-                const ctx = document.getElementById('userTransactionChart');
-                this.chart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: ['Borrowed', 'Returned'],
-                        datasets: [{
-                            data: [this.data.borrowed, this.data.returned],
-                            backgroundColor: ['#93c5fd', '#6ee7b7'],
-                            borderColor: ['#60a5fa', '#34d399'],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (context) {
-                                        return `${context.label}: ${context.parsed}`;
-                                    }
+function userTransactionChart(initialData) {
+    return {
+        chart: null,
+        data: initialData,
+        init() {
+            const ctx = document.getElementById('userTransactionChart').getContext('2d');
+
+            if (this.chart !== null) {
+                this.chart.destroy();
+            }
+
+            this.chart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Borrowed', 'Returned'],
+                    datasets: [{
+                        data: [this.data.borrowed, this.data.returned],
+                        backgroundColor: ['#93c5fd', '#6ee7b7'],
+                        borderColor: ['#60a5fa', '#34d399'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `${context.label}: ${context.parsed}`;
                                 }
                             }
                         }
                     }
-                });              
-                
-            },
-            updateData(newData) {
-                this.data = newData;
-                if (this.chart) {
-                    this.chart.data.datasets[0].data = [
-                        this.data.borrowed,
-                        this.data.returned
-                    ];
-                    this.chart.update();
                 }
+            });          
+          
+        },
+        updateData(newData) {
+            this.data = newData;
+            if (this.chart) {
+                this.chart.data.datasets[0].data = [
+                    this.data.borrowed,
+                    this.data.returned
+                ];
+                this.chart.update();
             }
-        };
-    }
+        }
+    };
+}
+console.log(userTransactionChart)
 </script>
