@@ -22,7 +22,7 @@ return new class extends Migration
             $table->text('remarks')->nullable();
 
             // Admin approval-related fields
-            $table->enum('approval_status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
+            $table->enum('approval_status', ['Pending', 'Approved', 'Rejected','Returned','Borrowed'])->default('Pending');
             $table->timestamp('approved_at')->nullable();
             $table->foreignId('approved_by_user_id')->nullable()->constrained('users')->nullOnDelete();
 

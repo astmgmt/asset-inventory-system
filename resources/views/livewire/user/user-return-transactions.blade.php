@@ -219,7 +219,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($selectedTransaction->borrowItems as $item)
+                                @foreach($selectedTransaction->borrowItems->whereIn('status', ['Borrowed', 'PendingReturnApproval', 'ReturnRejected']) as $item)
                                     <tr>
                                         <td class="text-center">
                                             <input type="checkbox" 

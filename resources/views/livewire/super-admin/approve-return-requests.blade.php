@@ -65,9 +65,15 @@
                             <td data-label="Department" class="text-center">
                                 {{ $transaction->user->department->name ?? 'N/A' }}
                             </td>
+
                             <td data-label="Assets" class="text-center">
-                                {{ $transaction->borrowItems->count() }}
+                                {{
+                                    $transaction->borrowItems->filter(function ($item) {
+                                        return $item->returnItems->where('approval_status', 'Pending')->isNotEmpty();
+                                    })->count()
+                                }}
                             </td>
+
                             <td data-label="Requested At" class="text-center">
                                 {{ $transaction->return_requested_at ? $transaction->return_requested_at->format('M d, Y H:i') : 'N/A' }}
                             </td>

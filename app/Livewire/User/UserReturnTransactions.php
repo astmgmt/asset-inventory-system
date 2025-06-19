@@ -13,6 +13,9 @@ use App\Services\SendEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str; 
+use Illuminate\Database\QueryException;
+
 
 class UserReturnTransactions extends Component
 {
@@ -47,21 +50,37 @@ class UserReturnTransactions extends Component
 
     public function openReturnModal($transactionId)
     {
-        $this->selectedTransaction = AssetBorrowTransaction::with('borrowItems.asset')
-            ->findOrFail($transactionId);
-            
+        $this->selectedTransaction = AssetBorrowTransaction::with(['borrowItems' => function ($query) {
+            $query->where('status', 'Borrowed')->with('asset');
+        }])->findOrFail($transactionId);
+
         $this->returnRemarks = '';
-        $this->selectedItems = $this->selectedTransaction->borrowItems->pluck('id')->toArray();
+        $this->selectedItems = $this->selectedTransaction->borrowItems->pluck('id')->toArray(); // Now filtered
         $this->selectAll = true;
         $this->showReturnModal = true;
     }
 
+
     public function openViewModal($transactionId)
     {
-        $this->selectedTransaction = AssetBorrowTransaction::with('borrowItems.asset')
-            ->findOrFail($transactionId);
+        $transaction = AssetBorrowTransaction::findOrFail($transactionId);
+
+        // Get only non-returned items
+        $filteredBorrowItems = AssetBorrowItem::where('borrow_transaction_id', $transaction->id)
+            ->whereIn('status', ['Borrowed'])
+            ->with('asset')
+            ->get();
+
+        // Attach filtered items
+        $transaction->setRelation('borrowItems', $filteredBorrowItems);
+
+        $this->selectedTransaction = $transaction;
         $this->showViewModal = true;
     }
+
+
+
+
 
     public function updatedSelectAll($value)
     {
@@ -89,7 +108,7 @@ class UserReturnTransactions extends Component
         
         $this->showConfirmationModal = true;
     }
-
+    
     public function processReturn()
     {
         $this->showConfirmationModal = false;
@@ -98,15 +117,22 @@ class UserReturnTransactions extends Component
             DB::transaction(function () {
                 $transaction = $this->selectedTransaction;
                 
-                // Create a new return transaction
-                $returnCode = 'RT-' . now()->format('Ymd') . '-' . str_pad(AssetReturnItem::count() + 1, 8, '0', STR_PAD_LEFT);
+                // Generate unique return code using atomic counter
+                $returnCode = $this->generateUniqueReturnCode();
                 
-                // Get selected borrow items
+                // Get selected borrow items that are still Borrowed
                 $selectedBorrowItems = AssetBorrowItem::whereIn('id', $this->selectedItems)
+                    ->where('borrow_transaction_id', $transaction->id) // Security check
+                    ->where('status', 'Borrowed') // Prevent double-processing
                     ->with('asset')
                     ->get();
                 
-                // Create return items only for selected assets
+                // Validate we have items to process
+                if ($selectedBorrowItems->isEmpty()) {
+                    throw new \Exception("No valid assets found for return");
+                }
+                
+                // Create return items for selected assets
                 foreach ($selectedBorrowItems as $borrowItem) {
                     AssetReturnItem::create([
                         'return_code' => $returnCode,
@@ -114,31 +140,28 @@ class UserReturnTransactions extends Component
                         'returned_by_user_id' => Auth::id(),
                         'returned_by_department_id' => Auth::user()->department_id,
                         'remarks' => $this->returnRemarks,
-                        'returned_at' => null, // Will be set when approved
+                        'returned_at' => now(),
+                        'approval_status' => 'Pending', // Critical for admin approval
                     ]);
                     
                     // Update item status to PendingReturnApproval
                     $borrowItem->update(['status' => 'PendingReturnApproval']);
                 }
                 
-                // Get unselected items
-                $unselectedItems = $transaction->borrowItems()
-                    ->whereNotIn('id', $this->selectedItems)
-                    ->get();
+                // Prepare transaction update data
+                $updateData = [
+                    'return_requested_at' => now(),
+                    'return_remarks' => $this->returnRemarks,
+                ];
                 
-                // Keep unselected items as Borrowed
-                foreach ($unselectedItems as $item) {
-                    $item->update(['status' => 'Borrowed']);
+                // Reset status if previously rejected
+                if ($transaction->status === 'ReturnRejected') {
+                    $updateData['status'] = 'Borrowed';
                 }
                 
-                // Update transaction status
-                $transaction->update([
-                    'status' => 'PendingReturnApproval',
-                    'return_requested_at' => now(),
-                    'return_remarks' => $this->returnRemarks
-                ]);
+                $transaction->update($updateData);
                 
-                // Send email notification to admin with selected items
+                // Send email notification
                 $this->sendReturnRequestEmail($transaction->borrow_code, $returnCode, $selectedBorrowItems);
                 
                 // Show success message
@@ -157,6 +180,40 @@ class UserReturnTransactions extends Component
             $this->errorMessage = "Failed to process return request: " . $e->getMessage();
         }
     }
+
+    private function generateUniqueReturnCode()
+    {
+        $datePart = now()->format('Ymd');
+        $maxAttempts = 5;
+        
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            try {
+                // Get last ID for today
+                $lastId = AssetReturnItem::where('return_code', 'like', "RT-{$datePart}-%")
+                    ->orderBy('id', 'desc')
+                    ->value('return_code');
+                
+                // Extract and increment counter
+                $counter = $lastId ? intval(substr($lastId, -8)) + 1 : 1;
+                $paddedCounter = str_pad($counter, 8, '0', STR_PAD_LEFT);
+                $code = "RT-{$datePart}-{$paddedCounter}";
+                
+                // Verify uniqueness
+                if (!AssetReturnItem::where('return_code', $code)->exists()) {
+                    return $code;
+                }
+            } catch (\Exception $e) {
+                if ($attempt === $maxAttempts) {
+                    throw new \Exception("Failed to generate unique return code after {$maxAttempts} attempts");
+                }
+            }
+        }
+        
+        // Fallback to UUID if all attempts fail
+        return 'RT-' . now()->format('Ymd-') . Str::uuid();
+    }
+
+
 
     private function sendReturnRequestEmail($borrowCode, $returnCode, $selectedBorrowItems)
     {

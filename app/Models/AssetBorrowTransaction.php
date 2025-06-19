@@ -20,11 +20,14 @@ class AssetBorrowTransaction extends Model
         'approved_at',        
         'status',
         'remarks',
+        'return_requested_at',
+
     ];
 
     protected $casts = [
         'borrowed_at' => 'datetime',
         'approved_at' => 'datetime',
+        'return_requested_at' => 'datetime',
     ];
 
     public function user()
