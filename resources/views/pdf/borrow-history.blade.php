@@ -102,7 +102,7 @@
         <div class="title-container">
             <p class="title">Transaction History Record</p>
             <p class="subtitle">Borrow Code: {{ $history->borrow_code }}</p>
-            <p class="subtitle">Date: {{ $history->action_date->format('M d, Y H:i') }}</p>
+            <p class="subtitle">Date: {{ $history->action_date->format('M d, Y h:i A') }}</p>
         </div>
     </div>
 
@@ -127,6 +127,25 @@
                 <td class="label">Return Code:</td>
                 <td>{{ $history->return_code ?? 'N/A' }}</td>
             </tr>
+            <!-- Added Date Borrowed and Date Returned -->
+            <tr>
+                <td class="label">Date Borrowed:</td>
+                <td>
+                    @if(!empty($history->borrow_data['borrowed_at']))
+                        {{ \Carbon\Carbon::parse($history->borrow_data['borrowed_at'])->format('F d, Y') }}
+                    @else
+                        N/A
+                    @endif
+                </td>
+                <td class="label">Date Returned:</td>
+                <td>
+                    @if(isset($history->return_data['return_items'][0]['created_at']))
+                        {{ \Carbon\Carbon::parse($history->return_data['return_items'][0]['created_at'])->format('F d, Y') }}
+                    @else
+                        N/A
+                    @endif
+                </td>
+            </tr>
         </table>
     </div>
 
@@ -141,7 +160,9 @@
                 <thead>
                     <tr>
                         <th>Asset Code</th>
-                        <th>Asset Name</th>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th>Serial No.</th>
                         <th>Quantity</th>
                         <th>Purpose</th>
                     </tr>
@@ -150,10 +171,13 @@
                     @foreach($borrowItems as $item)
                     @php
                         $asset = $item['asset'] ?? [];
+                        $borrowDate = $item['borrowed_at'] ?? ($history->borrow_data['borrow_transaction']['borrowed_at'] ?? null);
                     @endphp
                     <tr>
                         <td>{{ $asset['asset_code'] ?? 'N/A' }}</td>
                         <td>{{ $asset['name'] ?? 'N/A' }}</td>
+                        <td>{{ $asset['model_number'] ?? 'N/A' }}</td>
+                        <td>{{ $asset['serial_number'] ?? 'N/A' }}</td>
                         <td>{{ $item['quantity'] ?? 'N/A' }}</td>
                         <td>{{ $item['purpose'] ?? 'N/A' }}</td>
                     </tr>
@@ -175,7 +199,9 @@
                 <thead>
                     <tr>
                         <th>Asset Code</th>
-                        <th>Asset Name</th>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th>Serial No.</th>
                         <th>Quantity</th>
                         <th>Status</th>
                     </tr>
@@ -185,10 +211,13 @@
                     @php
                         $borrowItem = $item['borrow_item'] ?? [];
                         $asset = $borrowItem['asset'] ?? [];
+                        $returnDate = $item['returned_at'] ?? ($history->return_data['return_transaction']['returned_at'] ?? null);
                     @endphp
                     <tr>
                         <td>{{ $asset['asset_code'] ?? 'N/A' }}</td>
                         <td>{{ $asset['name'] ?? 'N/A' }}</td>
+                        <td>{{ $asset['model_number'] ?? 'N/A' }}</td>
+                        <td>{{ $asset['serial_number'] ?? 'N/A' }}</td>
                         <td>{{ $borrowItem['quantity'] ?? 'N/A' }}</td>
                         <td>{{ $item['status'] ?? 'N/A' }}</td>
                     </tr>
@@ -200,7 +229,6 @@
             <p style="text-align: center; color: #888;">No return items available</p>
         @endif
     @endif
-
     
 </body>
 </html>

@@ -110,17 +110,19 @@
                     <table class="user-table">
                         <thead>
                             <tr>
-                                <th>Asset Name</th>
                                 <th>Asset Code</th>
-                                <th>Quantity</th>
+                                <th>Brand</th>
+                                <th>Model</th>                                
+                                <th>Qty.</th>
                                 <th>Purpose</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($selectedTransaction->borrowItems as $item)
                                 <tr>
-                                    <td data-label="Asset Name" class="text-center">{{ $item->asset->name }}</td>
                                     <td data-label="Asset Code" class="text-center">{{ $item->asset->asset_code }}</td>
+                                    <td data-label="Brand" class="text-center">{{ $item->asset->name }}</td>
+                                    <td data-label="Brand" class="text-center">{{ $item->asset->model_number }}</td>                                    
                                     <td data-label="Quantity" class="text-center">{{ $item->quantity }}</td>
                                     <td data-label="Purpose" class="text-center">{{ $item->purpose ?: 'N/A' }}</td>
                                 </tr>

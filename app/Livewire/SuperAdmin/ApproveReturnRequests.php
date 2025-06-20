@@ -122,6 +122,57 @@ class ApproveReturnRequests extends Component
                     'approved_at' => now(),
                     'remarks' => $this->approveRemarks,
                 ]);
+
+
+                // UPDATE USER HISTORY 
+                $returnCode = $this->generateReturnCode(); // Ensure this is generated before usage
+
+                // Collect returned items
+                $returnItemsData = $pendingReturnItems->map(function ($returnItem) {
+                    $borrowItem = $returnItem->borrowItem;
+                    return [
+                        'borrow_item' => [
+                            'asset' => $borrowItem->asset->toArray(),
+                            'quantity' => $borrowItem->quantity,
+                            'purpose' => $borrowItem->purpose,
+                            'created_at' => $borrowItem->created_at,
+                        ],
+                        'status' => 'Returned',
+                        'created_at' => now()
+                    ];
+                })->toArray();
+
+                // Check if this is a full return
+                $allItemsReturned = $transaction->borrowItems->every(function ($item) {
+                    return $item->status === 'Returned';
+                });
+
+                // Find matching history record
+                $history = UserHistory::where('borrow_code', $transaction->borrow_code)
+                    ->whereNull('return_code')
+                    ->first();
+
+                if ($allItemsReturned && $history) {
+                    // Full return: update existing history
+                    $history->update([
+                        'return_code' => $returnCode,
+                        'status' => 'Return Approved',
+                        'return_data' => ['return_items' => $returnItemsData],
+                        'action_date' => now()
+                    ]);
+                } else {
+                    // Partial return or no existing history: create new
+                    UserHistory::create([
+                        'user_id' => $transaction->user_id,
+                        'borrow_code' => $transaction->borrow_code,
+                        'return_code' => $returnCode,
+                        'status' => 'Return Approved',
+                        'return_data' => ['return_items' => $returnItemsData],
+                        'action_date' => now()
+                    ]);
+                }
+
+
             });
 
             // Send email notification

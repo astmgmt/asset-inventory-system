@@ -43,6 +43,19 @@ class UserHistoryTransactions extends Component
 
     public function showDetails($historyId)
     {
+        $history = UserHistory::findOrFail($historyId);
+
+        if (is_null($history->borrow_data)) {
+            $reference = UserHistory::where('borrow_code', $history->borrow_code)
+                ->whereNotNull('borrow_data')
+                ->first();
+
+            if ($reference) {
+                $history->borrow_data = $reference->borrow_data;
+                $history->save();
+            }
+        }
+
         $this->selectedHistory = UserHistory::findOrFail($historyId)->fresh();
         $this->showDetailsModal = true;
     }
