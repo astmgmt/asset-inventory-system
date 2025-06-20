@@ -292,3 +292,4 @@ Route::get('/dashboard', function () {
         return redirect()->route('dashboard.user');
     }
 })->name('dashboard');
+

@@ -78,10 +78,6 @@ class UserReturnTransactions extends Component
         $this->showViewModal = true;
     }
 
-
-
-
-
     public function updatedSelectAll($value)
     {
         $this->selectedItems = $value
@@ -214,11 +210,9 @@ class UserReturnTransactions extends Component
     }
 
 
-
     private function sendReturnRequestEmail($borrowCode, $returnCode, $selectedBorrowItems)
     {
         try {
-            $emailService = new SendEmail();
             $transaction = AssetBorrowTransaction::with(['user'])
                 ->where('borrow_code', $borrowCode)
                 ->first();
@@ -228,61 +222,62 @@ class UserReturnTransactions extends Component
             }
             
             $user = $transaction->user;
+            $department = $user->department->name ?? 'N/A';
             
-            // Get admin emails with proper fallback
-            $to = config('mail.admin_email', 'admin@example.com');
+            // Prepare assets list
+            $assetsList = [];
+            foreach ($selectedBorrowItems as $item) {
+                $assetsList[] = [
+                    'code' => $item->asset->asset_code,
+                    'name' => $item->asset->name,
+                    'quantity' => $item->quantity
+                ];
+            }
             
-            // Get super admin email if available
+            // Get super admin
             $superAdmin = User::whereHas('role', function($q) {
                 $q->where('name', 'Super Admin');
             })->first();
             
-            // Get admin emails
+            // Get all admins
             $admins = User::whereHas('role', function($q) {
                 $q->where('name', 'Admin');
             })->get();
             
+            // Set recipient and CC
+            $to = $superAdmin ? $superAdmin->email : config('mail.from.address');
             $cc = $admins->pluck('email')->filter()->toArray();
             
-            // Use super admin email if available
-            if ($superAdmin && $superAdmin->email) {
-                $to = $superAdmin->email;
-            }
+            // Generate HTML content
+            $htmlContent = view('emails.return-request-admin', [
+                'returnCode' => $returnCode,
+                'borrowCode' => $borrowCode,
+                'userName' => $user->name,
+                'department' => $department,
+                'returnDate' => now()->format('M d, Y H:i'),
+                'remarks' => $this->returnRemarks,
+                'assetsList' => $assetsList
+            ])->render();
             
-            // Filter valid emails
-            $validAdminEmail = filter_var($to, FILTER_VALIDATE_EMAIL);
+            $emailService = new SendEmail();
+            $emailService->send(
+                $to,
+                "Return Request: {$returnCode}",
+                $htmlContent,  // Raw HTML content
+                $cc,
+                null,   // No PDF attachment
+                null,   // No attachment name
+                true    // Send as raw HTML
+            );
             
-            if ($validAdminEmail) {
-                // Prepare email data
-                $emailData = [
-                    'returnCode' => $returnCode,
-                    'borrowCode' => $borrowCode,
-                    'userName' => $user->name,
-                    'returnDate' => now()->format('M d, Y H:i'),
-                    'remarks' => $this->returnRemarks,
-                    'selectedBorrowItems' => $selectedBorrowItems
-                ];
-                
-                // Send using correct email structure
-                $emailService->send(
-                    $to,
-                    "Return Request: {$returnCode}",
-                    [
-                        'emails.return-request-admin',  // View name
-                        $emailData                     // Data array
-                    ],
-                    $cc,
-                    null,   // No PDF attachment
-                    null,   // No attachment name
-                    false   // Use view instead of raw HTML
-                );
-            } else {
-                Log::error("Invalid admin email: " . ($to ?? 'NULL'));
-            }
+            Log::info("Return request email sent for {$returnCode}");
         } catch (\Exception $e) {
             Log::error("Return request email failed: " . $e->getMessage());
         }
     }
+
+
+
 
     public function clearMessages()
     {

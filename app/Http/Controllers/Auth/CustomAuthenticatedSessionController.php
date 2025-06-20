@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 //ADDED FOR LOGIN REQUEST VALIDATION
 use Illuminate\Validation\ValidationException;
 
+use App\Models\UserActivity;
+
 class CustomAuthenticatedSessionController extends Controller
 {
     public function store(Request $request)
@@ -48,6 +50,16 @@ class CustomAuthenticatedSessionController extends Controller
             ]);
         }
 
+        // Record login activity
+        UserActivity::create([
+            'user_id' => $user->id,
+            'activity_name' => 'login',
+            'status' => 'active',
+            'description' => 'You logged in at ' . now()->format('M d, Y h:i A'),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->header('User-Agent'),
+        ]);
+
         // Role-based redirect
         if ($user->role->name === 'Super Admin') {
             return redirect()->route('dashboard.superadmin');
@@ -61,6 +73,17 @@ class CustomAuthenticatedSessionController extends Controller
     
     public function destroy(Request $request)
     {
+
+        if (Auth::check()) {
+            UserActivity::create([
+                'user_id' => Auth::id(),
+                'activity_name' => 'logout',
+                'status' => 'inactive',
+                'description' => 'You logged out at ' . now()->format('M d, Y h:i A'),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->header('User-Agent'),
+            ]);
+        }
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

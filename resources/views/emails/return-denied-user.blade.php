@@ -1,49 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Return Request Denied: {{ $returnCode }}</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { text-align: center; padding: 20px 0; }
-        .logo { height: 50px; }
-        .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 30px; }
-        .title { font-size: 24px; color: #EF4444; margin-bottom: 20px; text-align: center; }
-        .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 12px; }
-        .info-item { margin-bottom: 10px; }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Return Request Denied: {{ $returnCode }}</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #1f2937;
+      background-color: #f9fafb;
+      margin: 0;
+      padding: 20px 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 30px 30px 40px 30px;
+      border: 1px solid #e5e7eb;
+    }
+    .header {
+      text-align: center;
+      padding-bottom: 20px;
+      user-select: none;
+    }
+    .header img {
+      height: 50px;
+      margin-bottom: 8px;
+    }
+    .header p {
+      margin: 0;
+      color: #4b5563;
+      font-weight: 600;
+    }
+    .card {
+      padding: 0;
+    }
+    .title {
+      font-size: 24px;
+      color: #ef4444; /* red-500 */
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 24px;
+      user-select: none;
+    }
+    .info-item {
+      margin-bottom: 10px;
+      color: #374151;
+      font-weight: 500;
+    }
+    .info-label {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .reason-box {
+      background-color: #fef2f2; /* red-50 */
+      padding: 16px;
+      border-radius: 6px;
+      color: #b91c1c; /* red-700 */
+      font-weight: 500;
+      margin-top: 4px;
+    }
+    .mt-6 {
+      margin-top: 1.5rem;
+    }
+    p {
+      line-height: 1.5;
+      margin: 12px 0;
+    }
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 12px;
+      user-select: none;
+    }
+    @media screen and (max-width: 640px) {
+      .container {
+        margin: 10px;
+        padding: 20px;
+      }
+      .title {
+        font-size: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <img src="https://i.imgur.com/HF3xnxw.png" alt="logo" style="height: 50px;">
-            <p>Asset Management System</p>
-        </div>
-
-        <div class="card">
-            <h1 class="title">❌ Return Request Denied: {{ $returnCode }}</h1>
-            
-            <div class="info-item">
-                <p>Your return request has been reviewed and denied.</p>
-                <p>Denial Date: <strong>{{ $denialDate }}</strong></p>
-            </div>
-            
-            <div class="mt-6">
-                <p class="info-label">Reason for Denial:</p>
-                <p class="bg-red-50 p-4 rounded-md">{{ $remarks }}</p>
-            </div>
-            
-            <p class="mt-6">
-                Please review the reason for denial above. If you have any questions, 
-                contact the asset management department for clarification.
-            </p>
-        </div>
-        
-        <div class="footer">
-            &copy; {{ date('Y') }} Asset Management System. All rights reserved.<br>
-            This is an automated message. Please do not reply directly to this email.
-        </div>
+  <div class="container" role="main" aria-label="Return Request Denied Notification">
+    <div class="header">
+      <img src="https://i.imgur.com/HF3xnxw.png" alt="Asset Management System Logo" />
+      <p>Asset Management System</p>
     </div>
+
+    <div class="card">
+      <h1 class="title">❌ Return Request Denied: {{ $returnCode }}</h1>
+
+      <div class="info-item">
+        <p>Your return request has been reviewed and denied.</p>
+        <p>Denial Date: <strong>{{ $denialDate }}</strong></p>
+      </div>
+
+      <div class="mt-6">
+        <p class="info-label">Reason for Denial:</p>
+        <p class="reason-box">{{ $remarks }}</p>
+      </div>
+
+      <p class="mt-6">
+        Please review the reason for denial above. If you have any questions, 
+        contact the asset management department for clarification.
+      </p>
+    </div>
+
+    <div class="footer" role="contentinfo">
+      &copy; {{ date('Y') }} Asset Management System. All rights reserved.<br />
+      This is an automated message. Please do not reply directly to this email.
+    </div>
+  </div>
 </body>
 </html>

@@ -48,7 +48,10 @@ class SendEmail
 
             return true;
         } catch (\Exception $e) {
-            Log::error('Email sending failed: ' . $e->getMessage());
+            Log::error("Email sending failed: {$e->getMessage()}", [
+                'to' => $to,
+                'subject' => $subject
+            ]);            
             return false;
         }
     }

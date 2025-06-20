@@ -8,6 +8,7 @@ use App\Models\AssetBorrowTransaction;
 use App\Models\Asset;
 use App\Models\UserHistory;
 use App\Models\AssetReturnItem;
+use App\Models\AssetCondition;
 use App\Services\SendEmail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
@@ -22,10 +23,13 @@ class ApproveReturnRequests extends Component
     public $selectedTransaction = null;
     public $showApproveModal = false;
     public $showRejectModal = false;
+    public $showRejectConfirmModal = false;
     public $approveRemarks = '';
     public $rejectRemarks = '';
     public $successMessage = '';
     public $errorMessage = '';
+    public $approveBorrowItems = [];
+    public $rejectBorrowItems = [];
 
     public function render()
     {
@@ -39,7 +43,6 @@ class ApproveReturnRequests extends Component
             ->orderBy('return_requested_at', 'desc')
             ->paginate(10);
 
-
         return view('livewire.super-admin.approve-return-requests', [
             'transactions' => $transactions
         ]);
@@ -50,20 +53,32 @@ class ApproveReturnRequests extends Component
         $this->selectedTransaction = AssetBorrowTransaction::with(['borrowItems.asset', 'borrowItems.returnItems'])
             ->findOrFail($transactionId);
 
-        // Filter borrowItems to only those that have pending returnItems
-        $this->selectedTransaction->borrowItems = $this->selectedTransaction->borrowItems->filter(function ($borrowItem) {
+        $this->approveBorrowItems = $this->selectedTransaction->borrowItems->filter(function ($borrowItem) {
             return $borrowItem->returnItems->contains('approval_status', 'Pending');
-        });
+        })->values();
 
         $this->showApproveModal = true;
     }
 
-
     public function openRejectModal($transactionId)
     {
-        $this->selectedTransaction = AssetBorrowTransaction::with('borrowItems.asset')
+        $this->selectedTransaction = AssetBorrowTransaction::with(['borrowItems.asset', 'borrowItems.returnItems'])
             ->findOrFail($transactionId);
+
+        $this->rejectBorrowItems = $this->selectedTransaction->borrowItems->filter(function ($item) {
+            return $item->returnItems->contains('approval_status', 'Pending');
+        })->values();
+
         $this->showRejectModal = true;
+    }
+
+    public function openRejectConfirmModal()
+    {
+        $this->validate([
+            'rejectRemarks' => 'required|string|max:500',
+        ]);
+        
+        $this->showRejectConfirmModal = true;
     }
 
     public function approveReturn()
@@ -71,26 +86,26 @@ class ApproveReturnRequests extends Component
         $this->validate([
             'approveRemarks' => 'nullable|string|max:500',
         ]);
-        
+
         $pendingReturnItems = null;
+
         try {
             DB::transaction(function () use (&$pendingReturnItems) {
                 $transaction = $this->selectedTransaction;
-                
-                // Get all pending return items for this transaction
-                $pendingReturnItems = AssetReturnItem::with('borrowItem.asset') // eager load borrowItem and asset
+
+                $availableConditionId = AssetCondition::where('condition_name', 'Available')->firstOrFail()->id;
+
+                $pendingReturnItems = AssetReturnItem::with('borrowItem.asset')
                     ->whereHas('borrowItem', function ($query) use ($transaction) {
                         $query->where('borrow_transaction_id', $transaction->id);
                     })
                     ->where('approval_status', 'Pending')
                     ->get();
 
-
                 if ($pendingReturnItems->isEmpty()) {
                     throw new \Exception('No pending return requests found for approval.');
                 }
 
-                // 1. Update asset_return_items to "Approved"
                 foreach ($pendingReturnItems as $returnItem) {
                     $returnItem->update([
                         'approval_status' => 'Approved',
@@ -99,22 +114,19 @@ class ApproveReturnRequests extends Component
                     ]);
                 }
 
-                // 2. Update asset_borrow_items to "Returned"
                 foreach ($pendingReturnItems as $returnItem) {
                     $borrowItem = $returnItem->borrowItem;
-                    $borrowItem->update(['status' => 'Returned']);
-                    
-                    // Increment asset quantity
                     $asset = $borrowItem->asset;
+
+                    $borrowItem->update(['status' => 'Returned']);
                     $asset->increment('quantity', $borrowItem->quantity);
+                    $asset->update(['condition_id' => $availableConditionId]);
                 }
 
-                // 3. Update asset_borrow_transactions status
-                // Check if all items in the transaction are returned
                 $allItemsReturned = $transaction->borrowItems->every(function ($item) {
                     return $item->status === 'Returned';
                 });
-                
+
                 $transaction->update([
                     'status' => $allItemsReturned ? 'Returned' : 'Borrowed',
                     'returned_at' => $allItemsReturned ? now() : null,
@@ -123,11 +135,8 @@ class ApproveReturnRequests extends Component
                     'remarks' => $this->approveRemarks,
                 ]);
 
+                $returnCode = $this->generateReturnCode();
 
-                // UPDATE USER HISTORY 
-                $returnCode = $this->generateReturnCode(); // Ensure this is generated before usage
-
-                // Collect returned items
                 $returnItemsData = $pendingReturnItems->map(function ($returnItem) {
                     $borrowItem = $returnItem->borrowItem;
                     return [
@@ -142,18 +151,11 @@ class ApproveReturnRequests extends Component
                     ];
                 })->toArray();
 
-                // Check if this is a full return
-                $allItemsReturned = $transaction->borrowItems->every(function ($item) {
-                    return $item->status === 'Returned';
-                });
-
-                // Find matching history record
                 $history = UserHistory::where('borrow_code', $transaction->borrow_code)
                     ->whereNull('return_code')
                     ->first();
 
                 if ($allItemsReturned && $history) {
-                    // Full return: update existing history
                     $history->update([
                         'return_code' => $returnCode,
                         'status' => 'Return Approved',
@@ -161,7 +163,6 @@ class ApproveReturnRequests extends Component
                         'action_date' => now()
                     ]);
                 } else {
-                    // Partial return or no existing history: create new
                     UserHistory::create([
                         'user_id' => $transaction->user_id,
                         'borrow_code' => $transaction->borrow_code,
@@ -171,24 +172,69 @@ class ApproveReturnRequests extends Component
                         'action_date' => now()
                     ]);
                 }
-
-
             });
 
-            // Send email notification
             $returnCode = $pendingReturnItems->first()->return_code ?? 'RT-' . now()->format('Ymd');
             $this->sendReturnApprovalEmail($this->selectedTransaction, $returnCode);
 
             $this->successMessage = "Return approved successfully!";
-            $this->reset(['showApproveModal', 'selectedTransaction', 'approveRemarks']);
+            $this->reset(['showApproveModal', 'selectedTransaction', 'approveRemarks', 'approveBorrowItems']);
         } catch (\Exception $e) {
             $this->errorMessage = "Error approving return: " . $e->getMessage();
             Log::error("Approve return error: " . $e->getMessage());
         }
     }
 
+    public function rejectReturn()
+    {
+        try {
+            DB::transaction(function () {
+                $transaction = $this->selectedTransaction;
 
+                // Use the filtered rejectBorrowItems instead of refiltering
+                foreach ($this->rejectBorrowItems as $borrowItem) {
+                    foreach ($borrowItem->returnItems as $returnItem) {
+                        if ($returnItem->approval_status === 'Pending') {
+                            $returnItem->update([
+                                'approval_status' => 'Rejected',
+                                'approved_at' => now(),
+                                'approved_by_user_id' => Auth::id(),
+                            ]);
+                        }
+                    }
 
+                    $borrowItem->update([
+                        'status' => 'Borrowed',
+                    ]);
+                }
+
+                $transaction->update([
+                    'remarks' => $this->rejectRemarks,
+                    'status' => 'Borrowed',
+                ]);
+            });
+
+            $this->successMessage = "Return request rejected successfully!";
+            $this->reset([
+                'showRejectModal', 
+                'showRejectConfirmModal',
+                'selectedTransaction', 
+                'rejectRemarks', 
+                'rejectBorrowItems'
+            ]);
+            
+            // Force Livewire to refresh the data
+            $this->dispatch('return-rejected');
+        } catch (\Exception $e) {
+            $this->errorMessage = "Error rejecting return: " . $e->getMessage();
+            Log::error("Reject return error: " . $e->getMessage());
+        }
+    }
+
+    public function clearMessages()
+    {
+        $this->reset(['successMessage', 'errorMessage']);
+    }
     
     private function generateReturnCode()
     {
@@ -221,7 +267,6 @@ class ApproveReturnRequests extends Component
             $user = $transaction->user;
             $approverName = Auth::user()->name;
             
-            // Prepare email content in required format
             $emailContent = [
                 'emails.return-approved-user',
                 [
@@ -231,42 +276,17 @@ class ApproveReturnRequests extends Component
                 ]
             ];
             
-            // Send email without PDF attachment
             $emailService->send(
                 $user->email,
                 "Return Approved: {$returnCode}",
                 $emailContent,
                 [],
-                null,  // No PDF content
-                null,  // No attachment name
+                null,
+                null,
                 false
             );
         } catch (\Exception $e) {
             Log::error("Return approval email failed: " . $e->getMessage());
         }
-    }
-
-    public function rejectReturn()
-    {
-        $this->validate([
-            'rejectRemarks' => 'required|string|max:500',
-        ]);
-
-        try {
-            $this->selectedTransaction->update([
-                'status' => 'ReturnRejected',
-                'remarks' => $this->rejectRemarks
-            ]);
-            
-            $this->successMessage = "Return rejected successfully!";
-            $this->reset(['showRejectModal', 'selectedTransaction', 'rejectRemarks']);
-        } catch (\Exception $e) {
-            $this->errorMessage = "Error rejecting return: " . $e->getMessage();
-        }
-    }
-
-    public function clearMessages()
-    {
-        $this->reset(['successMessage', 'errorMessage']);
     }
 }

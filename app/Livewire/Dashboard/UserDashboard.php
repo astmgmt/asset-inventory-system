@@ -47,7 +47,8 @@ class UserDashboard extends Component
     {
         return UserActivity::where('user_id', Auth::id())
             ->latest()
-            ->paginate(5);
+            ->take(5)
+            ->get();
     }
     
     public function updateChartData()

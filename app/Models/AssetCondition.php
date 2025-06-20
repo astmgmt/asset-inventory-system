@@ -9,4 +9,5 @@ class AssetCondition extends Model
 {
     /** @use HasFactory<\Database\Factories\AssetConditionFactory> */
     use HasFactory;
+     protected $fillable = ['condition_name'];
 }

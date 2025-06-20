@@ -8,10 +8,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use App\Traits\TracksUserActivities;
+use Illuminate\Http\Request; 
 
 class EditProfile extends Component
 {
-    use WithFileUploads;
+    use WithFileUploads, TracksUserActivities;
 
     public $user;
     public $name;
@@ -51,7 +53,10 @@ class EditProfile extends Component
 
     public function updateProfile()
     {
-        // Validate all fields
+
+        $originalEmail = $this->user->email;
+        $passwordChanged = !empty($this->new_password);
+
         $this->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $this->user->id,
@@ -102,6 +107,32 @@ class EditProfile extends Component
 
         // Update user data
         $this->user->update($updateData);
+
+        $request = request(); // Get current request
+        $additionalEmails = [];
+        
+        // Track email change if modified
+        if ($originalEmail !== $this->email) {
+            $additionalEmails = [$originalEmail, $this->email];
+            
+            $this->recordActivity(
+                'Email Updated',
+                "You changed your email from $originalEmail to {$this->email}",
+                $request,
+                true, // Security-sensitive
+                $additionalEmails
+            );
+        }
+        
+        // Track password change if modified
+        if ($passwordChanged) {
+            $this->recordActivity(
+                'Password Changed',
+                'You changed your password',
+                $request,
+                true // Security-sensitive
+            );
+        }
 
         $this->successMessage = 'Profile updated successfully!';
         $this->profile_photo = null;

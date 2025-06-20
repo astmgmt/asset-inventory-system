@@ -33,7 +33,6 @@
                 <p class="text-2xl font-bold text-green-700">{{ $returnedCount }}</p>
             </div>
 
-            <!-- Recent Logs -->
             <div class="box-container bg-gray-100 p-4 rounded-lg shadow">
                 <h3 class="text-lg font-semibold mb-2">Recent Activities</h3>
                 <ul class="text-sm space-y-1">
@@ -44,27 +43,74 @@
             </div>
         </div>
 
-        <!-- Recent Activities Table -->
-        <div class="box-container mt-4">
+        <!-- RECENT LOGS SECTION -->
+        <div class="box-container bg-orange-100 p-4 text-center rounded-lg shadow">
             <div class="box-header">
                 <h2 class="box-title">Recent Logs</h2>
             </div>
             <div class="overflow-x-auto">
-                <table class="user-table w-full">
+                <table class="user-table w-full bg-orange-50">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Activity</th>
-                            <th>Status</th>
+                            <th class="bg-orange-50">Date</th>
+                            <th class="bg-orange-50">Activity</th>
+                            <th class="bg-orange-50">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($recentActivities as $activity)
-                            <tr>
-                                <td>{{ $activity->created_at->format('M d, Y H:i') }}</td>
-                                <td>{{ $activity->activity_name }}</td>
-                                <td>{{ $activity->status }}</td>
+                           <tr>
+                                <td>{{ $activity->created_at->format('M d, Y h:i A') }}</td>
+
+                                <td>
+                                    @switch($activity->activity_name)
+                                        @case('login')
+                                            You're logged in now 😊
+                                            @break
+
+                                        @case('logout')
+                                            You logged out 😢
+                                            @break
+
+                                        @case('password_changed')
+                                            Password changed 🔐
+                                            @break
+
+                                        @case('profile_updated')
+                                            Profile updated 🖊️
+                                            @break
+
+                                        @case('email_updated')
+                                            Email updated 📧
+                                            @break
+
+                                        @case('2fa_enabled')
+                                            2FA enabled 🔒
+                                            @break
+
+                                        @case('2fa_disabled')
+                                            2FA disabled 🚫🔒
+                                            @break
+
+                                        @default
+                                            {{ ucfirst(str_replace('_', ' ', $activity->activity_name)) }}
+                                    @endswitch
+                                </td>
+                                <td>
+                                    @if ($activity->activity_name === 'login' && $activity->status === 'active')
+                                        🟢 
+                                    @elseif ($activity->activity_name === 'logout' && $activity->status === 'inactive')
+                                        ⚪  
+                                    @elseif ($activity->activity_name === 'password_changed')
+                                        🟠 
+                                    @elseif ($activity->activity_name === 'email_updated')
+                                        🟡 
+                                    @else
+                                        🔴
+                                    @endif
+                                </td>
                             </tr>
+
                         @empty
                             <tr>
                                 <td colspan="3" class="text-center text-gray-500">No activity yet</td>
@@ -72,9 +118,6 @@
                         @endforelse
                     </tbody>
                 </table>
-            </div>
-            <div class="pagination-container mt-2">
-                {{ $recentActivities->links() }}
             </div>
         </div>
     </div>

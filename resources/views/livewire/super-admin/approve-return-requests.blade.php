@@ -1,5 +1,3 @@
-<!-- resources/views/livewire/super-admin/approve-return-requests.blade.php -->
-
 <div class="superadmin-container">
     <h1 class="page-title main-title">Approve Return Requests</h1>
 
@@ -30,6 +28,8 @@
                 placeholder="Search by borrow code..." 
                 wire:model.live.debounce.300ms="search"
                 class="search-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                name="search"
+                id="search-input"
             />
             @if($search)
                 <button wire:click="$set('search', '')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
@@ -110,7 +110,7 @@
 
         <!-- Approve Modal -->
         @if($showApproveModal && $selectedTransaction)
-            <div class="modal-backdrop" x-data="{ show: @entangle('showApproveModal') }" x-show="show">
+            <div class="modal-backdrop" style="z-index: 1000;" x-data="{ show: @entangle('showApproveModal') }" x-show="show">
                 <div class="modal" x-on:click.away="$wire.showApproveModal = false">
                     <div class="modal-header">
                         <h2 class="modal-title">Approve Return: {{ $selectedTransaction->borrow_code }}</h2>
@@ -132,7 +132,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($selectedTransaction->borrowItems as $item)
+                                @foreach($approveBorrowItems as $item)
                                     <tr>
                                         <td data-label="Asset Code" class="text-center">
                                             {{ $item->asset->asset_code }}
@@ -159,6 +159,7 @@
                                 rows="3" 
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                 placeholder="Add any remarks for the borrower..."
+                                name="approveRemarks"
                             ></textarea>
                         </div>
                     </div>
@@ -185,7 +186,7 @@
 
         <!-- Reject Modal -->
         @if($showRejectModal && $selectedTransaction)
-            <div class="modal-backdrop" x-data="{ show: @entangle('showRejectModal') }" x-show="show">
+            <div class="modal-backdrop" style="z-index: 1001;" x-data="{ show: @entangle('showRejectModal') }" x-show="show">
                 <div class="modal" x-on:click.away="$wire.showRejectModal = false">
                     <div class="modal-header">
                         <h2 class="modal-title">Reject Return: {{ $selectedTransaction->borrow_code }}</h2>
@@ -207,7 +208,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($selectedTransaction->borrowItems as $item)
+                                @foreach($rejectBorrowItems as $item)
                                     <tr>
                                         <td data-label="Asset Code" class="text-center">
                                             {{ $item->asset->asset_code }}
@@ -235,7 +236,9 @@
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                 placeholder="Explain why this return is being rejected..."
                                 required
+                                name="rejectRemarks"
                             ></textarea>
+                            @error('rejectRemarks') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
                     </div>
                     
@@ -248,13 +251,52 @@
                         </button>
 
                         <button 
-                            wire:click="rejectReturn" 
+                            wire:click="openRejectConfirmModal" 
                             class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-4 rounded text-sm transition duration-150 ease-in-out"
                         >
                             <i class="fas fa-times mr-2"></i> Reject Return
                         </button>
                     </div>
 
+                </div>
+            </div>
+        @endif
+
+        <!-- Reject Confirmation Modal -->
+        @if($showRejectConfirmModal)
+            <div class="modal-backdrop" style="z-index: 1002;" x-data="{ show: @entangle('showRejectConfirmModal') }" x-show="show">
+                <div class="modal" x-on:click.away="$wire.showRejectConfirmModal = false">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Confirm Rejection</h2>
+                        <button wire:click="$set('showRejectConfirmModal', false)" class="modal-close">&times;</button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <div class="text-center">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-4"></i>
+                            <h3 class="text-lg font-medium mb-2">Are you sure you want to reject this return?</h3>
+                            <p class="mb-4">This action cannot be undone. The assets will remain borrowed.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer flex justify-center space-x-4 mt-4">
+                        <button 
+                            wire:click="$set('showRejectConfirmModal', false)" 
+                            class="inline-flex items-center bg-gray-500 hover:bg-gray-600 text-white font-medium py-1.5 px-6 rounded text-sm transition duration-150 ease-in-out"
+                        >
+                            Cancel
+                        </button>
+
+                        <button 
+                            wire:click="rejectReturn" 
+                            wire:loading.attr="disabled"
+                            class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-6 rounded text-sm transition duration-150 ease-in-out"
+                        >
+                            <i class="fas fa-times mr-2"></i> 
+                            <span wire:loading.remove>Confirm Rejection</span>
+                            <span wire:loading>Processing...</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         @endif
