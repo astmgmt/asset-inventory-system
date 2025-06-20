@@ -10,7 +10,10 @@
             x-data="userTransactionChart({ borrowed: {{ $borrowedCount }}, returned: {{ $returnedCount }} })"
             x-init="init()"
             x-on:chartDataUpdated.window="updateData($event.detail)">
+
+            <!-- Always show canvas -->
             <canvas id="userTransactionChart" height="250"></canvas>
+
         </div>
     </div>
 
@@ -77,7 +80,6 @@
     </div>
 </div>
 
-
 <script>
 function userTransactionChart(initialData) {
     return {
@@ -90,22 +92,35 @@ function userTransactionChart(initialData) {
                 this.chart.destroy();
             }
 
+            // Check if there is no data
+            const isEmpty = this.data.borrowed === 0 && this.data.returned === 0;
+
+            // Data & labels for empty state or normal state
+            const labels = isEmpty ? ['No Data'] : ['Borrowed', 'Returned'];
+            const dataValues = isEmpty ? [1] : [this.data.borrowed, this.data.returned];
+            const backgroundColors = isEmpty ? ['#e5e7eb'] : ['#93c5fd', '#6ee7b7'];  // Gray for empty
+            const borderColors = isEmpty ? ['#d1d5db'] : ['#60a5fa', '#34d399'];
+
             this.chart = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: ['Borrowed', 'Returned'],
+                    labels: labels,
                     datasets: [{
-                        data: [this.data.borrowed, this.data.returned],
-                        backgroundColor: ['#93c5fd', '#6ee7b7'],
-                        borderColor: ['#60a5fa', '#34d399'],
+                        data: dataValues,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
                         borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { position: 'bottom' },
+                        legend: {
+                            position: 'bottom',
+                            display: !isEmpty // Hide legend if no data
+                        },
                         tooltip: {
+                            enabled: !isEmpty, // Disable tooltip if no data
                             callbacks: {
                                 label: function (context) {
                                     return `${context.label}: ${context.parsed}`;
@@ -114,20 +129,22 @@ function userTransactionChart(initialData) {
                         }
                     }
                 }
-            });          
-          
+            });
         },
         updateData(newData) {
             this.data = newData;
-            if (this.chart) {
-                this.chart.data.datasets[0].data = [
-                    this.data.borrowed,
-                    this.data.returned
-                ];
-                this.chart.update();
-            }
+
+            const isEmpty = this.data.borrowed === 0 && this.data.returned === 0;
+
+            this.chart.data.labels = isEmpty ? ['No Data'] : ['Borrowed', 'Returned'];
+            this.chart.data.datasets[0].data = isEmpty ? [1] : [this.data.borrowed, this.data.returned];
+            this.chart.data.datasets[0].backgroundColor = isEmpty ? ['#f9fafb'] : ['#93c5fd', '#6ee7b7'];
+            this.chart.data.datasets[0].borderColor = isEmpty ? ['#d1d5db'] : ['#60a5fa', '#34d399'];
+            this.chart.options.plugins.legend.display = !isEmpty;
+            this.chart.options.plugins.tooltip.enabled = !isEmpty;
+
+            this.chart.update();
         }
     };
 }
-console.log(userTransactionChart)
 </script>
