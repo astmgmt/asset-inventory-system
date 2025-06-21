@@ -281,12 +281,43 @@
                                 >
                                 @error('warranty_expiration') <span class="error">{{ $message }}</span> @enderror
                             </div>
+
                             
-                            <div class="form-group col-span-2">
-                                <label>Description</label>
-                                <textarea wire:model="description" rows="3" class="form-input"></textarea>
-                                @error('description') <span class="error">{{ $message }}</span> @enderror
+                            <!-- Empty cell for alignment 
+                            <div></div> -->
+                            
+                            <!-- Serial Number and Description in a single row -->
+                            <div class="flex flex-col md:flex-row gap-4 col-span-2">
+                                <div class="w-full md:w-1/2">
+                                    <div class="form-group">
+                                        <label>Serial Number</label>
+                                        <input 
+                                            type="text" 
+                                            wire:model="serial_number" 
+                                            class="form-input"
+                                            placeholder="Enter serial number"
+                                        >
+                                        @error('serial_number') 
+                                            <span class="error">{{ $message }}</span> 
+                                        @enderror
+                                    </div>
+                                </div>
+                                
+                                <div class="w-full md:w-1/2">
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <textarea 
+                                            wire:model="description" 
+                                            rows="3" 
+                                            class="form-input w-full"
+                                        ></textarea>
+                                        @error('description') 
+                                            <span class="error">{{ $message }}</span> 
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
+
                         </div>
                         
                         <div class="modal-actions">
@@ -323,6 +354,21 @@
                                 <input type="text" wire:model="model_number" class="form-input">
                                 @error('model_number') <span class="error">{{ $message }}</span> @enderror
                             </div>
+
+                            <!-- Add Serial Number field -->
+                            <div class="form-group">
+                                <label>Serial Number</label>
+                                <input 
+                                    type="text" 
+                                    wire:model="serial_number" 
+                                    class="form-input"
+                                    placeholder="Enter serial number"
+                                >
+                                @error('serial_number') 
+                                    <span class="error">{{ $message }}</span> 
+                                @enderror
+                            </div>
+
                             
                             <div class="form-group">
                                 <label>Category *</label>
@@ -415,7 +461,7 @@
                         
                         <div class="detail-group">
                             <label>Serial Number:</label>
-                            <p>{{ $viewAsset->serial_number }}</p>
+                            <p>{{ $viewAsset->serial_number ?? 'None' }}</p>
                         </div>
                         
                         <div class="detail-group">

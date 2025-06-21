@@ -29,6 +29,7 @@ class ManageAssets extends Component
     public $description;
     public $quantity = 1;
     public $model_number;
+    public $serial_number;
     public $category_id;
     public $condition_id;
     public $location_id;
@@ -212,6 +213,7 @@ class ManageAssets extends Component
         $this->location_id = $asset->location_id;
         $this->vendor_id = $asset->vendor_id;
         $this->warranty_expiration = $asset->warranty_expiration->format('Y-m-d');
+        $this->serial_number = $asset->serial_number;
         
         $this->showEditModal = true;
     }    
@@ -243,7 +245,7 @@ class ManageAssets extends Component
     {
         $this->reset([
             'assetId', 'name', 'description', 'quantity', 
-            'model_number', 'modelInput', 'category_id', 'condition_id', 
+            'model_number', 'serial_number', 'modelInput', 'category_id', 'condition_id', 
             'location_id', 'vendor_id', 'warranty_expiration',
             'modelSuggestions', 'categorySearch', 'categorySuggestions',
             'locationSearch', 'locationSuggestions', 'vendorSearch', 'vendorSuggestions',
@@ -284,17 +286,6 @@ class ManageAssets extends Component
         ];
     }
 
-    private function generateSerialNumber($lastId = null)
-    {
-        if ($lastId === null) {
-            $lastAsset = Asset::orderBy('id', 'desc')->first();
-            $lastId = $lastAsset ? $lastAsset->id : 0;
-        }
-        
-        $newId = $lastId + 1;
-        return 'SN' . str_pad($newId, 12, '0', STR_PAD_LEFT);
-    }
-
     public function createAsset()
     {
         // Ensure model number is set from input
@@ -305,6 +296,7 @@ class ManageAssets extends Component
             'description' => 'nullable|string',
             'quantity' => 'required|integer|min:1',
             'model_number' => 'required|string|max:50',
+            'serial_number' => 'nullable|string|max:20|unique:assets,serial_number',
             'category_id' => 'required|exists:asset_categories,id',
             'location_id' => 'required|exists:asset_locations,id',
             'vendor_id' => 'required|exists:vendors,id',
@@ -331,14 +323,15 @@ class ManageAssets extends Component
             $lastNum = $assetCodeData['nextNum'];
             
             // Generate serial number
-            $serialNumber = $this->generateSerialNumber($lastId + $i);
+            $serialNumber = ($i === 0) ? $this->serial_number : null;
             
             $assets[] = [
                 'asset_code' => $assetCode,
                 'serial_number' => $serialNumber,
                 'name' => $this->name,
                 'description' => $this->description,
-                'quantity' => 1, // Each asset has quantity 1
+                'quantity' => 1, 
+                'serial_number' => $serialNumber,
                 'model_number' => $this->model_number,
                 'category_id' => $this->category_id,
                 'condition_id' => $this->condition_id,
@@ -367,6 +360,7 @@ class ManageAssets extends Component
         $this->validate([
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
+            'serial_number' => 'nullable|string|max:20|unique:assets,serial_number,'.$this->assetId,
             'model_number' => 'required|string|max:50',
             'category_id' => 'required|exists:asset_categories,id',
             'condition_id' => 'required|exists:asset_conditions,id',
@@ -379,6 +373,7 @@ class ManageAssets extends Component
         $asset->update([
             'name' => $this->name,
             'description' => $this->description,
+            'serial_number' => $this->serial_number,
             'model_number' => $this->model_number,
             'category_id' => $this->category_id,
             'condition_id' => $this->condition_id,

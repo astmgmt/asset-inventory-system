@@ -15,7 +15,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('quantity');
             $table->integer('reserved_quantity')->default(0);
-            $table->string('serial_number', 20)->unique();
+            $table->string('serial_number', 20)->unique()->nullable();
             $table->string('model_number', 50);
             $table->foreignId('category_id')->constrained('asset_categories');
             $table->foreignId('condition_id')->constrained('asset_conditions');
