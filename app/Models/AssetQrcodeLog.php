@@ -7,6 +7,29 @@ use Illuminate\Database\Eloquent\Model;
 
 class AssetQrcodeLog extends Model
 {
-    /** @use HasFactory<\Database\Factories\AssetQrcodeLogFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'print_code',
+        'date_from',
+        'date_to',
+        'user_id',
+        'asset_snapshot_data',
+    ];
+
+    protected $casts = [
+        'asset_snapshot_data' => 'array',
+        'date_from' => 'date',
+        'date_to' => 'date',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function assets()
+    {
+        return $this->belongsToMany(Asset::class, 'asset_qrcode_log_assets', 'asset_qrcode_log_id', 'asset_id');
+    }
 }

@@ -25,6 +25,7 @@ use App\Livewire\SuperAdmin\ApproveReturnRequests;
 use App\Livewire\SuperAdmin\AssetDisposals; 
 use App\Livewire\SuperAdmin\PrintAssets;
 use App\Livewire\SuperAdmin\PrintSoftwares;
+use App\Livewire\SuperAdmin\PrintQRCodes;
 
 use App\Livewire\User\UserBorrowAsset; 
 use App\Livewire\User\UserContainers;
@@ -190,6 +191,10 @@ Route::middleware([
 
     Route::get('/print/softwares', PrintSoftwares::class)
             ->name('print.softwares')
+            ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
+
+    Route::get('/print/qrcodes',PrintQRCodes::class)
+            ->name('print.qrcodes')
             ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
 
 

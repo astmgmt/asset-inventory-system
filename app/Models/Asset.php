@@ -101,4 +101,8 @@ class Asset extends Model
     {
         return $this->quantity - $this->reserved_quantity;
     }
+    public function qrcodeLogs()
+    {
+        return $this->belongsToMany(AssetQrcodeLog::class, 'asset_qrcode_log_assets', 'asset_id', 'asset_qrcode_log_id')->withTimestamps();
+    }
 }
