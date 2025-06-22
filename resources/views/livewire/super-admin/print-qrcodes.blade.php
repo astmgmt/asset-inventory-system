@@ -154,7 +154,7 @@
     <!-- Delete Confirmation Modal -->
     @if($showDeleteModal)
         <div class="modal-backdrop" style="z-index: 1000;" x-data="{ show: @entangle('showDeleteModal') }" x-show="show">
-            <div class="modal" x-on:click.away="$wire.showDeleteModal = false">
+            <div class="modal modal-delete" x-on:click.away="$wire.showDeleteModal = false">
                 <div class="modal-header">
                     <h2 class="modal-title">Confirm Deletion</h2>
                     <button wire:click="$set('showDeleteModal', false)" class="modal-close">&times;</button>
@@ -163,8 +163,8 @@
                 <div class="modal-body">
                     <div class="text-center">
                         <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-4"></i>
-                        <h3 class="text-lg font-medium mb-2">Are you sure you want to delete this print log?</h3>
-                        <p class="mb-4">This action cannot be undone. All associated records will be permanently removed.</p>
+                        <h4 class="text-md font-medium mb-2">Are you sure you want to delete this print log?</h4>
+                        <p class="mb-4">This action cannot be undone. All records will be permanently removed.</p>
                     </div>
                 </div>
                 
@@ -182,7 +182,7 @@
                         class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-6 rounded text-sm transition duration-150 ease-in-out"
                     >
                         <i class="fas fa-trash mr-2"></i> 
-                        <span wire:loading.remove>Delete Log</span>
+                        <span wire:loading.remove>Confirm</span>
                         <span wire:loading>Deleting...</span>
                     </button>
                 </div>

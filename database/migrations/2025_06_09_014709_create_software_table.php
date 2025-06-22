@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('software_code', 20)->unique();
             $table->string('software_name', 100);
             $table->text('description')->nullable();
+            $table->integer('quantity')->default(1);
+            $table->integer('reserved_quantity')->default(0);
             $table->string('license_key', 100);
             $table->date('installation_date');
             $table->date('expiry_date');
@@ -26,10 +28,7 @@ return new class extends Migration
             $table->timestamps();
         });
     }
-
-    /**
-     * Reverse the migrations.
-     */
+    
     public function down(): void
     {
         Schema::dropIfExists('software');

@@ -74,7 +74,7 @@
                     </button>
                     <div x-show="open === 2" x-collapse class="nav-submenu">
                         <a href="{{ route('manage.assets') }}"><i class="fas fa-plus-square"></i> Add Asset</a>
-                        <a href="{{ route('manage.assets') }}"><i class="fas fa-random"></i> Assign Asset</a>
+                        <a href="{{ route('asset.assignment') }}"><i class="fas fa-random"></i> Assign Asset</a>
                         <a href="{{ route('approve.requests') }}"><i class="fas fa-hand-paper"></i> Borrow Request(s)</a>
                         <a href="{{ route('approve.return') }}"><i class="fas fa-undo-alt"></i> Return Request(s)</a>
                         <a href="{{ route('asset.disposal') }}"><i class="fas fa-trash-alt"></i> Dispose Asset</a>                                               
@@ -87,7 +87,8 @@
                     </button>
                     <div x-show="open === 3" x-collapse class="nav-submenu">
                         <a href="{{route('manage.softwares')}}"><i class="fas fa-plus-circle"></i> Add Software</a>
-                        <a href="{{route('superadmin.manage')}}"><i class="fas fa-share-square"></i> Assign Software</a>                        
+                        <a href="{{route('software.assignment')}}"><i class="fas fa-share-square"></i> Assign Software</a>                         
+                        <a href="{{ route('track.software') }}"><i class="fas fa-chart-line"></i> Track Software</a>
                     </div>                   
 
                     <!-- Print Reports -->
@@ -114,7 +115,7 @@
                     </button>
                     <div x-show="open === 2" x-collapse class="nav-submenu">
                         <a href="{{ route('manage.assets') }}"><i class="fas fa-plus-square"></i> Add Asset</a>
-                        <a href="{{ route('manage.assets') }}"><i class="fas fa-random"></i> Assign Asset</a>
+                        <a href="{{ route('asset.assignment') }}"><i class="fas fa-random"></i> Assign Asset</a>
                         <a href="{{ route('approve.requests') }}"><i class="fas fa-hand-paper"></i> Borrow Request(s)</a>
                         <a href="{{ route('approve.return') }}"><i class="fas fa-undo-alt"></i> Return Request(s)</a>
                         <a href="{{ route('asset.disposal') }}"><i class="fas fa-trash-alt"></i> Dispose Asset</a>                                               
@@ -127,7 +128,8 @@
                     </button>
                     <div x-show="open === 3" x-collapse class="nav-submenu">
                         <a href="{{route('manage.softwares')}}"><i class="fas fa-plus-circle"></i> Add Software</a>
-                        <a href="{{route('superadmin.manage')}}"><i class="fas fa-share-square"></i> Assign Software</a>                        
+                        <a href="{{route('software.assignment')}}"><i class="fas fa-share-square"></i> Assign Software</a>
+                        <a href="{{ route('track.software') }}"><i class="fas fa-chart-line"></i> Track Software</a>
                     </div>                   
 
                     <!-- Print Reports -->

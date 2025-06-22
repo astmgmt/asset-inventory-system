@@ -14,24 +14,24 @@ class Software extends Model
         'software_code',
         'software_name',
         'description',
+        'quantity',
+        'reserved_quantity',
         'license_key',
         'installation_date',
         'expiry_date',
         'added_by',
-        'expiry_flag',       // Add this
-        'expiry_status',     // Add this
-        'last_notified_at',  // Add this
+        'expiry_flag',
+        'expiry_status',
+        'last_notified_at',
     ];
 
     protected $casts = [
         'installation_date' => 'date',
-        'expiry_date' => 'date'
+        'expiry_date' => 'date',
+        'expiry_flag' => 'boolean',
+        'last_notified_at' => 'datetime',
     ];
     
-    public function addedBy()
-    {
-        return $this->belongsTo(User::class, 'added_by');
-    }
     public function updateExpiryStatus()
     {
         $now = now();
@@ -60,6 +60,16 @@ class Software extends Model
     public function printLogs()
     {
         return $this->belongsToMany(SoftwarePrintLog::class, 'software_print_log_software', 'software_id', 'software_print_log_id')->withTimestamps();
+    }
+
+    public function addedBy()
+    {
+        return $this->belongsTo(User::class, 'added_by');
+    }
+
+    public function assignmentItems()
+    {
+        return $this->hasMany(SoftwareAssignmentItem::class, 'software_id');
     }
 
 }

@@ -18,6 +18,7 @@ use App\Livewire\SuperAdmin\ManageSoftwares;
 
 use App\Livewire\SuperAdmin\AssetAssignments; 
 use App\Livewire\SuperAdmin\SoftwareAssignments; 
+use App\Livewire\SuperAdmin\TrackSoftwares; 
 
 use App\Livewire\SuperAdmin\BorrowRequests; 
 use App\Livewire\SuperAdmin\ApproveBorrowerRequests; 
@@ -147,7 +148,12 @@ Route::middleware([
 
     Route::get('/software/assignment', SoftwareAssignments::class)
         ->name('software.assignment')
-        ->middleware('role:Super Admin,Admin');        
+        ->middleware('role:Super Admin,Admin');
+
+    Route::get('/track/software', TrackSoftwares::class)
+        ->name('track.software')
+        ->middleware('role:Super Admin,Admin');       
+        
 
     Route::get('/software/assignment/pdf/{id}', [SoftwareAssignmentPDFController::class, 'generatePDF'])
         ->name('software.assignment.pdf')
@@ -213,6 +219,20 @@ Route::middleware([
     // Corrected the parameter name to match controller expectation
     Route::get('/borrow-pdf/{borrow_code}', [ApproveBorrowController::class, 'generatePDF'])
         ->name('borrow.pdf');
+
+
+    // USED FOR GENERATING PDF AFTER ASSIGNING ASSETS
+    Route::get('/assignments/{borrow_code}/accountability-form', 
+        [AssignAssetController::class, 'generateAccountabilityPDF'])
+        ->name('assignments.accountability-form')
+        ->middleware('role:Super Admin,Admin');
+
+    // DOWNLOADING ACCOUNTABILITY FORM AFTER ASSET ASSIGNMENT
+    // Route::get('/superadmin/download-accountability/{borrowCode}', [AssignAssetController::class, 'downloadAccountabilityPDF'])
+    // ->name('superadmin.downloadAccountabilityPDF');
+
+    // Route::get('/superadmin/download-accountability/{borrow_code}', [\App\Http\Controllers\SuperAdmin\AssignAssetController::class, 'generateAccountabilityPDF'])
+    // ->name('superadmin.download-accountability');
 
     Route::get('/user/history', UserHistoryTransactions::class)
         ->name('user.history')

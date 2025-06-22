@@ -16,10 +16,15 @@ return new class extends Migration
             $table->string('assignment_no')->unique();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('assigned_by')->constrained('users')->onDelete('cascade');
-            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('cascade');            
             $table->string('purpose');
             $table->text('remarks')->nullable();
-            $table->enum('status', ['pending', 'approved', 'denied'])->default('pending');
+            $table->enum('status', [
+                'Assigned',                
+                'Available',                                
+                'PendingReturn',  
+                'ReturnRejected'    
+            ])->default('Assigned');
             $table->timestamp('date_assigned')->useCurrent();
             $table->timestamp('approved_at')->nullable();
             $table->timestamps();

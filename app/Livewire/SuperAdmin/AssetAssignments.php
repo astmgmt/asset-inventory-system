@@ -2,264 +2,352 @@
 
 namespace App\Livewire\SuperAdmin;
 
-use App\Models\Asset;
-use App\Models\User;
-use App\Models\AssetAssignment;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Schema;
+use App\Models\Asset;
+use App\Models\User;
+use App\Models\UserHistory;
+use App\Models\AssetBorrowTransaction;
+use App\Models\AssetBorrowItem;
+use App\Models\AssetCondition;
+use Illuminate\Support\Facades\DB;
+use App\Services\SendEmail;
+use App\Services\EmailTemplates;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AssetAssignments extends Component
 {
     use WithPagination;
 
     public $search = '';
-    public $users;
-    public $assets;
-    public $admins;
-    
-    // Assignment fields
-    public $assignmentId;
-    public $reference_no;
-    public $user_id;
-    public $admin_id;
-    public $asset_id;
-    public $purpose;
-    public $remarks;
-    public $date_assigned;
-    
-    // Modals
-    public $showAddModal = false;
-    public $showEditModal = false;
-    public $showViewModal = false;
-    public $showDeleteModal = false;
-    
-    // View assignment
-    public $viewAssignment;
-    
-    // Messages
+    public $selectedAssets = [];
+    public $showCartModal = false;
+    public $selectedForBorrow = [];
     public $successMessage = '';
     public $errorMessage = '';
+    public $userIdentifier = '';
+    public $isProcessing = false;
+    public $generatedBorrowCode = null;
 
-    protected function loadAvailableAssets()
+    public function updatedShowCartModal($value)
     {
-        // Get assets that are not disposed and are in good condition
-        $this->assets = Asset::where('is_disposed', false)
-            ->whereHas('condition', function($query) {
-                $query->where('condition_name', 'Available'); // Adjust as needed
-            })
-            ->get();
-    }
-
-    public function mount()
-    {
-        $this->users = User::whereHas('role', function($q) {
-            $q->where('name', 'User');
-        })->get();
-
-        $this->admins = User::whereHas('role', function($q) {
-            $q->whereIn('name', ['Admin', 'Super Admin']);
-        })->get();
-
-        $this->loadAvailableAssets(); // Load assets here
-        $this->admin_id = auth()->id();
-        $this->date_assigned = now()->format('Y-m-d');
-    }
-
-    public function updatedAssetId($value)
-    {
-        $this->selectedAsset = Asset::find($value);
-    }
-
-    public function updatingSearch()
-    {
-        $this->resetPage();
-    }
-
-    public function openAddModal()
-    {
-        $this->resetForm();
-        $this->loadAvailableAssets(); // Reload assets
-        $this->showAddModal = true;
-    }
-
-    public function openEditModal($id)
-    {
-        $assignment = AssetAssignment::findOrFail($id);
-        
-        $this->assignmentId = $assignment->id;
-        $this->reference_no = $assignment->reference_no;
-        $this->user_id = $assignment->user_id;
-        $this->admin_id = $assignment->admin_id;
-        $this->asset_id = $assignment->asset_id;
-        $this->selectedAsset = $assignment->asset;
-        $this->purpose = $assignment->purpose;
-        $this->remarks = $assignment->remarks;
-        $this->date_assigned = $assignment->date_assigned->format('Y-m-d');
-        
-        // Load available assets plus the current one
-        $this->assets = Asset::where('is_disposed', false)
-            ->whereHas('condition', function($query) {
-                $query->where('condition_name', 'Good');
-            })
-            ->orWhere('id', $this->asset_id)
-            ->get();
-
-        $this->showEditModal = true;
-    }
-    
-    public function openViewModal($id)
-    {
-        $this->viewAssignment = AssetAssignment::with(['user', 'admin', 'asset'])
-            ->findOrFail($id);
-        $this->showViewModal = true;
-    }
-
-    public function confirmDelete($id)
-    {
-        $this->assignmentId = $id;
-        $this->showDeleteModal = true;
-    }
-
-    public function closeModals()
-    {
-        $this->showAddModal = false;
-        $this->showEditModal = false;
-        $this->showViewModal = false;
-        $this->showDeleteModal = false;
-        $this->resetForm();
-    }
-
-    public function resetForm()
-    {
-        $this->reset([
-            'assignmentId', 'reference_no', 'user_id', 'admin_id', 
-            'asset_id', 'purpose', 'remarks'
-        ]);
-        $this->resetErrorBag();
-        $this->viewAssignment = null;
-        $this->date_assigned = now()->format('Y-m-d');
-        $this->admin_id = auth()->id();
-    }
-
-    private function generateReferenceNo()
-    {
-        return implode('-', [
-            Str::upper(Str::random(4)),
-            Str::upper(Str::random(4)),
-            Str::upper(Str::random(4)),
-            Str::upper(Str::random(4))
-        ]);
-    }
-
-    public function createAssignment()
-    {
-        $this->validate([
-            'user_id' => 'required|exists:users,id',
-            'asset_id' => 'required|exists:assets,id',
-            'purpose' => 'required|string|max:255',
-            'remarks' => 'nullable|string',
-            'date_assigned' => 'required|date',
-        ]);
-
-        $assignment = AssetAssignment::create([
-            'reference_no' => $this->generateReferenceNo(),
-            'user_id' => $this->user_id,
-            'admin_id' => $this->admin_id,
-            'asset_id' => $this->asset_id,
-            'purpose' => $this->purpose,
-            'remarks' => $this->remarks,
-            'date_assigned' => $this->date_assigned,
-        ]);
-
-        $this->successMessage = 'Asset assigned successfully! Generating PDF...';
-        $this->closeModals();
-        
-        // Open PDF in new tab
-        $this->dispatch('open-pdf', assignmentId: $assignment->id);
-    }
-
-    public function updateAssignment()
-    {
-        $this->validate([
-            'user_id' => 'required|exists:users,id',
-            'asset_id' => 'required|exists:assets,id',
-            'purpose' => 'required|string|max:255',
-            'remarks' => 'nullable|string',
-            'date_assigned' => 'required|date',
-        ]);
-
-        DB::beginTransaction();
-
-        try {
-            $assignment = AssetAssignment::findOrFail($this->assignmentId);
-            
-            $assignment->update([
-                'user_id' => $this->user_id,
-                'admin_id' => $this->admin_id,
-                'asset_id' => $this->asset_id,
-                'purpose' => $this->purpose,
-                'remarks' => $this->remarks,
-                'date_assigned' => $this->date_assigned,
-            ]);
-
-            DB::commit();
-
-            $this->successMessage = 'Assignment updated successfully!';
-            $this->closeModals();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            $this->errorMessage = 'Error updating assignment: ' . $e->getMessage();
+        if ($value) {
+            $this->selectedForBorrow = array_keys($this->selectedAssets);
+            $this->errorMessage = '';
         }
     }
 
-    public function deleteAssignment()
-    {
-        $assignment = AssetAssignment::findOrFail($this->assignmentId);
-        
-        // Revert asset status
-        // Asset::find($assignment->asset_id)->update(['status' => 'available']);
-        $goodConditionId = \App\Models\AssetCondition::where('condition_name', 'Available')->firstOrFail()->id;
-        Asset::find($assignment->asset_id)->update(['condition_id' => $goodConditionId]);
-
-        
-        $assignment->delete();
-
-        $this->successMessage = 'Assignment deleted successfully!';
-        $this->closeModals();
-    }
-
-    public function clearSuccessMessage()
-    {
-        $this->reset('successMessage');
-    }
     public function render()
     {
-        $assignments = AssetAssignment::with(['user.role', 'admin.role', 'asset'])
-            ->where(function ($query) {
-                $query->where('reference_no', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('user', function ($q) {
-                        $q->where('name', 'like', '%' . $this->search . '%');
-                    })
-                    ->orWhereHas('admin', function ($q) {
-                        $q->where('name', 'like', '%' . $this->search . '%')
-                        ->whereHas('role', function ($roleQuery) {
-                            $roleQuery->whereIn('name', ['Admin', 'Super Admin']);
-                        });
-                    })
-                    ->orWhereHas('asset', function ($q) {
-                        $q->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('asset_code', 'like', '%' . $this->search . '%');
-                    })
-                    ->orWhereRaw("DATE_FORMAT(date_assigned, '%M %d, %Y') LIKE ?", ['%' . $this->search . '%']);
+        $assets = Asset::query()
+            ->join('asset_conditions', 'asset_conditions.id', '=', 'assets.condition_id')
+            ->whereIn('asset_conditions.condition_name', ['New', 'Available'])
+            ->where('assets.is_disposed', false)
+            ->whereNotIn('assets.id', array_keys($this->selectedAssets))
+            ->whereRaw('(assets.quantity - assets.reserved_quantity) > 0')
+            ->when($this->search, function ($query) {
+                $query->where(function($q) {
+                    $q->where('assets.name', 'like', '%'.$this->search.'%')
+                      ->orWhere('assets.asset_code', 'like', '%'.$this->search.'%')
+                      ->orWhere('assets.model_number', 'like', '%'.$this->search.'%')
+                      ->orWhere('asset_conditions.condition_name', 'like', '%'.$this->search.'%');
+                });
             })
-            ->orderBy('date_assigned', 'desc')
+            ->select(
+                'assets.*', 
+                'asset_conditions.condition_name',
+                DB::raw('(assets.quantity - assets.reserved_quantity) as available_quantity')
+            )
             ->paginate(10);
 
-        return view('livewire.super-admin.asset-assignment', [
-            'assignments' => $assignments,
+        return view('livewire.super-admin.asset-assignments', compact('assets'));
+    }
+
+    public function addToCart($assetId)
+    {
+        $this->errorMessage = '';
+        
+        $asset = Asset::select('assets.*', 
+                    DB::raw('(quantity - reserved_quantity) as available_quantity')
+                )->find($assetId);
+
+        if ($asset->available_quantity < 1) {
+            $this->errorMessage = 'This asset is no longer available';
+            return;
+        }
+
+        if (!isset($this->selectedAssets[$assetId])) {
+            $this->selectedAssets[$assetId] = [
+                'id' => $asset->id,
+                'name' => $asset->name,
+                'code' => $asset->asset_code,
+                'quantity' => 1,
+                'max_quantity' => $asset->available_quantity,
+            ];
+        }
+    }
+
+    public function updateCartQuantity($assetId, $newQuantity)
+    {
+        $newQuantity = (int)$newQuantity;
+        if ($newQuantity < 1 || !isset($this->selectedAssets[$assetId])) return;
+
+        $asset = Asset::select('assets.*', 
+                    DB::raw('(quantity - reserved_quantity) as available_quantity')
+                )->find($assetId);
+                
+        $available = $asset->available_quantity;
+
+        if ($newQuantity > $available) {
+            $this->addError('quantity_'.$assetId, 'Insufficient available quantity');
+            $newQuantity = $available;
+        }
+
+        $this->selectedAssets[$assetId]['quantity'] = $newQuantity;
+        $this->selectedAssets[$assetId]['max_quantity'] = $available;
+    }
+
+    public function removeFromCart($assetId)
+    {
+        if (isset($this->selectedAssets[$assetId])) {
+            unset($this->selectedAssets[$assetId]);
+            $this->removeFromSelected($assetId);
+        }
+    }
+
+    public function removeFromSelected($assetId)
+    {
+        $key = array_search($assetId, $this->selectedForBorrow);
+        if ($key !== false) {
+            unset($this->selectedForBorrow[$key]);
+        }
+    }
+
+    public function clearCart()
+    {
+        $this->selectedAssets = [];
+        $this->selectedForBorrow = [];
+        $this->userIdentifier = '';
+        $this->generatedBorrowCode = null;
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
+    }
+
+    public function clearMessages()
+    {
+        $this->successMessage = '';
+        $this->errorMessage = '';
+    }
+
+    public function toggleSelectAll()
+    {
+        if (count($this->selectedForBorrow) === count($this->selectedAssets)) {
+            $this->selectedForBorrow = [];
+        } else {
+            $this->selectedForBorrow = array_keys($this->selectedAssets);
+        }
+    }
+
+    public function assign()
+    {
+        $this->errorMessage = '';
+        $this->isProcessing = true;
+        
+        if (empty($this->selectedForBorrow)) {
+            $this->errorMessage = 'Please select at least one asset';
+            $this->isProcessing = false;
+            return;
+        }
+
+        if (empty($this->userIdentifier)) {
+            $this->errorMessage = 'Please enter user email or username';
+            $this->isProcessing = false;
+            return;
+        }
+
+        $user = User::where('email', $this->userIdentifier)
+                    ->orWhere('username', $this->userIdentifier)
+                    ->first();
+
+        if (!$user) {
+            $this->errorMessage = 'User not found';
+            $this->isProcessing = false;
+            return;
+        }
+
+        try {
+            $transaction = null;
+            $borrowData = [];
+            
+            DB::transaction(function () use (&$transaction, $user, &$borrowData) {
+                $borrowCode = $this->generateBorrowCode();
+                $transaction = AssetBorrowTransaction::create([
+                    'borrow_code' => $borrowCode,
+                    'user_id' => $user->id,
+                    'user_department_id' => $user->department_id,
+                    'requested_by_user_id' => Auth::id(),
+                    'requested_by_department_id' => Auth::user()->department_id,
+                    'approved_by_user_id' => Auth::id(),
+                    'approved_by_department_id' => Auth::user()->department_id,
+                    'status' => 'Borrowed',
+                    'borrowed_at' => now(),
+                    'approved_at' => now(),
+                ]);
+
+                foreach ($this->selectedForBorrow as $assetId) {
+                    if (!isset($this->selectedAssets[$assetId])) continue;
+
+                    $item = $this->selectedAssets[$assetId];
+                    $asset = Asset::with('condition')
+                        ->where('id', $assetId)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if (!$asset) {
+                        throw new \Exception("Asset '{$item['name']}' not found");
+                    }
+
+                    if ($asset->is_disposed) {
+                        throw new \Exception("Asset '{$item['name']}' has been disposed");
+                    }
+
+                    $available = $asset->quantity - $asset->reserved_quantity;
+                    
+                    if ($available < $item['quantity']) {
+                        throw new \Exception(
+                            "Insufficient available quantity for '{$item['name']}'. " .
+                            "Available: {$available}, Requested: {$item['quantity']}"
+                        );
+                    }
+
+                    $asset->increment('reserved_quantity', $item['quantity']);
+
+                    AssetBorrowItem::create([
+                        'borrow_transaction_id' => $transaction->id,
+                        'asset_id' => $assetId,
+                        'quantity' => $item['quantity'],
+                        'status' => 'Borrowed',
+                    ]);
+                    
+                    $borrowData[] = [
+                        'asset_id' => $assetId,
+                        'name' => $item['name'],
+                        'code' => $item['code'],
+                        'quantity' => $item['quantity'],
+                    ];
+                }
+                
+                // Create user history record
+                UserHistory::create([
+                    'user_id' => $user->id,
+                    'borrow_code' => $borrowCode,
+                    'status' => 'Borrow Approved',
+                    'borrow_data' => $borrowData,
+                    'action_date' => now(),
+                ]);
+            });
+
+            $this->generatedBorrowCode = $transaction->borrow_code;
+            $this->sendAssignmentEmail($transaction, $user);
+            $this->clearCart();
+            $this->successMessage = 'Assets assigned successfully!';
+            $this->showCartModal = false;
+
+            // ====== ADDED: Generate and return PDF for download ======
+            $transaction->load([
+                'borrowItems.asset', 
+                'user', 
+                'userDepartment',
+                'requestedBy',
+                'approvedBy'
+            ]);
+            
+            $approver = $transaction->approvedBy;
+            $approvalDate = $transaction->approved_at->format('M d, Y H:i');
+            
+            $pdf = Pdf::loadView('pdf.borrow-accountability', compact('transaction', 'approver', 'approvalDate'));
+            
+            return response()->streamDownload(
+                function () use ($pdf) {
+                    echo $pdf->output();
+                },
+                "Borrower-Accountability-{$this->generatedBorrowCode}.pdf"
+            );
+
+        } catch (\Exception $e) {
+            Log::error("Asset assignment failed: " . $e->getMessage());
+            $this->errorMessage = 'Error: '.$e->getMessage();
+        } finally {
+            $this->isProcessing = false;
+        }
+    }
+
+    private function sendAssignmentEmail($transaction, $user)
+    {
+        $assignedAssets = [];
+        foreach ($this->selectedForBorrow as $assetId) {
+            if (!isset($this->selectedAssets[$assetId])) continue;
+            
+            $asset = $this->selectedAssets[$assetId];
+            $assignedAssets[] = [
+                'name' => $asset['name'],
+                'code' => $asset['code'],
+                'quantity' => $asset['quantity'],
+            ];
+        }
+        
+        $approvalDate = now()->format('M d, Y');
+        $borrowCode = $transaction->borrow_code;
+
+        $body = EmailTemplates::assetAssignment(
+            $borrowCode,
+            $user->name,
+            $assignedAssets,
+            $approvalDate
+        );
+        
+        // Generate PDF content directly
+        $transaction->load([
+            'borrowItems.asset', 
+            'user', 
+            'userDepartment',
+            'requestedBy',
+            'approvedBy'
         ]);
+        
+        $approver = $transaction->approvedBy;
+        $approvalDate = $transaction->approved_at->format('M d, Y H:i');
+        
+        $pdf = Pdf::loadView('pdf.borrow-accountability', compact('transaction', 'approver', 'approvalDate'));
+        $pdfContent = $pdf->output();
+        
+        $emailService = new SendEmail();
+        $emailService->send(
+            $user->email,
+            "Asset Assignment #{$borrowCode}", 
+            $body,
+            [], // cc
+            $pdfContent, // attachment content
+            "Borrower-Accountability-{$borrowCode}.pdf", // attachment name
+            true // isHtml
+        );
+    }
+
+    private function generateBorrowCode()
+    {
+        $date = now()->format('Ymd');
+        $lastCode = AssetBorrowTransaction::where('borrow_code', 'like', "BR-{$date}-%")
+            ->orderBy('borrow_code', 'desc')
+            ->first();
+
+        $lastNum = $lastCode ? intval(substr($lastCode->borrow_code, -8)) : 0;
+        $newNum = str_pad($lastNum + 1, 8, '0', STR_PAD_LEFT);
+
+        return "BR-{$date}-{$newNum}";
     }
 }

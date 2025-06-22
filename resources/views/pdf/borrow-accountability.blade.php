@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Software Assignment - {{ $batch->assignment_no }}</title>
+    <title>Borrower's Accountability Form - {{ $transaction->borrow_code }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
     <style>
         body {
@@ -113,47 +113,59 @@
         </div>
 
         <div class="title-container">
-            <p class="title">Software Assignment Form</p>
-            <p class="subtitle">Assignment No: {{ $batch->assignment_no }}</p>
-            <p class="subtitle">Date: {{ now()->format('M d, Y') }}</p>
+            <p class="title">Borrower's Accountability Form</p>
+            <p class="subtitle">Borrow Code: {{ $transaction->borrow_code }}</p>
+            <p class="subtitle">Approval Date: {{ $approvalDate }}</p>
         </div>
     </div>
 
     <div class="section">
-        <div class="section-title">Assignment Details</div>
+        <div class="section-title">Borrower & Approver Information</div>
         <table class="info-pair-table">
             <tr>
-                <td class="label">Assigned To:</td>
-                <td>{{ $batch->user->name }} ({{ $batch->user->email }})</td>
-                <td class="label">Assigned By:</td>
-                <td>{{ $batch->assignedByUser->name }}</td>
+                <td class="label">Borrower Name:</td>
+                <td>{{ $transaction->user->name }}</td>
+                <td class="label">Approver Name:</td>
+                <td>{{ $approver->name }}</td>
             </tr>
             <tr>
-                <td class="label">Approved By:</td>
-                <td>{{ $batch->approvedByUser->name }}</td>
-                <td class="label">Assignment Date:</td>
-                <td>{{ $batch->date_assigned->format('M d, Y H:i') }}</td>
+                <td class="label">Department:</td>
+                <td>{{ $transaction->userDepartment->name ?? 'N/A' }}</td>
+                <td class="label">Department:</td>
+                <td>{{ $approver->department->name ?? 'N/A' }}</td>
+            </tr>
+            <tr>
+                <td class="label">Requested By:</td>
+                <td>{{ $transaction->requestedBy->name ?? 'N/A' }}</td>
+                <td class="label">Approval Date:</td>
+                <td>{{ $approvalDate }}</td>
+            </tr>
+            <tr>
+                <td class="label">Borrow Date:</td>
+                <td>{{ $transaction->borrowed_at ? $transaction->borrowed_at->format('M d, Y H:i') : 'N/A' }}</td>
+                <td class="label">Remarks:</td>
+                <td>{{ $transaction->remarks ?: 'N/A' }}</td>
             </tr>
         </table>
     </div>
 
     <div class="section">
-        <div class="section-title">Assigned Software</div>
+        <div class="section-title">Borrowed Assets</div>
         <table class="items-table">
             <thead>
                 <tr>
-                    <th>Software Code</th>
-                    <th>Software Name</th>
-                    <th>License Key</th>
+                    <th>Asset Code</th>                    
+                    <th>Asset Name</th>
+                    <th>Serial No.</th>
                     <th>Quantity</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($batch->assignmentItems as $item)
+                @foreach($transaction->borrowItems as $item)
                 <tr>
-                    <td>{{ $item->software->software_code }}</td>
-                    <td>{{ $item->software->software_name }}</td>
-                    <td>{{ $item->software->license_key }}</td>
+                    <td>{{ $item->asset->asset_code }}</td>
+                    <td>{{ $item->asset->name }}</td>
+                    <td>{{ $item->asset->serial_number }}</td>
                     <td>{{ $item->quantity }}</td>
                 </tr>
                 @endforeach
@@ -161,19 +173,19 @@
         </table>
 
         <p class="accountability-message">
-            By acknowledging this form, the assignee confirms receipt and use of the assigned software. The user agrees to comply with software licensing terms, avoid unauthorized duplication, and ensure the software is only used for official purposes. Violation may result in revocation of access or legal accountability.
+            By signing this form, the borrower acknowledges receipt of the items and agrees to use them properly for their intended purpose. They accept full responsibility for the care, safekeeping, and timely return of the assets in good condition. Any loss, damage, or misuse may result in liability for repair or replacement costs.
         </p>
     </div>
 
     <div class="footer">
         <div class="flex-container">
-            <!-- Assigned To Signature Block -->
+            <!-- Borrower Signature Block -->
             <div class="signature">
-                <p>Received by:</p>
+                <p>Borrowed or Received by:</p>
                 <p style="margin-bottom: 24px;">&nbsp;&nbsp;</p>
                 <p style="border-bottom: 1px solid #333; margin: 0; padding-bottom: 4px;">&nbsp;</p>
                 <p style="text-align: center; margin-top: 4px; margin-bottom: 8px;">
-                    {{ $batch->user->name }}
+                    {{ $transaction->user->name }}
                 </p>
                 <p style="border-bottom: 1px solid #333; margin: 0; padding-bottom: 4px;">&nbsp;</p>
                 <p style="text-align: center; margin-top: 4px;">

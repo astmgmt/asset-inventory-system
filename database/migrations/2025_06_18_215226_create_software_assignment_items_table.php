@@ -15,6 +15,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('assignment_batch_id')->constrained('software_assignment_batches')->onDelete('cascade');
             $table->foreignId('software_id')->constrained('software')->onDelete('cascade');
+            $table->unsignedInteger('quantity');
+            $table->enum('status', [
+                'Assigned',                
+                'Available',                                
+                'PendingReturn',  
+                'ReturnRejected'    
+            ])->default('Assigned');
+            $table->text('remarks')->nullable();
             $table->timestamps();
         });
     }

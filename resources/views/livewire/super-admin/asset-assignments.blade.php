@@ -1,5 +1,5 @@
 <div class="superadmin-container">
-    <h1 class="page-title main-title">Software Assignment</h1>
+    <h1 class="page-title main-title">Asset Assignment</h1>
     
     @if ($successMessage)
         <div class="success-message mb-4" 
@@ -23,7 +23,7 @@
         <div class="search-bar w-full md:w-1/3 relative">
             <input 
                 type="text" 
-                placeholder="Search by code, name, license..." 
+                placeholder="Search code, name, model ..." 
                 wire:model.live.debounce.300ms="search"
                 class="search-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -42,9 +42,9 @@
                 class="cart-button relative flex items-center justify-center w-12 h-12 bg-indigo-600 text-white rounded-full shadow hover:bg-indigo-700 transition"
             >
                 <i class="fas fa-shopping-cart text-xl"></i>
-                @if(count($selectedSoftware))
+                @if(count($selectedAssets))
                     <span class="cart-badge absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow">
-                        {{ array_sum(array_column($selectedSoftware, 'quantity')) }}
+                        {{ array_sum(array_column($selectedAssets, 'quantity')) }}
                     </span>
                 @endif
             </button>
@@ -57,27 +57,27 @@
                 <tr>
                     <th>Code</th>
                     <th>Name</th>
-                    <th>License</th>
+                    <th>Model</th>
                     <th>Available</th>
-                    <th>Expiry</th>
+                    <th>Condition</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($software as $item)
+                @forelse($assets as $asset)
                     <tr>
-                        <td data-label="Code" class="text-center">{{ $item->software_code }}</td>
-                        <td data-label="Name" class="text-center">{{ $item->software_name }}</td>
-                        <td data-label="License" class="text-center">{{ substr($item->license_key, 0, 8) }}****</td>
+                        <td data-label="Code" class="text-center">{{ $asset->asset_code }}</td>
+                        <td data-label="Name" class="text-center">{{ $asset->name }}</td>
+                        <td data-label="Model" class="text-center">{{ $asset->model_number }}</td>
                         <td data-label="Available" class="text-center">
-                            {{ $item->available_quantity }} 
+                            {{ $asset->available_quantity }} 
                         </td>
-                        <td data-label="Expiry" class="text-center">{{ $item->expiry_date->format('M d, Y') }}</td>
+                        <td data-label="Condition" class="text-center">{{ $asset->condition_name }}</td>
                         <td data-label="Actions" class="text-center">
                             <button 
-                                wire:click="addToCart({{ $item->id }})" 
+                                wire:click="addToCart({{ $asset->id }})" 
                                 class="borrow_icon bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-indigo-600 dark:text-indigo-400 font-medium py-1 px-3 rounded-md shadow-sm transition-colors duration-200"
-                                @disabled($item->available_quantity < 1)
+                                @disabled($asset->available_quantity < 1)
                                 title="Add to assignment cart"
                             >
                                 <i class="fas fa-plus"></i>
@@ -86,13 +86,13 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="no-software-row">No available software found.</td>
+                        <td colspan="6" class="no-software-row">No available assets found.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
         <div class="mt-4 pagination-container">
-            {{ $software->links() }}
+            {{ $assets->links() }}
         </div>
     </div>
 
@@ -117,7 +117,7 @@
                         >
                     </div>
                     
-                    @if(count($selectedSoftware))
+                    @if(count($selectedAssets))
                         <table class="user-table">
                             <thead>
                                 <tr>
@@ -125,46 +125,42 @@
                                         <input 
                                             type="checkbox" 
                                             wire:click="toggleSelectAll"
-                                            @if(count($selectedForAssignment) === count($selectedSoftware)) checked @endif
+                                            @if(count($selectedForBorrow) === count($selectedAssets)) checked @endif
                                             class="checkbox-success"
                                         >
                                     </th>
-                                    <th>Software</th>
-                                    <th>License</th>
+                                    <th>Asset</th>
                                     <th>Quantity</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($selectedSoftware as $software)
+                                @foreach($selectedAssets as $asset)
                                     <tr>
                                         <td class="text-center">
                                             <input 
                                                 type="checkbox" 
-                                                wire:model="selectedForAssignment"
-                                                value="{{ $software['id'] }}"
+                                                wire:model="selectedForBorrow"
+                                                value="{{ $asset['id'] }}"
                                                 class="checkbox-item"
                                             >
                                         </td>
-                                        <td data-label="Software" class="text-center">
-                                            {{ $software['name'] }} ({{ $software['code'] }})
-                                        </td>
-                                        <td data-label="License" class="text-center">
-                                            {{ substr($software['license_key'], 0, 8) }}****
+                                        <td data-label="Asset" class="text-center">
+                                            {{ $asset['name'] }} ({{ $asset['code'] }})
                                         </td>
                                         <td data-label="Quantity" class="text-center">
                                             <input 
                                                 type="number" 
                                                 min="1" 
-                                                max="{{ $software['max_quantity'] }}"
-                                                value="{{ $software['quantity'] }}"
-                                                wire:change="updateCartQuantity({{ $software['id'] }}, $event.target.value)"
+                                                max="{{ $asset['max_quantity'] }}"
+                                                value="{{ $asset['quantity'] }}"
+                                                wire:change="updateCartQuantity({{ $asset['id'] }}, $event.target.value)"
                                                 class="form-input w-20 text-center"
                                             >
                                         </td>
                                         <td data-label="Action" class="text-center">
                                             <button 
-                                                wire:click="removeFromCart('{{ $software['id'] }}')" 
+                                                wire:click="removeFromCart('{{ $asset['id'] }}')" 
                                                 class="text-red-600 hover:text-red-800"
                                             >
                                                 &times;
@@ -186,7 +182,7 @@
                 </div>
                 
                 <div class="modal-footer">
-                    @if(count($selectedSoftware))
+                    @if(count($selectedAssets))
                         <button 
                             class="btn btn-danger"
                             x-data
@@ -202,7 +198,7 @@
                         class="btn btn-secondary btn-update flex items-center gap-2"
                     >
                         <i class="fas fa-paper-plane"></i>
-                        <span wire:loading.remove>Assign Software</span>
+                        <span wire:loading.remove>Assign Assets</span>
                         <span wire:loading>Processing...</span>
                     </button>
                 </div>
