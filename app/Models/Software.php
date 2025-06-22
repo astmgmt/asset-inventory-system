@@ -56,4 +56,10 @@ class Software extends Model
 
         $this->save();
     }
+
+    public function printLogs()
+    {
+        return $this->belongsToMany(SoftwarePrintLog::class, 'software_print_log_software', 'software_id', 'software_print_log_id')->withTimestamps();
+    }
+
 }

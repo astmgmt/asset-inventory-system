@@ -24,7 +24,7 @@ use App\Livewire\SuperAdmin\ApproveBorrowerRequests;
 use App\Livewire\SuperAdmin\ApproveReturnRequests; 
 use App\Livewire\SuperAdmin\AssetDisposals; 
 use App\Livewire\SuperAdmin\PrintAssets;
-
+use App\Livewire\SuperAdmin\PrintSoftwares;
 
 use App\Livewire\User\UserBorrowAsset; 
 use App\Livewire\User\UserContainers;
@@ -186,6 +186,10 @@ Route::middleware([
 
     Route::get('/print/assets', PrintAssets::class)
             ->name('print.assets')
+            ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
+
+    Route::get('/print/softwares', PrintSoftwares::class)
+            ->name('print.softwares')
             ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
 
 
