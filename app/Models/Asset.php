@@ -57,7 +57,7 @@ class Asset extends Model
 
     public function location()
     {
-        return $this->belongsTo(AssetLocation::class);
+        return $this->belongsTo(AssetLocation::class, 'location_id');
     }
 
     public function vendor()

@@ -96,7 +96,7 @@
                         <i class="fas" :class="open === 4 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 4" x-collapse class="nav-submenu">
-                        <a href="#"><i class="fas fa-file-alt"></i> Asset Master List</a>
+                        <a href="{{ route('print.assets')}}"><i class="fas fa-file-alt"></i> Asset Master List</a>
                         <a href="#"><i class="fas fa-file-code"></i> Software Master List</a>
                         <a href="#"><i class="fas fa-qrcode"></i> QRCode Sticker</a>
                     </div>
@@ -136,7 +136,7 @@
                         <i class="fas" :class="open === 4 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 4" x-collapse class="nav-submenu">
-                        <a href="#"><i class="fas fa-file-alt"></i> Asset Master List</a>
+                        <a href="{{ route('print.assets')}}"><i class="fas fa-file-alt"></i> Asset Master List</a>
                         <a href="#"><i class="fas fa-file-code"></i> Software Master List</a>
                         <a href="#"><i class="fas fa-qrcode"></i> QRCode Sticker</a>
                     </div>

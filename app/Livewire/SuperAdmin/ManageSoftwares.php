@@ -22,7 +22,7 @@ class ManageSoftwares extends Component
     public $license_key;
     public $installation_date;
     public $expiry_date;
-    public $responsible_user_id;
+    //public $responsible_user_id;
     
     // Modals
     public $showAddModal = false;
@@ -63,15 +63,14 @@ class ManageSoftwares extends Component
         $this->license_key = $software->license_key;
         $this->installation_date = $software->installation_date->format('Y-m-d');
         $this->expiry_date = $software->expiry_date->format('Y-m-d');
-        $this->responsible_user_id = $software->responsible_user_id;
+        //$this->responsible_user_id = $software->responsible_user_id;
         
         $this->showEditModal = true;
     }
     
     public function openViewModal($id)
     {
-        $this->viewSoftware = Software::with('responsibleUser')
-            ->findOrFail($id);
+        $this->viewSoftware = Software::findOrFail($id);
         $this->showViewModal = true;
     }
 
@@ -94,7 +93,7 @@ class ManageSoftwares extends Component
     {
         $this->reset([
             'softwareId', 'software_name', 'description', 'license_key', 
-            'installation_date', 'expiry_date', 'responsible_user_id'
+            'installation_date', 'expiry_date'
         ]);
         $this->resetErrorBag();
         $this->viewSoftware = null;
@@ -118,7 +117,7 @@ class ManageSoftwares extends Component
             'license_key' => 'required|string|max:100',
             'installation_date' => 'required|date',
             'expiry_date' => 'required|date|after:installation_date',
-            'responsible_user_id' => 'required|exists:users,id',
+            
         ]);
 
         Software::create([
@@ -128,7 +127,7 @@ class ManageSoftwares extends Component
             'license_key' => $this->license_key,
             'installation_date' => $this->installation_date,
             'expiry_date' => $this->expiry_date,
-            'responsible_user_id' => $this->responsible_user_id,
+            
         ]);
 
         $this->successMessage = 'Software created successfully!';
@@ -144,7 +143,7 @@ class ManageSoftwares extends Component
             'license_key' => 'required|string|max:100',
             'installation_date' => 'required|date',
             'expiry_date' => 'required|date|after:installation_date',
-            'responsible_user_id' => 'required|exists:users,id',
+           
         ]);
 
         $software = Software::findOrFail($this->softwareId);
@@ -154,7 +153,7 @@ class ManageSoftwares extends Component
             'license_key' => $this->license_key,
             'installation_date' => $this->installation_date,
             'expiry_date' => $this->expiry_date,
-            'responsible_user_id' => $this->responsible_user_id,
+            
         ]);
 
         $this->successMessage = 'Software updated successfully!';
@@ -180,17 +179,15 @@ class ManageSoftwares extends Component
     #[Layout('components.layouts.app')]
     public function render()
     {
-        $softwares = Software::with('responsibleUser')
+        $softwares = Software::query()
             ->where(function ($query) {
                 $query->where('software_name', 'like', '%' . $this->search . '%')
-                      ->orWhere('software_code', 'like', '%' . $this->search . '%')
-                      ->orWhere('license_key', 'like', '%' . $this->search . '%')
-                      ->orWhereHas('responsibleUser', function ($q) {
-                          $q->where('name', 'like', '%' . $this->search . '%');
-                      });
+                    ->orWhere('software_code', 'like', '%' . $this->search . '%')
+                    ->orWhere('license_key', 'like', '%' . $this->search . '%');                     
             })
             ->orderBy('created_at', 'desc')
             ->paginate(10);
+
 
         return view('livewire.super-admin.manage-softwares', [
             'softwares' => $softwares,

@@ -48,7 +48,7 @@
                         <td data-label="Software Code" class="text-center">{{ $software->software_code }}</td>
                         <td data-label="Name" class="text-center">{{ $software->software_name }}</td>
                         <td data-label="License Key" class="text-center">{{ substr($software->license_key, 0, 8) . '...' }}</td>
-                        <td data-label="Responsible User" class="text-center">{{ $software->responsibleUser->name }}</td>
+                        <td data-label="Added By" class="text-center">{{ $software->addedBy?->name ?? 'N/A' }}</td>
                         <td data-label="Expiry Date" class="text-center">
                             {{ $software->expiry_date->format('M d, Y') }}
                             @if($software->expiry_date < now()->addDays(30))
@@ -242,8 +242,8 @@
                     </div>
                     
                     <div class="detail-group">
-                        <label>Responsible User:</label>
-                        <p>{{ $viewSoftware->responsibleUser->name }}</p>
+                        <label>Added By:</label>
+                        <p>{{ $viewSoftware->addedBy?->name ?? 'N/A' }}</p>
                     </div>
                     
                     <div class="detail-group col-span-2">

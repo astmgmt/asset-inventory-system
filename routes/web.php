@@ -23,6 +23,8 @@ use App\Livewire\SuperAdmin\BorrowRequests;
 use App\Livewire\SuperAdmin\ApproveBorrowerRequests; 
 use App\Livewire\SuperAdmin\ApproveReturnRequests; 
 use App\Livewire\SuperAdmin\AssetDisposals; 
+use App\Livewire\SuperAdmin\PrintAssets;
+
 
 use App\Livewire\User\UserBorrowAsset; 
 use App\Livewire\User\UserContainers;
@@ -34,6 +36,7 @@ use App\Http\Controllers\SuperAdmin\AssetAssignmentPdfController;
 use App\Http\Controllers\SuperAdmin\SoftwareAssignmentPDFController;
 use App\Http\Controllers\SuperAdmin\ApproveBorrowController;
 use App\Http\Controllers\SuperAdmin\ReturnApprovalController;
+use App\Http\Controllers\SuperAdmin\AssetPdfController;
 
 use App\Livewire\AccountProfile\EditProfile;
 
@@ -180,6 +183,23 @@ Route::middleware([
     Route::get('/asset/disposal', AssetDisposals::class)
             ->name('asset.disposal')
             ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
+
+    Route::get('/print/assets', PrintAssets::class)
+            ->name('print.assets')
+            ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
+
+
+            
+
+    // GENERATE PRINTABLE QRCODE IN PDF
+    // Single asset PDF
+    Route::get('assets/{id}/pdf', [AssetPdfController::class, 'generate'])
+        ->name('assets.pdf')
+        ->where('id', '[0-9]+'); // Ensure ID is numeric
+
+    // Batch assets PDF
+    Route::get('assets/batch-pdf', [AssetPdfController::class, 'generateBatch'])
+        ->name('assets.batch-pdf');
 
     // Corrected the parameter name to match controller expectation
     Route::get('/borrow-pdf/{borrow_code}', [ApproveBorrowController::class, 'generatePDF'])

@@ -523,6 +523,14 @@
                     @endif                   
                    
                     <div class="modal-footer">
+
+                         <!-- Add Print button -->
+                        <a href="{{ route('assets.pdf', ['id' => $viewAsset->id]) }}" 
+                        target="_blank"
+                        class="btn btn-primary btn-sm-custom mr-2">
+                            <i class="fas fa-print"></i> Print
+                        </a>
+
                         <button type="button" wire:click="closeModals" class="btn btn-secondary btn-sm-custom">
                             <i class="fas fa-xmark" style="margin-right: 0.5rem;"></i> Close
                         </button>
@@ -568,6 +576,19 @@
                     @this.set('showLocationDropdown', false);
                     @this.set('showVendorDropdown', false);
                 }
+            });
+
+            // Handle single asset PDF opening - FIXED
+            Livewire.on('open-asset-pdf', (event) => {
+                // Extract ID correctly from the event object
+                const id = event.id ?? event;
+                if (!id || isNaN(id)) {
+                    console.error('Invalid asset ID:', id);
+                    return;
+                }
+                
+                const url = "{{ route('assets.pdf', ['id' => ':id']) }}".replace(':id', id);
+                window.open(url, '_blank');
             });
         });
     </script>
