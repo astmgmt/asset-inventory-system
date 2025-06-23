@@ -20,7 +20,6 @@ use App\Livewire\SuperAdmin\AssetAssignments;
 use App\Livewire\SuperAdmin\SoftwareAssignments; 
 use App\Livewire\SuperAdmin\TrackSoftwares; 
 
-use App\Livewire\SuperAdmin\BorrowRequests; 
 use App\Livewire\SuperAdmin\ApproveBorrowerRequests; 
 use App\Livewire\SuperAdmin\ApproveReturnRequests; 
 use App\Livewire\SuperAdmin\AssetDisposals; 
@@ -162,14 +161,6 @@ Route::middleware([
     Route::get('/account/edit/profile', EditProfile::class)
         ->name('account.edit.profile')
         ->middleware('role:Super Admin,Admin,User'); // CAN BE USED BY ALL ROLES TO EDIT THEIR PROFILE
-
-    //TO FINALIZE
-    Route::get('/borrow/requests', BorrowRequests::class)
-        ->name('borrow.request')
-        ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
-
-
-
 
     Route::get('/approve/requests', ApproveBorrowerRequests::class)
         ->name('approve.requests')

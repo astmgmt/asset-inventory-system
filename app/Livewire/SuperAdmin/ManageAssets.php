@@ -377,7 +377,7 @@ public function createAsset()
         // Generate and download batch PDF
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.asset-batch', [
             'assets' => $assetsData
-        ]);
+        ])->setPaper([0, 0, 266.4, 288], 'portrait');
         
         return response()->streamDownload(
             function () use ($pdf) {

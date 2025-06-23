@@ -16,7 +16,7 @@ class SoftwareSeeder extends Seeder
             \App\Models\User::factory()->count(10)->create();
         }
 
-        Software::factory()->count(10)->create();
+        Software::factory()->count(20)->create();
 
         SoftwareAssignment::factory()->count(25)->create();
 

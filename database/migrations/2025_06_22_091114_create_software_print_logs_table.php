@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('software_print_logs', function (Blueprint $table) {
             $table->id();
             $table->string('print_code')->unique();
-            $table->date('date_from');
-            $table->date('date_to');
+            $table->date('date_from')->nullable();
+            $table->date('date_to')->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->json('software_snapshot_data'); 
             $table->timestamps();

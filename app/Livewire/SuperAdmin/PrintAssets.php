@@ -22,6 +22,7 @@ class PrintAssets extends Component
     public $errorMessage;
     public $showDeleteModal = false;
     public $logToDelete;
+    public $filterOption = 'by_date'; 
 
     protected $rules = [
         'dateFrom' => 'required|date',
@@ -63,14 +64,26 @@ class PrintAssets extends Component
 
     public function printAssets()
     {
-        $this->validate();
+        if ($this->filterOption == 'by_date') {
+            $this->validate([
+                'dateFrom' => 'required|date',
+                'dateTo' => 'required|date|after_or_equal:dateFrom',
+            ], [
+                'dateFrom.required' => 'The start date is required.',
+                'dateTo.required' => 'The end date is required.',
+                'dateTo.after_or_equal' => 'The end date must be after or equal to the start date.',
+            ]);
+        }
 
-        $assets = Asset::with(['category', 'condition', 'location', 'vendor'])
-            ->whereBetween('created_at', [$this->dateFrom, $this->dateTo])
-            ->get();
+        // Fetch assets based on selected filter
+        $assets = ($this->filterOption == 'select_all')
+            ? Asset::with(['category', 'condition', 'location', 'vendor'])->get()
+            : Asset::with(['category', 'condition', 'location', 'vendor'])
+                ->whereBetween('created_at', [$this->dateFrom, $this->dateTo])
+                ->get();
 
         if ($assets->isEmpty()) {
-            $this->errorMessage = 'No assets found for the selected date range.';
+            $this->errorMessage = 'No assets found.';
             return;
         }
 
@@ -93,8 +106,8 @@ class PrintAssets extends Component
         // Create print log
         $printLog = AssetPrintLog::create([
             'print_code' => $this->generatePrintCode(),
-            'date_from' => $this->dateFrom,
-            'date_to' => $this->dateTo,
+            'date_from' => $this->filterOption == 'by_date' ? $this->dateFrom : null,
+            'date_to' => $this->filterOption == 'by_date' ? $this->dateTo : null,
             'user_id' => Auth::id(),
             'asset_snapshot_data' => $snapshot,
         ]);
@@ -106,14 +119,25 @@ class PrintAssets extends Component
         $pdf = Pdf::loadView('pdf.asset-print', [
             'assets' => $assets,
             'printLog' => $printLog,
-            'dateFrom' => $this->dateFrom,
-            'dateTo' => $this->dateTo,
+            'dateFrom' => $this->filterOption == 'by_date' ? $this->dateFrom : null,
+            'dateTo' => $this->filterOption == 'by_date' ? $this->dateTo : null,
         ])->setPaper('a4', 'landscape');
+
+        // Set success message (will show after download)
+        $this->successMessage = 'PDF generated successfully!';
 
         return response()->streamDownload(
             fn () => print($pdf->output()),
             "{$printLog->print_code}.pdf"
         );
+    }
+
+    // Add this method to clear date validation errors when switching filters
+    public function updatedFilterOption($value)
+    {
+        if ($value === 'select_all') {
+            $this->resetValidation(['dateFrom', 'dateTo']);
+        }
     }
 
     public function printAgain($printLogId)

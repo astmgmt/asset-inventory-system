@@ -17,7 +17,6 @@ class Software extends Model
         'quantity',
         'reserved_quantity',
         'license_key',
-        'installation_date',
         'expiry_date',
         'added_by',
         'expiry_flag',
@@ -26,7 +25,6 @@ class Software extends Model
     ];
 
     protected $casts = [
-        'installation_date' => 'date',
         'expiry_date' => 'date',
         'expiry_flag' => 'boolean',
         'last_notified_at' => 'datetime',

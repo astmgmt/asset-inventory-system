@@ -56,7 +56,7 @@
             <thead>
                 <tr>
                     <th>Code</th>
-                    <th>Name</th>
+                    <th>Software Name</th>
                     <th>License</th>
                     <th>Available</th>
                     <th>Expiry</th>

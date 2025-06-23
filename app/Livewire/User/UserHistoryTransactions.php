@@ -6,6 +6,8 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use App\Models\UserHistory;
+use App\Models\AssetBorrowTransaction;
+use App\Models\User;
 use App\Services\SendEmail;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -93,6 +95,72 @@ class UserHistoryTransactions extends Component
         return response()->streamDownload(
             fn () => print($pdf->output()),
             "history-{$history->borrow_code}.pdf"
+        );
+    }
+    
+    public function generateHistoryPdf($historyId)
+    {
+        $history = UserHistory::findOrFail($historyId);
+        $user = Auth::user();
+        
+        // Handle borrow data
+        $borrowData = [];
+        if ($history->borrow_data) {
+            if (is_array($history->borrow_data)) {
+                $borrowData = $history->borrow_data;
+            } else {
+                $borrowData = $history->borrow_data->toArray();
+            }
+        }
+        
+        // Handle return data
+        $returnData = [];
+        if ($history->return_data) {
+            if (is_array($history->return_data)) {
+                $returnData = $history->return_data;
+            } else {
+                $returnData = $history->return_data->toArray();
+            }
+        }
+        
+        // Extract transaction details
+        $transactionData = [
+            'borrow_code' => $history->borrow_code,
+            'return_code' => $history->return_code,
+            'user' => [
+                'name' => $user->name,
+                'department' => $user->department->name ?? 'N/A',
+            ],
+            'requestedBy' => [
+                'name' => $history->requestedBy->name ?? 'N/A',
+            ],
+            'approvedBy' => [
+                'name' => $history->approvedBy->name ?? 'N/A',
+                'department' => $history->approvedBy->department->name ?? 'N/A',
+            ],
+            'returnedBy' => [
+                'name' => $history->returnedBy->name ?? 'N/A',
+            ],
+            'borrowed_at' => $history->action_date->format('M d, Y H:i'),
+            'returned_at' => $history->return_date ? $history->return_date->format('M d, Y H:i') : 'N/A',
+            'remarks' => $history->remarks ?? 'N/A',
+            'borrowItems' => $borrowData['borrow_items'] ?? [],
+            'returnItems' => $returnData['return_items'] ?? [],
+        ];
+
+        $pdf = Pdf::loadView('pdf.history-details', [
+            'transaction' => (object)$transactionData,
+            'approver' => (object)$transactionData['approvedBy'],
+            'returner' => (object)$transactionData['returnedBy'],
+            'borrowDate' => $transactionData['borrowed_at'],
+            'returnDate' => $transactionData['returned_at']
+        ]);
+        
+        return response()->streamDownload(
+            function () use ($pdf) {
+                echo $pdf->output();
+            },
+            "Asset-History-{$history->borrow_code}.pdf"
         );
     }
 

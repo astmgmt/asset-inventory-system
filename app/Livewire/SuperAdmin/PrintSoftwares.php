@@ -21,6 +21,7 @@ class PrintSoftwares extends Component
     public $errorMessage;
     public $showDeleteModal = false;
     public $logToDelete;
+    public $filterOption = 'by_date';
 
     protected $rules = [
         'dateFrom' => 'required|date',
@@ -63,15 +64,26 @@ class PrintSoftwares extends Component
 
     public function printSoftwares()
     {
-        $this->validate();
+        if ($this->filterOption == 'by_date') {
+            $this->validate([
+                'dateFrom' => 'required|date',
+                'dateTo' => 'required|date|after_or_equal:dateFrom',
+            ], [
+                'dateFrom.required' => 'The start date is required.',
+                'dateTo.required' => 'The end date is required.',
+                'dateTo.after_or_equal' => 'The end date must be after or equal to the start date.',
+            ]);
+        }
 
-        // Use the correct relationship name: addedBy (not addedByUser)
-        $softwares = Software::with('addedBy')
-            ->whereBetween('created_at', [$this->dateFrom, $this->dateTo])
-            ->get();
+        // Fetch software based on selected filter
+        $softwares = ($this->filterOption == 'select_all')
+            ? Software::with('addedBy')->get()
+            : Software::with('addedBy')
+                ->whereBetween('created_at', [$this->dateFrom, $this->dateTo])
+                ->get();
 
         if ($softwares->isEmpty()) {
-            $this->errorMessage = 'No software found for the selected date range.';
+            $this->errorMessage = 'No software found.';
             return;
         }
 
@@ -84,18 +96,17 @@ class PrintSoftwares extends Component
                 'license_key' => $software->license_key,
                 'installation_date' => $software->installation_date,
                 'expiry_date' => $software->expiry_date,
-                // Access through the correct relationship
                 'added_by' => $software->addedBy ? $software->addedBy->name : 'N/A',
             ];
         })->toArray();
 
-        // Create print log - ENCODE THE SNAPSHOT AS JSON
+        // Create print log
         $printLog = SoftwarePrintLog::create([
             'print_code' => $this->generatePrintCode(),
-            'date_from' => $this->dateFrom,
-            'date_to' => $this->dateTo,
+            'date_from' => $this->filterOption == 'by_date' ? $this->dateFrom : null,
+            'date_to' => $this->filterOption == 'by_date' ? $this->dateTo : null,
             'user_id' => Auth::id(),
-            'software_snapshot_data' => json_encode($snapshot), // Convert to JSON
+            'software_snapshot_data' => json_encode($snapshot),
         ]);
 
         // Attach software to pivot table
@@ -105,14 +116,25 @@ class PrintSoftwares extends Component
         $pdf = Pdf::loadView('pdf.software-print', [
             'softwares' => $snapshot,
             'printLog' => $printLog,
-            'dateFrom' => $this->dateFrom,
-            'dateTo' => $this->dateTo,
+            'dateFrom' => $this->filterOption == 'by_date' ? $this->dateFrom : null,
+            'dateTo' => $this->filterOption == 'by_date' ? $this->dateTo : null,
         ])->setPaper('a4', 'landscape');
+
+        // Set success message
+        $this->successMessage = 'PDF generated successfully!';
 
         return response()->streamDownload(
             fn () => print($pdf->output()),
             "{$printLog->print_code}.pdf"
         );
+    }
+
+    // Add this method to clear validation
+    public function updatedFilterOption($value)
+    {
+        if ($value === 'select_all') {
+            $this->resetValidation(['dateFrom', 'dateTo']);
+        }
     }
 
     public function printAgain($printLogId)

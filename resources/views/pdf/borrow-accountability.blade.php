@@ -2,14 +2,12 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Borrower's Accountability Form - {{ $transaction->borrow_code }}</title>
+    <title>Borrow Approval - {{ $transaction->borrow_code }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            font-size: 11px;
-            margin: 0;
-            padding: 0;
+            font-size: 11px; /* Base font size */
         }
         .header {
             display: flex;
@@ -17,26 +15,16 @@
             justify-content: space-between;
             margin-bottom: 10px;
         }
-        .logo-container {
-            display: inline-block;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .logo-container img {
+        .logo {
             height: 50px;
-        }
-        .logo-container div {
-            font-size: 10px;
-            color: #666;
-            margin-top: 2px;
         }
         .title-container {
             text-align: center;
             flex-grow: 1;
-            margin-right: 50px;
+            margin-right: 50px; /* prevents overlap with logo */
         }
         .title {
-            font-size: 14px;
+            font-size: 14px; /* Keep this larger */
             font-weight: bold;
             margin: 0;
         }
@@ -48,7 +36,7 @@
             margin-bottom: 20px;
         }
         .section-title {
-            font-size: 11px;
+            font-size: 11px; /* Match body font size */
             font-weight: bold;
             border-bottom: 2px solid #333;
             padding-bottom: 5px;
@@ -73,7 +61,6 @@
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
         }
         .items-table th,
         .items-table td {
@@ -96,20 +83,16 @@
             justify-content: flex-start;
             gap: 80px;
         }
-        .accountability-message {
-            font-size: 10px;
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            background-color: #f9f9f9;
-        }
     </style>
 </head>
 <body>
+
     <div class="header">
-        <div class="logo-container">
-            <img src="{{ public_path('images/logo.png') }}" alt="Company Logo">
-            <div>Asset Inventory System</div>
+        <div style="display: inline-block; text-align: center; margin-bottom: 10px;">
+            <img src="{{ public_path('images/logo.png') }}" style="height: 50px;" alt="Company Logo">
+            <div style="font-size: 10px; color: #666; margin-top: 2px;">
+                Asset Inventory System
+            </div>
         </div>
 
         <div class="title-container">
@@ -158,6 +141,7 @@
                     <th>Asset Name</th>
                     <th>Serial No.</th>
                     <th>Quantity</th>
+                    <th>Purpose</th>
                 </tr>
             </thead>
             <tbody>
@@ -167,6 +151,7 @@
                     <td>{{ $item->asset->name }}</td>
                     <td>{{ $item->asset->serial_number }}</td>
                     <td>{{ $item->quantity }}</td>
+                    <td>{{ $item->purpose ?: 'N/A' }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -208,5 +193,6 @@
             </div>
         </div>
     </div>
+
 </body>
 </html>

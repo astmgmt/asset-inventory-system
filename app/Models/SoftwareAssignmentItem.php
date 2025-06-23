@@ -15,10 +15,12 @@ class SoftwareAssignmentItem extends Model
         'quantity',
         'status',
         'remarks',
+        'installation_date',
     ];
 
     protected $casts = [
         'quantity' => 'integer',
+        'installation_date' => 'datetime',
     ];
 
     public function batch()

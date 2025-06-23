@@ -47,15 +47,17 @@ class SoftwareAssignments extends Component
             ->when($this->search, function ($query) {
                 $query->where(function($q) {
                     $q->where('software_name', 'like', '%'.$this->search.'%')
-                      ->orWhere('software_code', 'like', '%'.$this->search.'%')
-                      ->orWhere('license_key', 'like', '%'.$this->search.'%');
+                    ->orWhere('software_code', 'like', '%'.$this->search.'%')
+                    ->orWhere('license_key', 'like', '%'.$this->search.'%');
                 });
             })
             ->select(
                 '*',
                 DB::raw('(quantity - reserved_quantity) as available_quantity')
             )
+            ->orderBy('created_at', 'desc') // <- Add this line
             ->paginate(10);
+
 
         return view('livewire.super-admin.software-assignments', compact('software'));
     }
@@ -222,11 +224,13 @@ class SoftwareAssignments extends Component
 
                     $software->increment('reserved_quantity', $item['quantity']);
 
+                    // Create assignment item with installation date
                     SoftwareAssignmentItem::create([
                         'assignment_batch_id' => $batch->id,
                         'software_id' => $softwareId,
                         'quantity' => $item['quantity'],
                         'status' => 'Assigned',
+                        'installation_date' => now(), 
                     ]);
                     
                     $assignmentData[] = [
@@ -327,13 +331,25 @@ class SoftwareAssignments extends Component
     private function generateAssignmentNo()
     {
         $date = now()->format('Ymd');
-        $lastNo = SoftwareAssignmentBatch::where('assignment_no', 'like', "ASN-{$date}-%")
+        $prefix = "SW-{$date}-";
+        
+        // Find the last assignment today with lock
+        $lastNo = SoftwareAssignmentBatch::where('assignment_no', 'like', $prefix . '%')
             ->orderBy('assignment_no', 'desc')
+            ->lockForUpdate()
             ->first();
 
-        $lastNum = $lastNo ? intval(substr($lastNo->assignment_no, -8)) : 0;
-        $newNum = str_pad($lastNum + 1, 8, '0', STR_PAD_LEFT);
+        // Extract the last sequence number
+        $lastNum = 0;
+        if ($lastNo) {
+            $lastCode = $lastNo->assignment_no;
+            $sequencePart = substr($lastCode, -8); // Get last 8 characters
+            $lastNum = intval($sequencePart);
+        }
 
-        return "SW-{$date}-{$newNum}";
+        $nextNum = $lastNum + 1;
+        $formattedNum = str_pad($nextNum, 8, '0', STR_PAD_LEFT);
+
+        return $prefix . $formattedNum;
     }
 }

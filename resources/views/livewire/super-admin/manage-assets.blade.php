@@ -445,99 +445,115 @@
             </div>
         @endif
 
+
         @if ($showViewModal)
-            <div class="modal-backdrop">
-                <div class="modal">
-                    <div class="modal-header">
-                        <h2 class="modal-title">Asset Details: {{ $viewAsset->name ?? '' }}</h2>
-                    </div>
-                    
-                    @if($viewAsset)
-                    <div class="asset-details-grid view-grid">
-                        <div class="detail-group">
-                            <label>Asset Code:</label>
-                            <p>{{ $viewAsset->asset_code }}</p>
-                        </div>
-                        
-                        <div class="detail-group">
-                            <label>Serial Number:</label>
-                            <p>{{ $viewAsset->serial_number ?? 'None' }}</p>
-                        </div>
-                        
-                        <div class="detail-group">
-                            <label>Brand:</label>
-                            <p>{{ $viewAsset->name }}</p>
-                        </div>
-                        
-                        <div class="detail-group">
-                            <label>Model:</label>
-                            <p>{{ $viewAsset->model_number }}</p>
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-4xl p-8 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+                <h2 class="text-3xl font-semibold mb-8 border-b border-gray-300 dark:border-gray-700 pb-4">
+                    Asset Details: {{ $viewAsset->name ?? '' }}
+                </h2>
+
+                @if($viewAsset)
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+                        <!-- Asset Code -->
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Asset Code</label>
+                            <p class="text-lg">{{ $viewAsset->asset_code }}</p>
                         </div>
 
-                        <div class="detail-group">
-                            <label>Description:</label>
-                            <p>{{ $viewAsset->description }}</p>
+                        <!-- Serial Number -->
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Serial Number</label>
+                            <p class="text-lg">{{ $viewAsset->serial_number ?? 'None' }}</p>
                         </div>
-                        
-                        <div class="detail-group">
-                            <label>Quantity:</label>
-                            <p>{{ $viewAsset->quantity }}</p>
-                        </div>                      
-                        
-                        <div class="detail-group">
-                            <label>Category:</label>
-                            <p>{{ $viewAsset->category->category_name }}</p>
+
+                        <!-- Brand -->
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Brand</label>
+                            <p class="text-lg">{{ $viewAsset->name }}</p>
                         </div>
-                        
-                        <div class="detail-group">
-                            <label>Condition:</label>
-                            <p>{{ $viewAsset->condition->condition_name }}</p>
+
+                        <!-- Model -->
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Model</label>
+                            <p class="text-lg">{{ $viewAsset->model_number }}</p>
                         </div>
-                        
-                        <div class="detail-group">
-                            <label>Location:</label>
-                            <p>{{ $viewAsset->location->location_name }}</p>
+
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Description</label>
+                            <p class="text-lg">{{ $viewAsset->description }}</p>
                         </div>
-                        
-                        <div class="detail-group">
-                            <label>Vendor/Supplier:</label>
-                            <p>{{ $viewAsset->vendor->vendor_name }}</p>
+
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Quantity</label>
+                            <p class="text-lg">{{ $viewAsset->quantity }}</p>
                         </div>
-                        
-                        <div class="detail-group">
-                            <label>Warranty Expiration:</label>
-                            <p>{{ $viewAsset->warranty_expiration->format('M d, Y') }}</p>
+
+                        <!-- Category -->
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Category</label>
+                            <p class="text-lg">{{ $viewAsset->category->category_name }}</p>
                         </div>
-                        
-                        <div class="detail-group">
-                            <label>Status:</label>
-                            <p>
+
+                        <!-- Condition -->
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Condition</label>
+                            <p class="text-lg">{{ $viewAsset->condition->condition_name }}</p>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Location</label>
+                            <p class="text-lg">{{ $viewAsset->location->location_name }}</p>
+                        </div>
+
+                        <!-- Vendor/Supplier -->
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Vendor/Supplier</label>
+                            <p class="text-lg">{{ $viewAsset->vendor->vendor_name }}</p>
+                        </div>
+
+                        <!-- Warranty Expiration -->
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Warranty Expiration</label>
+                            <p class="text-lg">{{ $viewAsset->warranty_expiration->format('M d, Y') }}</p>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Status</label>
+                            <p class="text-lg">
                                 @if($viewAsset->is_disposed)
-                                    <span class="status-badge disposed">Disposed</span>
+                                    <span class="inline-block bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">Disposed</span>
                                 @else
-                                    <span class="status-badge available">On-hand</span>
+                                    <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">On-hand</span>
                                 @endif
                             </p>
                         </div>
                     </div>
-                    @endif                   
-                   
-                    <div class="modal-footer">
+                @endif
 
-                         <!-- Add Print button -->
-                        <a href="{{ route('assets.pdf', ['id' => $viewAsset->id]) }}" 
-                        target="_blank"
-                        class="btn btn-primary btn-sm-custom mr-2">
-                            <i class="fas fa-print"></i> Print
-                        </a>
+                <!-- Footer -->
+                <div class="mt-10 flex justify-end space-x-4">
+                    <!-- Print Button -->
+                    <a href="{{ route('assets.pdf', ['id' => $viewAsset->id]) }}"
+                    target="_blank"
+                    class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+                        <i class="fas fa-print mr-2"></i> Print
+                    </a>
 
-                        <button type="button" wire:click="closeModals" class="btn btn-secondary btn-sm-custom">
-                            <i class="fas fa-xmark" style="margin-right: 0.5rem;"></i> Close
-                        </button>
-                    </div>
+                    <!-- Close Button -->
+                    <button type="button" wire:click="closeModals"
+                            class="inline-flex items-center px-6 py-3 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition">
+                        <i class="fas fa-xmark mr-2"></i> Close
+                    </button>
                 </div>
             </div>
-        @endif
+        </div>
+    @endif
+
+
+
 
         <!-- Delete Confirmation Modal -->
         @if ($showDeleteModal)

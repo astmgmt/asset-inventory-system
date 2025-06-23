@@ -30,126 +30,155 @@
     @endif
 
     <!-- Print Form Card -->
-    <div class="card mb-6">
-        <div class="card-body">
-            <form wire:submit.prevent="printQRCodes">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="dateFrom" class="form-label">Date From</label>
+    <div class="bg-white shadow-md rounded-lg p-6 mb-6 border border-gray-200">
+        <form wire:submit.prevent="printQRCodes" class="space-y-6">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Filter Options</label>
+                <div class="flex items-center space-x-6">
+                    <label class="inline-flex items-center text-sm text-gray-600">
                         <input 
-                            type="date" 
-                            id="dateFrom" 
-                            class="form-input"
-                            wire:model="dateFrom"
+                            type="radio" 
+                            wire:model.live="filterOption" 
+                            value="by_date"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                         >
-                        @error('dateFrom') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                    </div>
-                    <div>
-                        <label for="dateTo" class="form-label">Date To</label>
+                        <span class="ml-2">By Date</span>
+                    </label>
+                    <label class="inline-flex items-center text-sm text-gray-600">
                         <input 
-                            type="date" 
-                            id="dateTo" 
-                            class="form-input"
-                            wire:model="dateTo"
+                            type="radio" 
+                            wire:model.live="filterOption" 
+                            value="select_all"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                         >
-                        @error('dateTo') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                    </div>
+                        <span class="ml-2">Select All</span>
+                    </label>
                 </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="dateFrom" class="block text-sm font-medium text-gray-700 mb-1">Date From</label>
+                    <input 
+                        type="date" 
+                        id="dateFrom" 
+                        class="block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500 @if($filterOption == 'select_all') opacity-50 cursor-not-allowed @endif"
+                        wire:model="dateFrom"
+                        @if($filterOption == 'select_all') disabled @endif
+                    >
+                    @error('dateFrom') 
+                        <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> 
+                    @enderror
+                </div>
+                <div>
+                    <label for="dateTo" class="block text-sm font-medium text-gray-700 mb-1">Date To</label>
+                    <input 
+                        type="date" 
+                        id="dateTo" 
+                        class="block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500 @if($filterOption == 'select_all') opacity-50 cursor-not-allowed @endif"
+                        wire:model="dateTo"
+                        @if($filterOption == 'select_all') disabled @endif
+                    >
+                    @error('dateTo') 
+                        <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> 
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div>
                 <button 
                     type="submit" 
-                    class="btn-generate inline-flex items-center px-4 py-2 border border-transparent text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 rounded-md text-sm font-medium transition"
+                    class="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition"
                 >
                     <i class="fas fa-qrcode mr-2"></i> Generate QR Codes
                 </button>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
+
 
     <!-- Print Logs Card -->
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title text-center">QR Code Print History</h3>
+    <div class="bg-white shadow-md rounded-lg border border-gray-200 p-6">
+        <div class="mb-6 text-center">
+            <h3 class="text-xl font-semibold text-gray-800">QR Code Print History</h3>
         </div>
-        <div class="card-body">
-            <!-- Search Bar -->
-            <div class="search-bar mb-6 w-full md:w-1/3 relative">
-                <input 
-                    type="text" 
-                    placeholder="Search by print code..." 
-                    wire:model.live.debounce.300ms="search"
-                    class="search-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+        <!-- Search Bar -->
+        <div class="mb-6 w-full md:w-1/3 relative">
+            <input 
+                type="text" 
+                placeholder="Search by print code..." 
+                wire:model.live.debounce.300ms="search"
+                class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+            @if($search)
+                <button 
+                    wire:click="$set('search', '')" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 text-lg"
+                    aria-label="Clear search"
                 >
-                @if($search)
-                    <button wire:click="$set('search', '')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                        &times;
-                    </button>
-                @else
-                    <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                @endif
-            </div>
+                    &times;
+                </button>
+            @else
+                <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            @endif
+        </div>
 
-            <!-- Print Logs Table -->
-            <div class="overflow-x-auto">
-                <table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>Print Code</th>
-                            <th>Date From</th>
-                            <th>Date To</th>
-                            <th>Printed At</th>
-                            <th>Printed By</th>
-                            <th>Actions</th>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Print Code</th>
+                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Date From</th>
+                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Date To</th>
+                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Printed At</th>
+                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Printed By</th>
+                        <th class="px-4 py-3 text-center font-semibold text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 bg-white">
+                    @forelse($printLogs as $log)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2 text-gray-700">{{ $log->print_code }}</td>
+                            <td class="px-4 py-2 text-gray-700">
+                                {{ $log->date_from ? \Carbon\Carbon::parse($log->date_from)->format('M d, Y') : 'All' }}
+                            </td>
+                            <td class="px-4 py-2 text-gray-700">
+                                {{ $log->date_to ? \Carbon\Carbon::parse($log->date_to)->format('M d, Y') : 'All' }}
+                            </td>
+                            <td class="px-4 py-2 text-gray-700">{{ $log->created_at->format('M d, Y H:i') }}</td>
+                            <td class="px-4 py-2 text-gray-700">{{ $log->user->name }}</td>
+                            <td class="px-4 py-2 text-center space-x-2">
+                                <button 
+                                    wire:click="printAgain({{ $log->id }})"
+                                    class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition"
+                                >
+                                    <i class="fas fa-print mr-1"></i> Print
+                                </button>
+                                <button 
+                                    wire:click="confirmDelete({{ $log->id }})"
+                                    class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition"
+                                >
+                                    <i class="fas fa-trash mr-1"></i> Delete
+                                </button>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($printLogs as $log)
-                            <tr>
-                                <td data-label="Print Code" class="text-center">
-                                    {{ $log->print_code }}
-                                </td>
-                                <td data-label="Date From" class="text-center">
-                                    {{ \Carbon\Carbon::parse($log->date_from)->format('M d, Y') }}
-                                </td>
-                                <td data-label="Date To" class="text-center">
-                                    {{ \Carbon\Carbon::parse($log->date_to)->format('M d, Y') }}
-                                </td>
-                                <td data-label="Printed At" class="text-center">
-                                    {{ $log->created_at->format('M d, Y H:i') }}
-                                </td>
-                                <td data-label="Printed By" class="text-center">
-                                    {{ $log->user->name }}
-                                </td>
-                                <td data-label="Actions" class="text-center space-x-2">
-                                    <button 
-                                        wire:click="printAgain({{ $log->id }})"
-                                        class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded text-sm transition duration-150 ease-in-out"
-                                    >
-                                        <i class="fas fa-print mr-1"></i> Print
-                                    </button>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="px-4 py-4 text-center text-gray-500">No print history found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-                                    <button 
-                                        wire:click="confirmDelete({{ $log->id }})"
-                                        class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-3 rounded text-sm transition duration-150 ease-in-out"
-                                    >
-                                        <i class="fas fa-trash mr-1"></i> Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="no-software-row">No print history found</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-                
-                <!-- Pagination -->
-                <div class="mt-4 pagination-container">
-                    {{ $printLogs->links() }}
-                </div>
-            </div>
+        <!-- Pagination -->
+        <div class="mt-6">
+            {{ $printLogs->links() }}
         </div>
     </div>
+
 
     <!-- Delete Confirmation Modal -->
     @if($showDeleteModal)

@@ -1,173 +1,104 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>Asset: {{ $asset->asset_code }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            font-size: 11px;
+        @page {
+            margin: 0;
+            size: 4in 3.7in;
         }
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 288pt;   /* 4in */
+            height: 266.4pt; /* 3.7in */
+            font-family: sans-serif;
+            position: relative;
         }
+
+        .left-column, .right-column {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .left-column {
+            left: 20pt;
+            width: 120pt;        
+            word-wrap: break-word;  
+            overflow-wrap: break-word;
+            overflow: hidden;      /* hide overflow */
+        }
+
+        .right-column {
+            right: 20pt;
+            width: 144pt;
+            height: 144pt;
+            text-align: right;            
+            margin-left: 10pt;
+        }
+
+       .header {
+            margin-bottom: 10pt;
+        }
+
         .logo-container {
             display: inline-block;
             text-align: center;
+            width: auto;
+            min-width: 100pt; /* Or match to company name width */
         }
+
         .logo-container img {
-            height: 50px;
+            max-width: 40pt;
+            display: block;
+            margin: 0 auto;
         }
+
         .company-name {
-            font-size: 10px;
-            color: #666;
-            margin-top: 2px;
-        }
-        .title-container {
-            text-align: center;
-            flex-grow: 1;
-            margin-right: 50px;
-        }
-        .title {
-            font-size: 14px;
+            font-size: 8pt;
             font-weight: bold;
-            margin: 0;
+            margin-top: 5pt;
         }
-        .subtitle {
-            font-size: 11px;
-            color: #555;
-            margin: 0;
+
+        .spacer {
+            height: 10pt;
         }
-        .section {
-            margin-bottom: 20px;
+
+        .label {
+            font-size: 8pt;
+            margin-bottom: 4pt;
         }
-        .section-title {
-            font-size: 11px;
-            font-weight: bold;
-            border-bottom: 2px solid #333;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
-        }
-        .info-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            table-layout: fixed;
-        }
-        .info-table th,
-        .info-table td {
-            padding: 6px;
-            border: 1px solid #ddd;
-            vertical-align: top;
-            text-align: left;
-        }
-        .info-table th {
-            background-color: #f5f5f5;
-            font-weight: bold;
-            width: 30%;
-        }
-        .qrcode-container {
-            display: flex;
-            justify-content: center;
-            gap: 60px;
-            margin-top: 30px;
-        }
-        .qrcode {
-            text-align: center;
-        }
-        .qrcode img {
-            width: 2in;
-            height: 2in;
-            border: 2px dashed #000; 
-            padding: 4px;            
-            margin: 10px;
-            background-color: #fff;   
-            box-sizing: border-box;  
-        }
-        .footer {
-            margin-top: 40px;
-            font-size: 10px;
-            text-align: center;
-            color: #666;
+
+        .qrcode-container img {
+            width: 144pt;
+            height: 144pt;
+            object-fit: contain;
         }
     </style>
 </head>
 <body>
 
-    <!-- Header with Logo and Title -->
-    <div class="header">
-        <div class="logo-container">
-            <img src="{{ public_path('images/logo.png') }}" alt="Company Logo">
+    <div class="left-column">
+        <div class="header">
+            <div class="logo-container">
+                <img src="{{ public_path('images/logo.png') }}" alt="Company Logo" />
+            </div>
             <div class="company-name">Asset Inventory System</div>
         </div>
-        <div class="title-container">
-            <p class="title">Asset Information</p>
-            <p class="subtitle">Asset Code: {{ $asset->asset_code }}</p>
+
+        <div class="spacer"></div>
+        <div class="label"><strong>Brand:</strong> {{ $asset->name }}</div>
+        <div class="label"><strong>Model:</strong> {{ $asset->model_number }}</div>
+        <div class="label"><strong>SN:</strong> {{ $asset->serial_number }}</div>
+        <div class="label">
+            <strong>Date:</strong> {{ $asset->created_at->format('M j, Y') }}
         </div>
+
     </div>
 
-    <!-- Asset Details -->
-    <div class="section">
-        <div class="section-title">Asset Details</div>
-        <table class="info-table">
-            <tr>
-                <th>Asset Code</th>
-                <td>{{ $asset->asset_code }}</td>
-            </tr>
-            <tr>
-                <th>Serial Number</th>
-                <td>{{ $asset->serial_number ?? 'N/A' }}</td>
-            </tr>
-            <tr>
-                <th>Brand</th>
-                <td>{{ $asset->name }}</td>
-            </tr>
-            <tr>
-                <th>Model</th>
-                <td>{{ $asset->model_number }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ $asset->description }}</td>
-            </tr>
-            <tr>
-                <th>Category</th>
-                <td>{{ $asset->category->category_name }}</td>
-            </tr>
-            <tr>
-                <th>Condition</th>
-                <td>{{ $asset->condition->condition_name }}</td>
-            </tr>
-            <tr>
-                <th>Location</th>
-                <td>{{ $asset->location->location_name }}</td>
-            </tr>
-            <tr>
-                <th>Vendor</th>
-                <td>{{ $asset->vendor->vendor_name }}</td>
-            </tr>
-            <tr>
-                <th>Warranty Expiration</th>
-                <td>{{ $asset->warranty_expiration->format('M d, Y') }}</td>
-            </tr>
-        </table>
-    </div>
-
-    <!-- QR Codes -->
-    <div class="section">
-        <div class="section-title">QR Codes</div>
-        <div class="qrcode-container">
-            <div class="qrcode">
-                <img src="data:image/png;base64,{{ $qrCode }}" width="2in" height="2in">
-            </div>
-            <div class="qrcode">
-                <img src="data:image/png;base64,{{ $qrCode }}" width="2in" height="2in">
-            </div>
-        </div>
+    <div class="right-column qrcode-container">
+        <img src="data:image/png;base64,{{ $qrCode }}" alt="QR Code" />
     </div>
 
 </body>

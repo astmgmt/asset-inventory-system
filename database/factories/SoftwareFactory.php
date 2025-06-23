@@ -17,7 +17,6 @@ class SoftwareFactory extends Factory
             'software_name' => fake()->word() . ' Suite',
             'description' => fake()->optional()->sentence(),
             'license_key' => strtoupper(fake()->bothify('KEY-####-####-####')),
-            'installation_date' => fake()->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
             'expiry_date' => fake()->dateTimeBetween('now', '+1 year')->format('Y-m-d'),
             'added_by' => User::inRandomOrder()->first()->id ?? User::factory(),
             'expiry_flag' => fake()->boolean(10),       

@@ -55,7 +55,7 @@ class UserSeeder extends Seeder
             'department_id' => $departments->random()->id,
             'name' => 'Kelvin Silva',
             'username' => 'kelvz',
-            'email' => 'kelvz@test.com',
+            'email' => '23kelvinsilva@gmail.com',
             'password' => Hash::make('User1234'),
             'status' => 'Approved',
         ]);

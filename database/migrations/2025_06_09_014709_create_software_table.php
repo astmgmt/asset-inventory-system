@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('software', function (Blueprint $table) {
             $table->id();
-            $table->string('software_code', 20)->unique();
+            $table->string('software_code', 50)->unique();
             $table->string('software_name', 100);
             $table->text('description')->nullable();
             $table->integer('quantity')->default(1);
             $table->integer('reserved_quantity')->default(0);
             $table->string('license_key', 100);
-            $table->date('installation_date');
             $table->date('expiry_date');
             $table->foreignId('added_by')->constrained('users')->onDelete('cascade');
             $table->boolean('expiry_flag')->default(false);

@@ -182,9 +182,9 @@ class AssetAssignments extends Component
 
         try {
             $transaction = null;
-            $borrowData = [];
+            $borrowCode = null;
             
-            DB::transaction(function () use (&$transaction, $user, &$borrowData) {
+            DB::transaction(function () use (&$transaction, $user, &$borrowCode) {
                 $borrowCode = $this->generateBorrowCode();
                 $transaction = AssetBorrowTransaction::create([
                     'borrow_code' => $borrowCode,
@@ -233,32 +233,33 @@ class AssetAssignments extends Component
                         'quantity' => $item['quantity'],
                         'status' => 'Borrowed',
                     ]);
-                    
-                    $borrowData[] = [
-                        'asset_id' => $assetId,
-                        'name' => $item['name'],
-                        'code' => $item['code'],
-                        'quantity' => $item['quantity'],
-                    ];
                 }
                 
-                // Create user history record
+                // Load transaction with relationships for history
+                $transaction->load([
+                    'borrowItems.asset', 
+                    'user', 
+                    'userDepartment',
+                    'requestedBy'
+                ]);
+                
+                // Create user history record with full transaction data
                 UserHistory::create([
                     'user_id' => $user->id,
                     'borrow_code' => $borrowCode,
                     'status' => 'Borrow Approved',
-                    'borrow_data' => $borrowData,
+                    'borrow_data' => $transaction->toArray(), // Full transaction data
                     'action_date' => now(),
                 ]);
             });
 
-            $this->generatedBorrowCode = $transaction->borrow_code;
+            $this->generatedBorrowCode = $borrowCode;
             $this->sendAssignmentEmail($transaction, $user);
             $this->clearCart();
             $this->successMessage = 'Assets assigned successfully!';
             $this->showCartModal = false;
 
-            // ====== ADDED: Generate and return PDF for download ======
+            // Generate PDF for download
             $transaction->load([
                 'borrowItems.asset', 
                 'user', 
@@ -286,6 +287,8 @@ class AssetAssignments extends Component
             $this->isProcessing = false;
         }
     }
+
+
 
     private function sendAssignmentEmail($transaction, $user)
     {

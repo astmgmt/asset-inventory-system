@@ -26,7 +26,7 @@
         <div class="search-bar w-full md:w-1/3 relative">
             <input 
                 type="text" 
-                placeholder="Search assets by name, code or condition..." 
+                placeholder="Search by code, brand ..." 
                 wire:model.live.debounce.300ms="search"
                 class="search-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />

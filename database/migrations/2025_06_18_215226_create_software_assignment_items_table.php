@@ -22,6 +22,7 @@ return new class extends Migration
                 'PendingReturn',  
                 'ReturnRejected'    
             ])->default('Assigned');
+            $table->date('installation_date')->nullable();
             $table->text('remarks')->nullable();
             $table->timestamps();
         });

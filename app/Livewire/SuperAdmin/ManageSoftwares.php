@@ -6,23 +6,20 @@ use App\Models\Software;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class ManageSoftwares extends Component
 {
     use WithPagination;
 
     public $search = '';
-    public $users;
     
     // Software fields
     public $softwareId;
     public $software_name;
     public $description;
     public $license_key;
-    public $installation_date;
     public $expiry_date;
-    //public $responsible_user_id;
     
     // Modals
     public $showAddModal = false;
@@ -36,11 +33,6 @@ class ManageSoftwares extends Component
     // Messages
     public $successMessage = '';
     public $errorMessage = '';
-
-    public function mount()
-    {
-        $this->users = User::all();
-    }
 
     public function updatingSearch()
     {
@@ -61,9 +53,7 @@ class ManageSoftwares extends Component
         $this->software_name = $software->software_name;
         $this->description = $software->description;
         $this->license_key = $software->license_key;
-        $this->installation_date = $software->installation_date->format('Y-m-d');
         $this->expiry_date = $software->expiry_date->format('Y-m-d');
-        //$this->responsible_user_id = $software->responsible_user_id;
         
         $this->showEditModal = true;
     }
@@ -93,7 +83,7 @@ class ManageSoftwares extends Component
     {
         $this->reset([
             'softwareId', 'software_name', 'description', 'license_key', 
-            'installation_date', 'expiry_date'
+            'expiry_date'
         ]);
         $this->resetErrorBag();
         $this->viewSoftware = null;
@@ -101,12 +91,26 @@ class ManageSoftwares extends Component
 
     private function generateSoftwareCode()
     {
-        return implode('-', [
-            Str::upper(Str::random(4)),
-            Str::upper(Str::random(4)),
-            Str::upper(Str::random(4)),
-            Str::upper(Str::random(4))
-        ]);
+        $date = now()->format('Ymd'); // e.g., 20250622
+        $prefix = "SFT-{$date}-";
+
+        // Find the last software created today
+        $lastSoftware = Software::where('software_code', 'like', $prefix . '%')
+            ->orderBy('software_code', 'desc')
+            ->first();
+
+        // Extract the last sequence number
+        $lastNum = 0;
+        if ($lastSoftware) {
+            $lastCode = $lastSoftware->software_code;
+            $sequencePart = substr($lastCode, -8); // Get last 8 characters
+            $lastNum = intval($sequencePart);
+        }
+
+        $nextNum = $lastNum + 1;
+        $formattedNum = str_pad($nextNum, 8, '0', STR_PAD_LEFT);
+
+        return $prefix . $formattedNum;
     }
 
     public function createSoftware()
@@ -115,9 +119,7 @@ class ManageSoftwares extends Component
             'software_name' => 'required|string|max:100',
             'description' => 'nullable|string',
             'license_key' => 'required|string|max:100',
-            'installation_date' => 'required|date',
-            'expiry_date' => 'required|date|after:installation_date',
-            
+            'expiry_date' => 'required|date',
         ]);
 
         Software::create([
@@ -125,9 +127,12 @@ class ManageSoftwares extends Component
             'software_name' => $this->software_name,
             'description' => $this->description,
             'license_key' => $this->license_key,
-            'installation_date' => $this->installation_date,
             'expiry_date' => $this->expiry_date,
-            
+            'added_by' => Auth::id(),
+            'quantity' => 1,
+            'reserved_quantity' => 0,
+            'expiry_flag' => false,
+            'expiry_status' => 'active',
         ]);
 
         $this->successMessage = 'Software created successfully!';
@@ -141,9 +146,7 @@ class ManageSoftwares extends Component
             'software_name' => 'required|string|max:100',
             'description' => 'nullable|string',
             'license_key' => 'required|string|max:100',
-            'installation_date' => 'required|date',
-            'expiry_date' => 'required|date|after:installation_date',
-           
+            'expiry_date' => 'required|date',            
         ]);
 
         $software = Software::findOrFail($this->softwareId);
@@ -151,7 +154,6 @@ class ManageSoftwares extends Component
             'software_name' => $this->software_name,
             'description' => $this->description,
             'license_key' => $this->license_key,
-            'installation_date' => $this->installation_date,
             'expiry_date' => $this->expiry_date,
             
         ]);
@@ -171,12 +173,11 @@ class ManageSoftwares extends Component
         $this->dispatch('clear-message');
     }
 
-    public function clearSuccessMessage()
+    public function clearSearch()
     {
-        $this->dispatch('clear-message');
+        $this->search = '';
     }
 
-    #[Layout('components.layouts.app')]
     public function render()
     {
         $softwares = Software::query()
@@ -187,7 +188,6 @@ class ManageSoftwares extends Component
             })
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-
 
         return view('livewire.super-admin.manage-softwares', [
             'softwares' => $softwares,

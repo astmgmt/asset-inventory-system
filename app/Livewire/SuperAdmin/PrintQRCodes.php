@@ -25,6 +25,7 @@ class PrintQRCodes extends Component
     public $errorMessage;
     public $showDeleteModal = false;
     public $logToDelete;
+    public $filterOption = 'by_date';
 
     protected $rules = [
         'dateFrom' => 'required|date',
@@ -99,20 +100,33 @@ class PrintQRCodes extends Component
         return $result->getString();
     }
 
+    
     public function printQRCodes()
     {
-        $this->validate();
+        if ($this->filterOption == 'by_date') {
+            $this->validate([
+                'dateFrom' => 'required|date',
+                'dateTo' => 'required|date|after_or_equal:dateFrom',
+            ], [
+                'dateFrom.required' => 'The start date is required.',
+                'dateTo.required' => 'The end date is required.',
+                'dateTo.after_or_equal' => 'The end date must be after or equal to the start date.',
+            ]);
+        }
 
-        $assets = Asset::with('location')
-            ->whereBetween('created_at', [$this->dateFrom, $this->dateTo])
-            ->get();
+        // Fetch assets based on selected filter
+        $assets = ($this->filterOption == 'select_all')
+            ? Asset::with('location')->get()
+            : Asset::with('location')
+                ->whereBetween('created_at', [$this->dateFrom, $this->dateTo])
+                ->get();
 
         if ($assets->isEmpty()) {
-            $this->errorMessage = 'No assets found for the selected date range.';
+            $this->errorMessage = 'No assets found.';
             return;
         }
 
-        // Set success message (will be shown immediately)
+        // Set success message
         $this->successMessage = 'Successfully created print job. Generating PDF for download, please wait...';
 
         // Prepare snapshot data
@@ -130,8 +144,8 @@ class PrintQRCodes extends Component
         // Create print log
         $printLog = AssetQrcodeLog::create([
             'print_code' => $this->generatePrintCode(),
-            'date_from' => $this->dateFrom,
-            'date_to' => $this->dateTo,
+            'date_from' => $this->filterOption == 'by_date' ? $this->dateFrom : null,
+            'date_to' => $this->filterOption == 'by_date' ? $this->dateTo : null,
             'user_id' => Auth::id(),
             'asset_snapshot_data' => $snapshot,
         ]);
@@ -161,8 +175,8 @@ class PrintQRCodes extends Component
         $pdf = Pdf::loadView('pdf.asset-qrcodes', [
             'assets' => $assetsWithQr,
             'printLog' => $printLog,
-            'dateFrom' => $this->dateFrom,
-            'dateTo' => $this->dateTo,
+            'dateFrom' => $this->filterOption == 'by_date' ? $this->dateFrom : null,
+            'dateTo' => $this->filterOption == 'by_date' ? $this->dateTo : null,
         ])->setPaper('a4', 'portrait');
 
         return response()->streamDownload(
@@ -171,9 +185,17 @@ class PrintQRCodes extends Component
         );
     }
 
+    // Add this method to clear validation
+    public function updatedFilterOption($value)
+    {
+        if ($value === 'select_all') {
+            $this->resetValidation(['dateFrom', 'dateTo']);
+        }
+    }
+
+
     public function printAgain($printLogId)
     {
-        // Set success message (will be shown immediately)
         $this->successMessage = 'Generating PDF for download, please wait...';
 
         $printLog = AssetQrcodeLog::findOrFail($printLogId);
@@ -209,6 +231,7 @@ class PrintQRCodes extends Component
             "{$printLog->print_code}-REPRINT.pdf"
         );
     }
+
 
     public function confirmDelete($logId)
     {
