@@ -1,36 +1,7 @@
 <div class="superadmin-container">
-    <div class="dashboard-header flex justify-between items-center">
-        <h1 class="page-title main-title text-xl font-bold">
-            Warranty & Subscription Monitoring
-        </h1>
-
-        <div class="request-monitoring bg-yellow-100 text-yellow-900 border border-yellow-200 shadow-md rounded-lg w-64 mb-4 mr-4">
-            <!-- Card Header -->
-            <div class="px-4 py-2 border-b border-yellow-300 rounded-t-lg font-semibold">
-                Notification Requests
-            </div>
-
-            <!-- Card Body -->
-            <div class="flex flex-col justify-center px-4 py-3 text-sm">
-                <div class="flex items-center">
-                <a href="{{ route('approve.requests') }}" class="hover:underline">Borrow Request(s): <span class="ml-1 font-semibold">5</span></a>
-                
-                </div>
-                <div class="flex items-center mt-2">
-                <a href="{{ route('approve.return') }}" class="hover:underline">Return Request(s): <span class="ml-1 font-semibold">2</span></a>                
-                </div>
-            </div>
-        </div>
-
-
-
-
-    </div>
-
-
-
-
-
+    <h1 class="page-title main-title">
+        Warranty & Subscription Monitoring
+    </h1>
 
     <!-- First Section: Asset Monitoring -->
     <div class="section-wrapper bg-white p-6 rounded-lg mb-10">

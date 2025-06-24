@@ -902,5 +902,17 @@ html.dark .logout-btn {
     bottom: -1px;
 }
 
+/* Notification Bell */
+[x-cloak] {
+    display: none !important;
+}
+
+.relative {
+    position: relative;
+}
+
+.absolute {
+    position: absolute;
+}
 
 

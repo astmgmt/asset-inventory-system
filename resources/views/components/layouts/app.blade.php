@@ -73,7 +73,7 @@
                         <i class="fas" :class="open === 2 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 2" x-collapse class="nav-submenu">
-                        <a href="{{ route('manage.assets') }}"><i class="fas fa-plus-square"></i> Add Asset</a>
+                        <a href="{{ route('manage.assets') }}"><i class="fas fa-cogs"></i> Manage Asset</a>
                         <a href="{{ route('asset.assignment') }}"><i class="fas fa-random"></i> Assign Asset</a>
                         <a href="{{ route('approve.requests') }}"><i class="fas fa-hand-paper"></i> Borrow Request(s)</a>
                         <a href="{{ route('approve.return') }}"><i class="fas fa-undo-alt"></i> Return Request(s)</a>
@@ -114,7 +114,7 @@
                         <i class="fas" :class="open === 2 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 2" x-collapse class="nav-submenu">
-                        <a href="{{ route('manage.assets') }}"><i class="fas fa-plus-square"></i> Add Asset</a>
+                        <a href="{{ route('manage.assets') }}"><i class="fas fa-cogs"></i> Manage Asset</a>
                         <a href="{{ route('asset.assignment') }}"><i class="fas fa-random"></i> Assign Asset</a>
                         <a href="{{ route('approve.requests') }}"><i class="fas fa-hand-paper"></i> Borrow Request(s)</a>
                         <a href="{{ route('approve.return') }}"><i class="fas fa-undo-alt"></i> Return Request(s)</a>
@@ -204,6 +204,11 @@
                     >
                         <i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
                     </button>
+
+                    @if($user->isSuperAdmin() || $user->isAdmin())
+                        <livewire:super-admin.admin-notification-bell />
+                    @endif
+
                 @endauth
             </div>
         </header>
