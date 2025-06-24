@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\AssetBorrowTransaction;
 use App\Models\Asset;
+use App\Models\User;
 use App\Models\UserHistory;
 use App\Models\AssetReturnItem;
 use App\Models\AssetCondition;
@@ -88,10 +89,21 @@ class ApproveReturnRequests extends Component
         ]);
 
         $pendingReturnItems = null;
+        $returnReceivedBy = Auth::user()->name; 
+        $borrowApprovedBy = ''; 
+        $returnDate = now();
 
         try {
-            DB::transaction(function () use (&$pendingReturnItems) {
+            DB::transaction(function () use (&$pendingReturnItems, $returnReceivedBy, &$borrowApprovedBy) {
                 $transaction = $this->selectedTransaction;
+
+                // Get the borrow approver's name
+                if ($transaction->approved_by_user_id) {
+                    $borrowApprover = User::find($transaction->approved_by_user_id);
+                    $borrowApprovedBy = $borrowApprover ? $borrowApprover->name : 'N/A';
+                } else {
+                    $borrowApprovedBy = 'N/A';
+                }
 
                 $availableConditionId = AssetCondition::where('condition_name', 'Available')->firstOrFail()->id;
 
@@ -114,6 +126,13 @@ class ApproveReturnRequests extends Component
                     ]);
                 }
 
+                
+                // Get the earliest return date from the items
+                $earliestReturnDate = $pendingReturnItems->min('returned_at');
+                if ($earliestReturnDate) {
+                    $returnDate = $earliestReturnDate;
+                }
+
                 foreach ($pendingReturnItems as $returnItem) {
                     $borrowItem = $returnItem->borrowItem;
                     $asset = $borrowItem->asset;
@@ -130,8 +149,6 @@ class ApproveReturnRequests extends Component
                 $transaction->update([
                     'status' => $allItemsReturned ? 'Returned' : 'Borrowed',
                     'returned_at' => $allItemsReturned ? now() : null,
-                    'approved_by_user_id' => Auth::id(),
-                    'approved_at' => now(),
                     'remarks' => $this->approveRemarks,
                 ]);
 
@@ -151,6 +168,14 @@ class ApproveReturnRequests extends Component
                     ];
                 })->toArray();
 
+                // Create return_data with both fields
+                $returnData = [
+                    'return_items' => $returnItemsData,
+                    'return_received_by' => $returnReceivedBy,
+                    'approved_by' => $borrowApprovedBy,
+                    'return_date' => $returnDate->format('Y-m-d H:i:s')
+                ];
+
                 $history = UserHistory::where('borrow_code', $transaction->borrow_code)
                     ->whereNull('return_code')
                     ->first();
@@ -159,7 +184,7 @@ class ApproveReturnRequests extends Component
                     $history->update([
                         'return_code' => $returnCode,
                         'status' => 'Return Approved',
-                        'return_data' => ['return_items' => $returnItemsData],
+                        'return_data' => $returnData,
                         'action_date' => now()
                     ]);
                 } else {
@@ -168,7 +193,7 @@ class ApproveReturnRequests extends Component
                         'borrow_code' => $transaction->borrow_code,
                         'return_code' => $returnCode,
                         'status' => 'Return Approved',
-                        'return_data' => ['return_items' => $returnItemsData],
+                        'return_data' => $returnData,
                         'action_date' => now()
                     ]);
                 }

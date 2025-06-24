@@ -8,7 +8,6 @@
         body {
             font-family: 'Inter', sans-serif;
             font-size: 11px;
-            line-height: 1.5;
         }
         .header {
             display: flex;
@@ -16,10 +15,13 @@
             justify-content: space-between;
             margin-bottom: 10px;
         }
+        .logo {
+            height: 50px;
+        }
         .title-container {
             text-align: center;
             flex-grow: 1;
-            margin: 0 20px;
+            margin-right: 50px;
         }
         .title {
             font-size: 14px;
@@ -32,7 +34,6 @@
         }
         .section {
             margin-bottom: 20px;
-            page-break-inside: avoid;
         }
         .section-title {
             font-size: 11px;
@@ -60,11 +61,10 @@
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 15px;
         }
         .items-table th,
         .items-table td {
-            padding: 6px;
+            padding: 8px;
             border: 1px solid #ddd;
             text-align: center;
         }
@@ -73,60 +73,53 @@
             font-weight: bold;
         }
         .footer {
-            margin-top: 30px;
-            page-break-inside: avoid;
+            margin-top: 40px;
         }
         .signature {
             width: 250px;
         }
         .flex-container {
             display: flex;
-            justify-content: space-between;
-            gap: 20px;
+            justify-content: flex-start;
+            gap: 80px;
         }
         .accountability-message {
-            margin-top: 15px;
-            padding: 8px;
-            background-color: #f8f9fa;
-            border-left: 4px solid #3490dc;
-            font-style: italic;
+            font-size: 11px;
         }
-        .logo-container {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .logo {
-            height: 50px;
-        }
-        .logo-text {
-            font-size: 10px;
-            color: #666;
-            margin-top: 2px;
+        .highlighted-message {
+            background-color: #f4f7fb; 
+            border-left: 4px solid #007BFF; 
+            padding: 12px 16px;
+            border-radius: 4px;
+            color: #333;
+            font-size: 11px;
+            line-height: 1.5;
         }
         .status-badge {
-            display: inline-block;
             padding: 2px 6px;
             border-radius: 4px;
             font-size: 10px;
-            font-weight: bold;
         }
         .status-good {
-            background-color: #e6fffa;
-            color: #0d9488;
+            background-color: #d4edda;
+            color: #155724;
         }
         .status-damaged {
-            background-color: #fff1f2;
-            color: #e11d48;
+            background-color: #f8d7da;
+            color: #721c24;
         }
     </style>
 </head>
 <body>
-    <div class="logo-container">
-        <img src="{{ public_path('images/logo.png') }}" class="logo" alt="Company Logo">
-        <div class="logo-text">Asset Inventory System</div>
-    </div>
 
     <div class="header">
+        <div style="display: inline-block; text-align: center; margin-bottom: 10px;">
+            <img src="{{ public_path('images/logo.png') }}" class="logo" alt="Company Logo">
+            <div style="font-size: 10px; color: #666; margin-top: 2px;">
+                Asset Inventory System
+            </div>
+        </div>
+
         <div class="title-container">
             <p class="title">Asset Borrow & Return History</p>
             <p class="subtitle">Borrow Code: {{ $transaction->borrow_code }}</p>
@@ -147,24 +140,30 @@
             </tr>
             <tr>
                 <td class="label">Borrow Date:</td>
-                <td>{{ $borrowDate }}</td>
-                <td class="label">Return Date:</td>
-                <td>{{ $returnDate }}</td>
+                {{-- <td>{{ $borrowDate }}</td> --}}
+                <td>{{ \Carbon\Carbon::parse($borrowDate)->format('M d, Y') }}</td>
+                <td class="label">Return Date:</td>                
+                <td>
+                    @if(isset($transaction->return_data['return_date']) && $transaction->return_data['return_date'])
+                        {{ \Carbon\Carbon::parse($transaction->return_data['return_date'])->format('M d, Y') }}
+                    @else
+                        N/A
+                    @endif
+                </td>
             </tr>
             <tr>
                 <td class="label">Approved By:</td>
-                <td>{{ $approver->name }}</td>
+                <td>{{ $transaction->return_data['approved_by'] ?? 'N/A' }}</td>
                 <td class="label">Return Received By:</td>
-                <td>{{ $returner->name ?? 'N/A' }}</td>
+                <td>{{ $transaction->return_data['return_received_by'] ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td class="label">Remarks:</td>
-                <td colspan="3">{{ $transaction->remarks }}</td>
+                <td colspan="3">{{ $transaction->remarks ?? 'N/A' }}</td>
             </tr>
         </table>
     </div>
 
-    <!-- Borrow Section -->
     <div class="section">
         <div class="section-title">Borrowed Assets</div>
         <table class="items-table">
@@ -186,18 +185,17 @@
                         <td>{{ $item['asset']['model_number'] ?? 'N/A' }}</td>
                         <td>{{ $item['asset']['serial_number'] ?? 'N/A' }}</td>
                         <td>{{ $item['quantity'] ?? 'N/A' }}</td>
-                        <td>{{ $item['purpose'] ?? 'N/A' }}</td>
+                        <td>{{ !empty($item['purpose']) ? $item['purpose'] : 'N/A' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center">No borrowed assets</td>
+                        <td colspan="6">No borrowed assets</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 
-    <!-- Return Section -->
     @if(count($transaction->returnItems) > 0)
         <div class="section">
             <div class="section-title">Returned Assets</div>
@@ -219,7 +217,7 @@
                             <td>{{ $item['asset']['name'] ?? ($item['borrow_item']['asset']['name'] ?? 'N/A') }}</td>
                             <td>{{ $item['asset']['model_number'] ?? ($item['borrow_item']['asset']['model_number'] ?? 'N/A') }}</td>
                             <td>{{ $item['asset']['serial_number'] ?? ($item['borrow_item']['asset']['serial_number'] ?? 'N/A') }}</td>
-                            <td>{{ $item['quantity_returned'] ?? $item['quantity'] ?? 'N/A' }}</td>
+                            <td>{{ $item['quantity'] ?? ($item['borrow_item']['quantity'] ?? 'N/A') }}</td>
                             <td>
                                 <span class="status-badge {{ $item['status'] === 'Good' ? 'status-good' : 'status-damaged' }}">
                                     {{ $item['status'] ?? 'Returned' }}
@@ -233,57 +231,38 @@
     @endif
 
     <div class="section">
-        <div class="accountability-message">
-            <strong>Accountability Statement:</strong><br>
-            This document serves as an official record of the asset borrowing and return transaction.
-            The borrower acknowledges that all items were received in the condition specified above.
-            Any discrepancies or damages beyond normal wear and tear may result in liability for repair or replacement costs.
+        <div class="accountability-message highlighted-message">            
+            <strong>Note:</strong>This document serves as an official record of the asset borrowing and return transaction.
         </div>
     </div>
 
     <div class="footer">
         <div class="flex-container">
-            <!-- Borrower Signature Block -->
             <div class="signature">
-                <p>Borrowed & Returned by:</p>
-                <p style="margin-bottom: 24px;">&nbsp;&nbsp;</p>
+                <p>Returned by:</p>
+                <p style="margin-bottom: 24px;">&nbsp;</p>
                 <p style="border-bottom: 1px solid #333; margin: 0; padding-bottom: 4px;">&nbsp;</p>
                 <p style="text-align: center; margin-top: 4px; margin-bottom: 8px;">
                     {{ $transaction->user['name'] }}
                 </p>
                 <p style="text-align: center; margin-top: 4px;">
-                    Borrower's Signature
+                    Signature
                 </p>
             </div>
 
-            <!-- Approver Signature Block -->
             <div class="signature">
                 <p>Approved by:</p>
-                <p style="margin-bottom: 24px;">&nbsp;&nbsp;</p>
+                <p style="margin-bottom: 24px;">&nbsp;</p>
                 <p style="border-bottom: 1px solid #333; margin: 0; padding-bottom: 4px;">&nbsp;</p>
                 <p style="text-align: center; margin-top: 4px; margin-bottom: 8px;">
-                    {{ $approver->name }}
+                    {{ $transaction->return_data['approved_by'] ?? 'N/A' }}
                 </p>
                 <p style="text-align: center; margin-top: 4px;">
                     Authorized Signature
                 </p>
-            </div>
-            
-            <!-- Return Receiver Block -->
-            @if($returner->name)
-                <div class="signature">
-                    <p>Received by:</p>
-                    <p style="margin-bottom: 24px;">&nbsp;&nbsp;</p>
-                    <p style="border-bottom: 1px solid #333; margin: 0; padding-bottom: 4px;">&nbsp;</p>
-                    <p style="text-align: center; margin-top: 4px; margin-bottom: 8px;">
-                        {{ $returner->name }}
-                    </p>
-                    <p style="text-align: center; margin-top: 4px;">
-                        Receiver's Signature
-                    </p>
-                </div>
-            @endif
+            </div>            
         </div>
     </div>
+
 </body>
 </html>

@@ -15,6 +15,8 @@ class AssetReturnItem extends Model
         'returned_at',
         'remarks',
         'approval_status',
+        'approved_at',
+        'approved_by_user_id',
     ];
 
     protected $casts = [

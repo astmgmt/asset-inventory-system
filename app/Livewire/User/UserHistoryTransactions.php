@@ -146,6 +146,7 @@ class UserHistoryTransactions extends Component
             'remarks' => $history->remarks ?? 'N/A',
             'borrowItems' => $borrowData['borrow_items'] ?? [],
             'returnItems' => $returnData['return_items'] ?? [],
+            'return_data' => $returnData,
         ];
 
         $pdf = Pdf::loadView('pdf.history-details', [
