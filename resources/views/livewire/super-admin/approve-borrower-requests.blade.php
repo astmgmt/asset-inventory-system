@@ -1,4 +1,6 @@
 <div class="superadmin-container">
+    <h1 class="page-title main-title">Approve Borrow Requests</h1>
+
     <!-- Success/Error Messages -->
     @if ($successMessage)
         <div class="success-message mb-4" 

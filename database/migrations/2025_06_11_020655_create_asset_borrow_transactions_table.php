@@ -10,35 +10,28 @@ return new class extends Migration
     {
         Schema::create('asset_borrow_transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('borrow_code')->unique(); // e.g. BR-20250611-00000001
-
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Borrower
-
+            $table->string('borrow_code')->unique(); 
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
             $table->foreignId('user_department_id')
                 ->nullable()
                 ->constrained('departments')
                 ->nullOnDelete();
-
             $table->foreignId('requested_by_user_id')
                 ->nullable()
                 ->constrained('users')
                 ->nullOnDelete();
-
             $table->foreignId('requested_by_department_id')
                 ->nullable()
                 ->constrained('departments')
                 ->nullOnDelete();
-
             $table->foreignId('approved_by_user_id')
                 ->nullable()
                 ->constrained('users')
                 ->nullOnDelete();
-
             $table->foreignId('approved_by_department_id')
                 ->nullable()
                 ->constrained('departments')
                 ->nullOnDelete();
-
             $table->enum('status', [
                 'PendingBorrowApproval',   
                 'Borrowed',                
@@ -48,7 +41,6 @@ return new class extends Migration
                 'BorrowRejected',   
                 'ReturnRejected'    
             ])->default('PendingBorrowApproval');
-
             $table->timestamp('borrowed_at')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->text('remarks')->nullable();

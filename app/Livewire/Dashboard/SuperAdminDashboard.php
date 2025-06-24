@@ -65,19 +65,13 @@ class SuperAdminDashboard extends Component
         ];
     }
 
-    /**
-     * Paginated expiring assets query.
-     */
     public function getExpiringAssetsProperty()
     {
         return Asset::whereIn('expiry_status', ['warning_3m', 'warning_2m', 'warning_1m'])
             ->orderBy('warranty_expiration', 'asc')
-            ->paginate(5); // Adjust the number as you want
+            ->paginate(5); 
     }
 
-    /**
-     * Paginated expiring software query.
-     */
     public function getExpiringSoftwareProperty()
     {
         return Software::whereIn('expiry_status', ['warning_3m', 'warning_2m', 'warning_1m'])
@@ -92,8 +86,6 @@ class SuperAdminDashboard extends Component
             'expiringSoftware' => $this->expiringSoftware,
         ]);
     }
-
-    // Because we use computed properties, add these accessors:
 
     public function getExpiringAssets()
     {

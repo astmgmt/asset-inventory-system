@@ -101,7 +101,7 @@ Route::middleware([
     // Super Admin Dashboard
     Route::get('/dashboard/superadmin', SuperAdminDashboard::class)
         ->name('dashboard.superadmin')
-        ->middleware('role:Super Admin');
+        ->middleware('role:Super Admin, Admin');
 
     Route::get('/dashboard/superadmin/create', [AccountController::class, 'showForm'])
         ->name('superadmin.register')
@@ -254,13 +254,11 @@ Route::middleware([
     
     Route::delete('/superadmin/manage/{user}', [UserController::class, 'destroy'])
         ->name('superadmin.manage.destroy')
-        ->middleware('role:Super Admin');
-
-    
+        ->middleware('role:Super Admin');   
 
 
     // Admin Dashboard
-    Route::get('/dashboard/admin', [AdminDashboard::class, 'render'])
+    Route::get('/dashboard/admin', AdminDashboard::class)
         ->name('dashboard.admin')
         ->middleware('role:Admin');
     
