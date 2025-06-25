@@ -50,11 +50,6 @@ use App\Http\Controllers\SuperAdmin\UserController;
 use App\Http\Controllers\User\ReturnController;
 
 
-// TEST
-use Illuminate\Support\Facades\Mail;
-use App\Models\Asset;
-use App\Services\SendEmail;
-
 // DEFAULT LANDING PAGE
 Route::get('/', function () {
     return view('auth.login'); 
@@ -218,20 +213,9 @@ Route::middleware([
         ->name('assignments.accountability-form')
         ->middleware('role:Super Admin,Admin');
 
-    // DOWNLOADING ACCOUNTABILITY FORM AFTER ASSET ASSIGNMENT
-    // Route::get('/superadmin/download-accountability/{borrowCode}', [AssignAssetController::class, 'downloadAccountabilityPDF'])
-    // ->name('superadmin.downloadAccountabilityPDF');
-
-    // Route::get('/superadmin/download-accountability/{borrow_code}', [\App\Http\Controllers\SuperAdmin\AssignAssetController::class, 'generateAccountabilityPDF'])
-    // ->name('superadmin.download-accountability');
-
     Route::get('/user/history', UserHistoryTransactions::class)
         ->name('user.history')
         ->middleware('role:User');
-
-    // -------------------------------------------------------------------------------------------------
-
-
 
 
     // MANAGE ACCOUNTS - Approve, Edit, Delete and View Accounts   
@@ -278,6 +262,14 @@ Route::middleware([
 
     // USER RETURN TRANSACTIONS
     Route::get('/user/return/transactions', UserReturnTransactions::class)
+        ->name('user.return.transactions')
+        ->middleware('role:User');
+
+    Route::get('/borrow-transactions', \App\Livewire\User\UserBorrowTransactions::class)
+        ->name('user.borrow.transactions')
+        ->middleware('role:User');
+        
+    Route::get('/return-transactions', \App\Livewire\User\UserReturnTransactions::class)
         ->name('user.return.transactions')
         ->middleware('role:User');
 

@@ -205,9 +205,15 @@
                         <i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
                     </button>
 
-                    @if($user->isSuperAdmin() || $user->isAdmin())
-                        <livewire:super-admin.admin-notification-bell />
-                    @endif
+                    {{-- NOTIFICATION BELL --}}
+                    @if(auth()->check())
+                        @if(auth()->user()->isUser())
+                            <livewire:user.user-notification-bell />
+                        @endif
+                        @if(auth()->user()->isSuperAdmin() || auth()->user()->isAdmin())
+                            <livewire:super-admin.admin-notification-bell />
+                        @endif
+                    @endif                   
 
                 @endauth
             </div>

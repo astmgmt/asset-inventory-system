@@ -408,6 +408,9 @@ public function createAsset()
         ]);
 
         $asset = Asset::findOrFail($this->assetId);
+        $newCondition = AssetCondition::find($this->condition_id);
+        $isDisposed = $newCondition->condition_name === 'Disposed';
+
         $asset->update([
             'name' => $this->name,
             'description' => $this->description,
@@ -418,6 +421,7 @@ public function createAsset()
             'location_id' => $this->location_id,
             'vendor_id' => $this->vendor_id,
             'warranty_expiration' => $this->warranty_expiration,
+            'is_disposed' => $isDisposed,
         ]);
 
         $this->successMessage = 'Asset updated successfully!';

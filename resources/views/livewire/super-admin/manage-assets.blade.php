@@ -368,7 +368,6 @@
                                     <span class="error">{{ $message }}</span> 
                                 @enderror
                             </div>
-
                             
                             <div class="form-group">
                                 <label>Category *</label>
@@ -386,7 +385,9 @@
                                 <select wire:model="condition_id" class="form-input">
                                     <option value="">Select Condition</option>
                                     @foreach($conditions as $condition)
-                                        <option value="{{ $condition->id }}">{{ $condition->condition_name }}</option>
+                                        @if($condition->condition_name !== 'Disposed')
+                                            <option value="{{ $condition->id }}">{{ $condition->condition_name }}</option>
+                                        @endif
                                     @endforeach
                                 </select>
                                 @error('condition_id') <span class="error">{{ $message }}</span> @enderror
@@ -523,10 +524,22 @@
                         <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
                             <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Status</label>
                             <p class="text-lg">
-                                @if($viewAsset->is_disposed)
-                                    <span class="inline-block bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">Disposed</span>
+                                @if($viewAsset->condition->condition_name === 'Disposed' && $viewAsset->is_disposed)
+                                    <span class="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">Disposed</span>
                                 @else
-                                    <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">On-hand</span>
+                                    @php
+                                        $conditionName = $viewAsset->condition->condition_name;
+                                        $conditionClass = match(strtolower($conditionName)) {
+                                            'defective' => 'bg-red-100 text-red-800',
+                                            'new' => 'bg-blue-100 text-blue-800',
+                                            'available' => 'bg-green-100 text-green-800',
+                                            'borrowed' => 'bg-indigo-100 text-indigo-800',
+                                            default => 'bg-gray-100 text-gray-800',
+                                        };
+                                    @endphp
+                                    <span class="inline-block {{ $conditionClass }} text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">
+                                        {{ $conditionName }}
+                                    </span>
                                 @endif
                             </p>
                         </div>
