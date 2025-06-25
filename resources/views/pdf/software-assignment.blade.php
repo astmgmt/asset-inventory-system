@@ -124,13 +124,19 @@
         <table class="info-pair-table">
             <tr>
                 <td class="label">Assigned To:</td>
-                <td>{{ $batch->user->name }} ({{ $batch->user->email }})</td>
+                <td>{{ $batch->user->name }}</td>                
                 <td class="label">Assigned By:</td>
                 <td>{{ $batch->assignedByUser->name }}</td>
             </tr>
             <tr>
+                <td class="label">Borrower's Email:</td>
+                <td>{{ $batch->user->email }}</td>
+                <td class="label">Approver's Email:</td>
+                <td>{{ $batch->approvedByUser->email }}</td>
+            </tr>
+            <tr>
                 <td class="label">Approved By:</td>
-                <td>{{ $batch->approvedByUser->name }}</td>
+                <td>{{ $batch->approvedByUser->name }}</td>                
                 <td class="label">Assignment Date:</td>
                 <td>{{ $batch->date_assigned->format('M d, Y H:i') }}</td>
             </tr>

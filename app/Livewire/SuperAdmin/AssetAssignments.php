@@ -12,10 +12,11 @@ use App\Models\AssetBorrowItem;
 use App\Models\AssetCondition;
 use Illuminate\Support\Facades\DB;
 use App\Services\SendEmail;
-use App\Services\EmailTemplates;
+// use App\Services\EmailTemplates;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\View; 
 
 class AssetAssignments extends Component
 {
@@ -288,8 +289,6 @@ class AssetAssignments extends Component
         }
     }
 
-
-
     private function sendAssignmentEmail($transaction, $user)
     {
         $assignedAssets = [];
@@ -304,17 +303,17 @@ class AssetAssignments extends Component
             ];
         }
         
-        $approvalDate = now()->format('M d, Y');
         $borrowCode = $transaction->borrow_code;
 
-        $body = EmailTemplates::assetAssignment(
-            $borrowCode,
-            $user->name,
-            $assignedAssets,
-            $approvalDate
-        );
-        
-        // Generate PDF content directly
+        // Generate email body using Blade template
+        $body = View::make('emails.assign-assets', [
+            'borrowCode' => $borrowCode,
+            'userName' => $user->name,
+            'assignedAssets' => $assignedAssets,
+            'approvalDate' => $transaction->approved_at
+        ])->render();
+
+        // Generate PDF
         $transaction->load([
             'borrowItems.asset', 
             'user', 
@@ -325,21 +324,23 @@ class AssetAssignments extends Component
         
         $approver = $transaction->approvedBy;
         $approvalDate = $transaction->approved_at->format('M d, Y H:i');
-        
         $pdf = Pdf::loadView('pdf.borrow-accountability', compact('transaction', 'approver', 'approvalDate'));
         $pdfContent = $pdf->output();
         
+        // Send email
         $emailService = new SendEmail();
         $emailService->send(
             $user->email,
             "Asset Assignment #{$borrowCode}", 
             $body,
             [], // cc
-            $pdfContent, // attachment content
-            "Borrower-Accountability-{$borrowCode}.pdf", // attachment name
+            $pdfContent,
+            "Borrower-Accountability-{$borrowCode}.pdf",
             true // isHtml
         );
     }
+
+    
 
     private function generateBorrowCode()
     {

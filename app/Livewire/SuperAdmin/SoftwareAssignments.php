@@ -10,10 +10,10 @@ use App\Models\SoftwareAssignmentBatch;
 use App\Models\SoftwareAssignmentItem;
 use Illuminate\Support\Facades\DB;
 use App\Services\SendEmail;
-use App\Services\EmailTemplates;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\View;
 
 class SoftwareAssignments extends Component
 {
@@ -292,17 +292,17 @@ class SoftwareAssignments extends Component
             ];
         }
         
-        $approvalDate = now()->format('M d, Y');
         $assignmentNo = $batch->assignment_no;
 
-        $body = EmailTemplates::softwareAssignment(
-            $assignmentNo,
-            $user->name,
-            $assignedSoftware,
-            $approvalDate
-        );
-        
-        // Generate PDF content directly
+        // Generate email body using Blade template
+        $body = View::make('emails.assign-softwares', [
+            'assignmentNo' => $assignmentNo,
+            'userName' => $user->name,
+            'assignedSoftware' => $assignedSoftware,
+            'assignmentDate' => $batch->date_assigned
+        ])->render();
+
+        // Generate PDF
         $batch->load([
             'assignmentItems.software', 
             'user', 
@@ -312,19 +312,19 @@ class SoftwareAssignments extends Component
         
         $approver = $batch->approvedByUser;
         $approvalDate = $batch->approved_at->format('M d, Y H:i');
-        
         $pdf = Pdf::loadView('pdf.software-assignment', compact('batch', 'approver', 'approvalDate'));
         $pdfContent = $pdf->output();
         
+        // Send email
         $emailService = new SendEmail();
         $emailService->send(
             $user->email,
             "Software Assignment #{$assignmentNo}", 
             $body,
-            [], // cc
-            $pdfContent, // attachment content
-            "Software-Assignment-{$assignmentNo}.pdf", // attachment name
-            true // isHtml
+            [], 
+            $pdfContent,
+            "Software-Assignment-{$assignmentNo}.pdf",
+            true 
         );
     }
 
