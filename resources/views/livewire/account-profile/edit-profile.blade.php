@@ -33,7 +33,6 @@
         @endif
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Left Column -->
             <div class="space-y-6">
                 <!-- Profile Photo -->
                 <div class="flex flex-col items-center">
@@ -116,7 +115,6 @@
                 </div>
             </div>
             
-            <!-- Right Column -->
             <div class="space-y-6">
                 <!-- Account Information -->
                 <div class="space-y-4">

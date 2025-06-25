@@ -1,125 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Return Request Denied: {{ $returnCode }}</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height: 1.6;
-      color: #1f2937;
-      background-color: #f9fafb;
-      margin: 0;
-      padding: 20px 0;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 30px 30px 40px 30px;
-      border: 1px solid #e5e7eb;
-    }
-    .header {
-      text-align: center;
-      padding-bottom: 20px;
-      user-select: none;
-    }
-    .header img {
-      height: 50px;
-      margin-bottom: 8px;
-    }
-    .header p {
-      margin: 0;
-      color: #4b5563;
-      font-weight: 600;
-    }
-    .card {
-      padding: 0;
-    }
-    .title {
-      font-size: 24px;
-      color: #ef4444; /* red-500 */
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 24px;
-      user-select: none;
-    }
-    .info-item {
-      margin-bottom: 10px;
-      color: #374151;
-      font-weight: 500;
-    }
-    .info-label {
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 8px;
-      display: block;
-    }
-    .reason-box {
-      background-color: #fef2f2; /* red-50 */
-      padding: 16px;
-      border-radius: 6px;
-      color: #b91c1c; /* red-700 */
-      font-weight: 500;
-      margin-top: 4px;
-    }
-    .mt-6 {
-      margin-top: 1.5rem;
-    }
-    p {
-      line-height: 1.5;
-      margin: 12px 0;
-    }
-    .footer {
-      margin-top: 30px;
-      text-align: center;
-      color: #6b7280;
-      font-size: 12px;
-      user-select: none;
-    }
-    @media screen and (max-width: 640px) {
-      .container {
-        margin: 10px;
-        padding: 20px;
-      }
-      .title {
-        font-size: 20px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <title>Return Request Denied: {{ $returnCode }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #4b5563;
+            background-color: #f9fafb;
+            margin: 0;
+            padding: 20px 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 30px;
+            border: 1px solid #e5e7eb;
+        }
+        .logo {
+            width: 42px;
+            height: auto;
+        }
+        .company-name {
+            color: #1a1a1a;
+            font-weight: 700;
+            margin: 8px 0 30px 0;
+        }
+        h3 {            
+            color: #dc2626;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .content {
+            color: #4b5563;
+            line-height: 1.5;
+        }
+        .notice {
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 24px;
+            text-align: left;
+            font-size: 15px;
+            color: #7f1d1d;
+            margin: 25px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .notice::before {
+            content: "❌";
+            font-size: 20px;
+            line-height: 1;
+            margin-top: 2px;
+        }
+        .assets-table-container {
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+        .assets-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            min-width: 500px;
+        }
+        .assets-table th {
+            background-color: #4b5563;
+            padding: 14px;
+            border: 1px solid #9ca3af;
+            font-weight: 600;
+            text-align: center;
+            color: #ffffff;
+        }
+        .assets-table td {
+            padding: 14px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+            background-color: #f9fafb;
+            color: #1a1a1a;
+        }
+        .footer {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 40px;
+        }
+        .copyright {
+            margin: 16px 0;
+        }
+        strong {
+            color: #1a1a1a;
+        }
+        @media screen and (max-width: 640px) {
+            .container {
+                margin: 10px;
+                width: auto !important;
+            }
+            .assets-table {
+                min-width: unset;
+                font-size: 13px;
+            }
+            .assets-table th,
+            .assets-table td {
+                padding: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container" role="main" aria-label="Return Request Denied Notification">
-    <div class="header">
-      <img src="https://i.imgur.com/HF3xnxw.png" alt="Asset Management System Logo" />
-      <p>Asset Management System</p>
+    <div class="container" role="main" aria-label="Return Request Denied Notification">
+        <div class="header" style="text-align: center;">
+            <img class="logo" src="https://i.imgur.com/HF3xnxw.png" alt="Asset Management System Logo" />
+            <div class="company-name">Asset Management System</div>
+        </div>
+
+        <h3>⚠️ Return Request Denied</h3>
+
+        <div class="content">
+            <p>Hello,</p>
+            <p>Your return request for borrow transaction <strong>{{ $returnCode }}</strong> has been denied.</p>
+
+            <div class="notice">
+                <div>
+                    <p><strong>Date:</strong> {{ \Carbon\Carbon::parse($denialDate)->format('F j, Y g:i A') }}</p>
+                    <p><strong>Reason:</strong> {{ $remarks }}</p>
+                </div>
+            </div>
+
+            <h2 style="font-size: 18px; color: #1a1a1a; margin: 24px 0 16px 0; text-align: center;">
+                Rejected Asset Details
+            </h2>
+
+            <div class="assets-table-container">
+                <table class="assets-table" aria-label="Rejected return assets">
+                    <thead>
+                        <tr>
+                            <th>Asset Code</th>
+                            <th>Brand</th>
+                            <th>Model</th>
+                            <th>Serial #</th>
+                            <th>Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if(count($assetDetails) > 0)
+                            @foreach($assetDetails as $asset)
+                                <tr>
+                                    <td>{{ $asset['asset_code'] }}</td>
+                                    <td>{{ $asset['asset_name'] }}</td>
+                                    <td>{{ $asset['model_number'] }}</td>
+                                    <td>{{ $asset['serial_number'] }}</td>
+                                    <td>{{ $asset['quantity'] }}</td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="6">No assets found</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Please review the rejection reason above. If you have questions, contact the asset management department.</p>
+            
+            <p>Best regards,<br>
+            <strong>Asset Management Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p class="copyright">&copy; {{ date('Y') }} Asset Management System. All rights reserved.</p>
+            <p>This is an automated message. Please do not reply directly to this email.</p>
+        </div>
     </div>
-
-    <div class="card">
-      <h1 class="title">❌ Return Request Denied: {{ $returnCode }}</h1>
-
-      <div class="info-item">
-        <p>Your return request has been reviewed and denied.</p>
-        <p>Denial Date: <strong>{{ $denialDate }}</strong></p>
-      </div>
-
-      <div class="mt-6">
-        <p class="info-label">Reason for Denial:</p>
-        <p class="reason-box">{{ $remarks }}</p>
-      </div>
-
-      <p class="mt-6">
-        Please review the reason for denial above. If you have any questions, 
-        contact the asset management department for clarification.
-      </p>
-    </div>
-
-    <div class="footer" role="contentinfo">
-      &copy; {{ date('Y') }} Asset Management System. All rights reserved.<br />
-      This is an automated message. Please do not reply directly to this email.
-    </div>
-  </div>
 </body>
 </html>

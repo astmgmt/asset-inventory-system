@@ -34,7 +34,6 @@ class EditProfile extends Component
     {
         $this->user = Auth::user();
         
-        // Set initial values
         $this->name = $this->user->name;
         $this->username = $this->user->username;
         $this->email = $this->user->email;
@@ -45,7 +44,7 @@ class EditProfile extends Component
     public function updatedProfilePhoto()
     {
         $this->validate([
-            'profile_photo' => 'image|max:2048', // 2MB Max
+            'profile_photo' => 'image|max:2048', 
         ]);
         
         $this->temp_profile_photo = $this->profile_photo->temporaryUrl();
@@ -65,7 +64,6 @@ class EditProfile extends Component
             'profile_photo' => 'nullable|image|max:2048',
         ]);
         
-        // Validate password if changing password
         $passwordRules = [];
         if ($this->new_password) {
             $passwordRules = [
@@ -79,19 +77,15 @@ class EditProfile extends Component
             $this->validate($passwordRules);
         }
 
-        // Handle profile photo upload
         if ($this->profile_photo) {
-            // Delete old photo if exists
             if ($this->user->profile_photo_path) {
                 Storage::delete('public/' . $this->user->profile_photo_path);
             }
             
-            // Store new photo
             $path = $this->profile_photo->store('profile-photos', 'public');
             $this->user->profile_photo_path = $path;
         }
 
-        // Prepare update data
         $updateData = [
             'name' => $this->name,
             'email' => $this->email,
@@ -100,18 +94,15 @@ class EditProfile extends Component
             'profile_photo_path' => $this->user->profile_photo_path,
         ];
 
-        // Update password if provided
         if ($this->new_password) {
             $updateData['password'] = Hash::make($this->new_password);
         }
 
-        // Update user data
         $this->user->update($updateData);
 
-        $request = request(); // Get current request
+        $request = request(); 
         $additionalEmails = [];
         
-        // Track email change if modified
         if ($originalEmail !== $this->email) {
             $additionalEmails = [$originalEmail, $this->email];
             
@@ -119,18 +110,17 @@ class EditProfile extends Component
                 'Email Updated',
                 "You changed your email from $originalEmail to {$this->email}",
                 $request,
-                true, // Security-sensitive
+                true, 
                 $additionalEmails
             );
         }
         
-        // Track password change if modified
         if ($passwordChanged) {
             $this->recordActivity(
                 'Password Changed',
                 'You changed your password',
                 $request,
-                true // Security-sensitive
+                true 
             );
         }
 
@@ -141,10 +131,8 @@ class EditProfile extends Component
         $this->new_password = '';
         $this->new_password_confirmation = '';
         
-        // Clear success message after 3 seconds
         $this->dispatch('clear-message');
         
-        // Refresh user data
         $this->user->refresh();
     }
 

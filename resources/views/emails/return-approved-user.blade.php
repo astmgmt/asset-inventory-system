@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <title>Your Return Approved: {{ $returnCode }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       line-height: 1.6;
-      color: #1f2937;
+      color: #4b5563;
       background-color: #f9fafb;
       margin: 0;
       padding: 20px 0;
@@ -15,109 +16,165 @@
     .container {
       max-width: 600px;
       margin: 0 auto;
-      background: #fff;
+      background: #ffffff;
       border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 30px 30px 40px 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      padding: 30px;
       border: 1px solid #e5e7eb;
     }
-    .header {
-      text-align: center;
-      padding-bottom: 20px;
-      user-select: none;
+    .logo {
+      width: 42px;
+      height: auto;
     }
-    .header img {
-      height: 50px;
-      margin-bottom: 8px;
+    .company-name {
+      color: #1a1a1a;
+      font-weight: 700;
+      margin: 8px 0 20px 0;
     }
-    .header p {
-      margin: 0;
-      color: #4b5563;
-      font-weight: 600;
-    }
-    .card {
-      padding: 0;
-    }
-    .title {
-      font-size: 24px;
-      color: #10b981; /* green-500 */
+    h3 {
+      color: #0f5132; 
       font-weight: 700;
       text-align: center;
       margin-bottom: 24px;
-      user-select: none;
     }
-    .info-item {
-      margin-bottom: 10px;
-      text-align: center;
-      color: #374151;
-      font-weight: 500;
+    .content {
+      color: #4b5563;
+      line-height: 1.5;
     }
-    .mt-6 {
-      margin-top: 1.5rem;
-      text-align: center;
-      color: #374151;
-    }
-    .signature-section {
-      margin-top: 30px;
+    .notice {
+      background-color: #d1e7dd; 
+      border: 1px solid #badbcc; 
+      color: #0f5132; 
+      border-radius: 6px;
+      padding: 24px;
+      text-align: left;
+      font-size: 15px;
+      margin: 25px 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 12px;
     }
-    .signature-box {
-      flex: 1 1 45%;
-      border-top: 1px solid #d1d5db; /* gray-300 */
-      padding-top: 10px;
-      color: #374151;
-      font-weight: 500;
-      min-width: 250px;
-      user-select: none;
+    .notice::before {
+      content: "✅";
+      font-size: 20px;
+      line-height: 1;
+      margin-top: 2px;
     }
-    .signature-box p {
-      margin: 8px 0;
+    .assets-table-container {
+      margin: 30px 0;
+    }
+    .assets-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .assets-table th {
+      background-color: #4b5563;
+      padding: 14px;
+      border: 1px solid #9ca3af;
+      font-weight: 600;
+      text-align: center;
+      color: #ffffff;
+    }
+    .assets-table td {
+      padding: 14px;
+      border: 1px solid #e5e7eb;
+      text-align: center;
+      background-color: #f9fafb;
+      color: #1a1a1a;
     }
     .footer {
-      margin-top: 30px;
       text-align: center;
       color: #6b7280;
-      font-size: 12px;
-      user-select: none;
+      font-size: 14px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+      margin-top: 40px;
     }
-    @media screen and (max-width: 480px) {
-      .signature-section {
-        flex-direction: column;
+    .copyright {
+      margin: 16px 0;
+    }
+    strong {
+      color: #1a1a1a;
+    }
+    .mt-6 {
+      margin-top: 24px;
+    }
+    @media screen and (max-width: 640px) {
+      .container {
+        margin: 10px;
+        width: auto !important;
       }
-      .signature-box {
-        width: 100%;
-        min-width: auto;
+      .assets-table th,
+      .assets-table td {
+        padding: 10px;
+        font-size: 13px;
       }
     }
   </style>
 </head>
 <body>
   <div class="container" role="main" aria-label="Return Approval Notification">
-    <div class="header">
-      <img src="https://i.imgur.com/HF3xnxw.png" alt="Asset Management System Logo" />
-      <p>Asset Management System</p>
+    <div class="header" style="text-align: center;">
+      <img class="logo" src="https://i.imgur.com/HF3xnxw.png" alt="Company Logo" />
+      <div class="company-name">Asset Management System</div>
     </div>
 
-    <div class="card">
-      <h1 class="title">✅ Return Approved: {{ $returnCode }}</h1>
+    <h3>✅ Return Approved: {{ $returnCode }}</h3>
 
-      <div class="info-item">
-        <p>Your return request has been approved by <strong>{{ $approverName }}</strong>.</p>
-        <p>Approval Date: <strong>{{ $approvalDate }}</strong></p>
+    <div class="content">
+      <p>Hello,</p>
+      
+      <div class="notice">
+        <div>
+          <p>Your return request has been approved by <strong>{{ $approverName }}</strong>.</p>
+          <p><strong>Date:</strong> {{ \Carbon\Carbon::parse($approvalDate)->format('F j, Y g:i A') }}</p>
+        </div>
+      </div>
+
+      <h3 style="font-size: 18px; color: #1a1a1a; margin: 24px 0 10px 0; text-align: center;">
+        Returned Assets
+      </h3>
+
+      <div class="assets-table-container">
+        <table class="assets-table" aria-label="Returned assets details">
+          <thead>
+            <tr>
+              <th>Asset Code</th>
+              <th>Brand</th>
+              <th>Model</th>
+              <th>Serial #</th>
+              <th>Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($returnItems as $item)
+            <tr>
+              <td>{{ $item['asset_code'] }}</td>
+              <td>{{ $item['asset_name'] }}</td>
+              <td>{{ $item['model_number'] }}</td>
+              <td>{{ $item['serial_number'] }}</td>
+              <td>{{ $item['quantity'] }}</td>
+            </tr>
+            @endforeach
+          </tbody>
+        </table>
       </div>
 
       <p class="mt-6">
-        The assets have been successfully returned to inventory. <br />
-        Please see the attached PDF for the complete return approval summary.
+        The assets have been successfully returned. <br />
       </p>
+      
+      <p>Best regards,<br>
+      <strong>Asset Inventory System Team</strong></p>
     </div>
 
-    <div class="footer" role="contentinfo">
-      &copy; {{ date('Y') }} Asset Inventory System. All rights reserved.<br />
-      This is an automated message. Please do not reply directly to this email.
+    <div class="footer">
+      <p class="copyright">&copy; {{ date('Y') }} Asset Inventory System. All rights reserved.</p>
+      <p>This is an automated message. Please do not reply directly to this email.</p>
     </div>
   </div>
 </body>

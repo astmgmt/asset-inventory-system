@@ -213,6 +213,8 @@ class ApproveReturnRequests extends Component
     public function rejectReturn()
     {
         try {
+            $transactionId = $this->selectedTransaction->id;
+
             DB::transaction(function () {
                 $transaction = $this->selectedTransaction;
 
@@ -239,6 +241,8 @@ class ApproveReturnRequests extends Component
                 ]);
             });
 
+            $this->sendReturnRejectionEmail($transactionId, $this->rejectRemarks);
+
             $this->successMessage = "Return request rejected successfully!";
             $this->reset([
                 'showRejectModal', 
@@ -248,8 +252,8 @@ class ApproveReturnRequests extends Component
                 'rejectBorrowItems'
             ]);
             
-            // Force Livewire to refresh the data
             $this->dispatch('return-rejected');
+
         } catch (\Exception $e) {
             $this->errorMessage = "Error rejecting return: " . $e->getMessage();
             Log::error("Reject return error: " . $e->getMessage());
@@ -292,12 +296,29 @@ class ApproveReturnRequests extends Component
             $user = $transaction->user;
             $approverName = Auth::user()->name;
             
+            // Prepare return items data
+            $returnItems = [];
+            foreach ($transaction->borrowItems as $borrowItem) {
+                foreach ($borrowItem->returnItems as $returnItem) {
+                    if ($returnItem->approval_status === 'Approved') {
+                        $returnItems[] = [
+                            'asset_code' => $borrowItem->asset->asset_code,
+                            'asset_name' => $borrowItem->asset->asset_name,
+                            'model_number' => $borrowItem->asset->model_number,
+                            'serial_number' => $borrowItem->asset->serial_number,
+                            'quantity' => $borrowItem->quantity,                            
+                        ];
+                    }
+                }
+            }
+            
             $emailContent = [
-                'emails.return-approved-user',
+                'emails.return-approved-user', // Your blade template
                 [
                     'returnCode' => $returnCode,
                     'approverName' => $approverName,
-                    'approvalDate' => now()->format('M d, Y H:i')
+                    'approvalDate' => now()->format('M d, Y H:i'),
+                    'returnItems' => $returnItems
                 ]
             ];
             
@@ -312,6 +333,62 @@ class ApproveReturnRequests extends Component
             );
         } catch (\Exception $e) {
             Log::error("Return approval email failed: " . $e->getMessage());
+        }
+    }
+
+    private function sendReturnRejectionEmail($transactionId, $remarks)
+    {
+        try {
+            $emailService = new SendEmail();
+            
+            // Reload transaction with necessary relationships
+            $transaction = AssetBorrowTransaction::with([
+                'user',
+                'borrowItems.asset', // Ensure asset relationship is loaded
+                'borrowItems.returnItems' => function ($query) {
+                    $query->where('approval_status', 'Rejected');
+                }
+            ])->findOrFail($transactionId);
+
+            $user = $transaction->user;
+            
+            // Collect rejected asset details
+            $assetDetails = [];
+            foreach ($transaction->borrowItems as $borrowItem) {
+                // Only include items with rejected return requests
+                if ($borrowItem->returnItems->isNotEmpty()) {
+                    $assetDetails[] = [
+                        'asset_code' => $borrowItem->asset->asset_code,
+                        'asset_name' => $borrowItem->asset->name, // Fixed property name
+                        'model_number' => $borrowItem->asset->model_number,
+                        'serial_number' => $borrowItem->asset->serial_number,
+                        'quantity' => $borrowItem->quantity,
+                        'purpose' => $borrowItem->purpose,
+                    ];
+                }
+            }
+
+            $emailContent = [
+                'emails.return-denied-user',
+                [
+                    'returnCode' => $transaction->borrow_code,
+                    'denialDate' => now()->format('M d, Y H:i'),
+                    'remarks' => $remarks,
+                    'assetDetails' => $assetDetails,
+                ]
+            ];
+
+            $emailService->send(
+                $user->email,
+                "Return Request Denied: {$transaction->borrow_code}",
+                $emailContent,
+                [], 
+                null, 
+                null, 
+                false 
+            );
+        } catch (\Exception $e) {
+            Log::error("Return rejection email failed: " . $e->getMessage());
         }
     }
 }

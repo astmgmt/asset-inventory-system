@@ -230,6 +230,8 @@ class UserReturnTransactions extends Component
                 $assetsList[] = [
                     'code' => $item->asset->asset_code,
                     'name' => $item->asset->name,
+                    'model' => $item->asset->model_number,
+                    'serial' => $item->asset->serial_number,
                     'quantity' => $item->quantity
                 ];
             }
