@@ -26,6 +26,7 @@ return new class extends Migration
             $table->boolean('expiry_flag')->default(false);
             $table->enum('expiry_status', ['active', 'warning_3m', 'warning_2m', 'warning_1m', 'expired'])->default('active');
             $table->timestamp('last_notified_at')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

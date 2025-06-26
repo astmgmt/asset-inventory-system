@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use App\Models\Asset;
 use App\Models\Software;
+use Illuminate\Support\Facades\Auth;
 
 #[Layout('components.layouts.app')]
 class SuperAdminDashboard extends Component
@@ -15,11 +16,13 @@ class SuperAdminDashboard extends Component
 
     public $assetCounts = [];
     public $softwareCounts = [];
+    public $user;
 
     protected $listeners = ['pollChartData'];
  
     public function mount()
     {
+        $this->user = Auth::user();
         $this->refreshExpiryStatuses();
         $this->loadCounts();
     }
@@ -67,16 +70,32 @@ class SuperAdminDashboard extends Component
 
     public function getExpiringAssetsProperty()
     {
-        return Asset::whereIn('expiry_status', ['warning_3m', 'warning_2m', 'warning_1m'])
+        return Asset::whereIn('expiry_status', ['warning_3m', 'warning_2m', 'warning_1m', 'expired'])
             ->orderBy('warranty_expiration', 'asc')
-            ->paginate(5); 
+            ->paginate(5);  
     }
 
     public function getExpiringSoftwareProperty()
     {
-        return Software::whereIn('expiry_status', ['warning_3m', 'warning_2m', 'warning_1m'])
+        return Software::whereIn('expiry_status', ['warning_3m', 'warning_2m', 'warning_1m', 'expired'])
             ->orderBy('expiry_date', 'asc')
             ->paginate(5);
+    }
+
+    public function removeAsset($id)
+    {
+        $asset = Asset::find($id);
+        if ($asset && $asset->expiry_status === 'expired') {
+            $asset->delete();
+        }
+    }
+
+    public function removeSoftware($id)
+    {
+        $software = Software::find($id);
+        if ($software && $software->expiry_status === 'expired') {
+            $software->delete();
+        }
     }
 
     public function render()

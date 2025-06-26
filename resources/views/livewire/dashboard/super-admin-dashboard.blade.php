@@ -21,6 +21,7 @@
                                 <th>Asset Code</th>
                                 <th>Exp. Date</th>
                                 <th>Status</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -29,9 +30,13 @@
                                     <td data-label="Brand" class="text-center">{{ $asset->name }}</td>
                                     <td data-label="Model" class="text-center">{{ $asset->model_number }}</td>
                                     <td data-label="Asset Code" class="text-center">{{ $asset->asset_code }}</td>
-                                    <td data-label="Expiration Date" class="text-center">{{ $asset->warranty_expiration->format('M d, Y') }}</td>
+                                    <td data-label="Expiration Date" class="text-center">
+                                        {{ $asset->warranty_expiration->format('M d, Y') }}
+                                    </td>
                                     <td data-label="Status" class="text-center">
-                                        @if($asset->expiry_status === 'warning_3m')
+                                        @if($asset->expiry_status === 'expired')
+                                            <span class="status-badge bg-red-500 text-white">Expired</span>
+                                        @elseif($asset->expiry_status === 'warning_3m')
                                             <span class="status-badge bg-orange-300 text-orange-900">⚠️ 3 months left</span>
                                         @elseif($asset->expiry_status === 'warning_2m')
                                             <span class="status-badge bg-orange-400 text-orange-900">⚠️ 2 months left</span>
@@ -39,10 +44,23 @@
                                             <span class="status-badge bg-orange-500 text-white">⚠️ 1 month left</span>
                                         @endif
                                     </td>
+                                    <!-- Action Column for Remove Button -->
+                                    <td data-label="Action" class="text-center">
+                                        @if($asset->expiry_status === 'expired' && ($user->isAdmin() || $user->isSuperAdmin()))
+                                            <button 
+                                                wire:click="removeAsset({{ $asset->id }})" 
+                                                class="inline-flex items-center text-red-600 hover:text-red-800 text-sm font-medium focus:outline-none"
+                                                title="Remove Asset"
+                                            >
+                                                <i class="fas fa-trash-alt mr-1"></i>
+                                            </button>
+
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="no-software-row">No assets expiring in the next 3 months</td>
+                                    <td colspan="6" class="no-software-row">No assets found</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -88,6 +106,7 @@
                                 <th>Software Code</th>
                                 <th>Expiration Date</th>
                                 <th>Status</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -95,9 +114,13 @@
                                 <tr class="hover:bg-gray-50">
                                     <td data-label="Software Name" class="text-center">{{ $software->software_name }}</td>
                                     <td data-label="Software Code" class="text-center">{{ $software->software_code }}</td>
-                                    <td data-label="Expiration Date" class="text-center">{{ $software->expiry_date->format('M d, Y') }}</td>
+                                    <td data-label="Expiration Date" class="text-center">
+                                        {{ $software->expiry_date->format('M d, Y') }}
+                                    </td>
                                     <td data-label="Status" class="text-center">
-                                        @if($software->expiry_status === 'warning_3m')
+                                        @if($software->expiry_status === 'expired')
+                                            <span class="status-badge bg-red-500 text-white">Expired</span>
+                                        @elseif($software->expiry_status === 'warning_3m')
                                             <span class="status-badge bg-orange-300 text-orange-900">⚠️ 3 months left</span>
                                         @elseif($software->expiry_status === 'warning_2m')
                                             <span class="status-badge bg-orange-400 text-orange-900">⚠️ 2 months left</span>
@@ -105,10 +128,22 @@
                                             <span class="status-badge bg-orange-500 text-white">⚠️ 1 month left</span>
                                         @endif
                                     </td>
+                                    <!-- Action Column for Remove Button -->
+                                    <td data-label="Action" class="text-center">
+                                        @if($software->expiry_status === 'expired' && ($user->isAdmin() || $user->isSuperAdmin()))
+                                            <button 
+                                                wire:click="removeSoftware({{ $software->id }})"
+                                                class="inline-flex items-center text-red-600 hover:text-red-800 text-sm font-medium focus:outline-none"
+                                                title="Remove Software" 
+                                            >
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="no-software-row">No software subscriptions expiring in the next 3 months</td>
+                                    <td colspan="5" class="no-software-row">No software found</td>
                                 </tr>
                             @endforelse
                         </tbody>
