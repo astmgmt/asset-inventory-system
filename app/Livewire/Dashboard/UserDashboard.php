@@ -17,22 +17,31 @@ class UserDashboard extends Component
 
     public function mount()
     {
-        //$this->updateStats();
+        $this->updateStats();
     }
 
     public function updateStats()
     {
         $userId = Auth::id();
 
+        // Only count approved borrow requests
         $this->borrowedCount = UserHistory::where('user_id', $userId)
-            ->whereIn('status', ['Borrow Approved', 'Borrow Denied'])
+            ->where('status', 'Borrow Approved')
             ->count();
 
+        // Only count approved return requests
         $this->returnedCount = UserHistory::where('user_id', $userId)
-            ->whereIn('status', ['Return Approved', 'Return Denied'])
+            ->where('status', 'Return Approved')
             ->count();
 
+        // Show ALL activities (both approved and rejected) in recent logs
         $this->recentLogs = UserHistory::where('user_id', $userId)
+            ->whereIn('status', [
+                'Borrow Approved', 
+                'Borrow Denied',
+                'Return Approved',
+                'Return Denied'
+            ])
             ->latest('action_date')
             ->take(5)
             ->get();
@@ -58,9 +67,8 @@ class UserDashboard extends Component
 
     public function render()
     {
-        $this->updateStats();
         return view('livewire.dashboard.user-dashboard', [
             'recentActivities' => $this->recentActivities,
         ]);
     }
-}
+} 

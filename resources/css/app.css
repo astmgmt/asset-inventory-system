@@ -916,3 +916,14 @@ html.dark .logout-btn {
 }
 
 
+.status-badge {
+    @apply px-2 py-1 rounded text-xs font-medium;
+}
+
+.status-badge.approved {
+    @apply bg-green-100 text-green-800;
+}
+
+.status-badge.rejected {
+    @apply bg-red-100 text-red-800;
+}

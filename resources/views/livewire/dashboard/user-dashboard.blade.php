@@ -34,19 +34,65 @@
             </div>
 
             <div class="box-container bg-gray-100 p-4 rounded-lg shadow">
-                <h3 class="text-lg font-semibold mb-2">Recent Activities</h3>
-                <ul class="text-sm space-y-1">
-                    @foreach ($recentLogs as $log)
-                        <li>📅 {{ $log->status }} — {{ \Carbon\Carbon::parse($log->action_date)->diffForHumans() }}</li>
-                    @endforeach
-                </ul>
+                <div class="box-header">
+                    <h2 class="box-title text-center">Recent Transactions</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="user-table w-full bg-gray-50">
+                        <thead>
+                            <tr>
+                                <th class="bg-gray-50">Date</th>
+                                <th class="bg-gray-50">Activity</th>
+                                <th class="bg-gray-50">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($recentLogs as $log)
+                                <tr>
+                                    <td>{{ \Carbon\Carbon::parse($log->action_date)->format('M d, Y h:i A') }}</td>
+                                    <td>
+                                        @switch($log->status)
+                                            @case('Borrow Approved')
+                                                Borrow Request Approved
+                                                @break
+                                            @case('Borrow Denied')
+                                                Borrow Request Rejected
+                                                @break
+                                            @case('Return Approved')
+                                                Return Request Approved
+                                                @break
+                                            @case('Return Denied')
+                                                Return Request Rejected
+                                                @break
+                                            @default
+                                                {{ $log->status }}
+                                        @endswitch
+                                    </td>
+                                    <td>
+                                        @if(in_array($log->status, ['Borrow Approved', 'Return Approved']))
+                                            <span class="status-badge approved">Approved</span>
+                                        @else
+                                            <span class="status-badge rejected">Rejected</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="text-center text-gray-500">No transactions yet</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+            
         </div>
 
         <!-- RECENT LOGS SECTION -->
         <div class="box-container bg-orange-100 p-4 text-center rounded-lg shadow">
             <div class="box-header">
-                <h2 class="box-title">Recent Logs</h2>
+                <h2 class="box-title">📅 Recent Logs</h2>
             </div>
             <div class="overflow-x-auto">
                 <table class="user-table w-full bg-orange-50">
@@ -135,13 +181,11 @@ function userTransactionChart(initialData) {
                 this.chart.destroy();
             }
 
-            // Check if there is no data
             const isEmpty = this.data.borrowed === 0 && this.data.returned === 0;
 
-            // Data & labels for empty state or normal state
             const labels = isEmpty ? ['No Data'] : ['Borrowed', 'Returned'];
             const dataValues = isEmpty ? [1] : [this.data.borrowed, this.data.returned];
-            const backgroundColors = isEmpty ? ['#e5e7eb'] : ['#93c5fd', '#6ee7b7'];  // Gray for empty
+            const backgroundColors = isEmpty ? ['#e5e7eb'] : ['#93c5fd', '#6ee7b7'];  
             const borderColors = isEmpty ? ['#d1d5db'] : ['#60a5fa', '#34d399'];
 
             this.chart = new Chart(ctx, {
@@ -160,10 +204,10 @@ function userTransactionChart(initialData) {
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            display: !isEmpty // Hide legend if no data
+                            display: !isEmpty 
                         },
                         tooltip: {
-                            enabled: !isEmpty, // Disable tooltip if no data
+                            enabled: !isEmpty, 
                             callbacks: {
                                 label: function (context) {
                                     return `${context.label}: ${context.parsed}`;
