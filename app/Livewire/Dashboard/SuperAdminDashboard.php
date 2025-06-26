@@ -19,6 +19,15 @@ class SuperAdminDashboard extends Component
     public $user;
 
     protected $listeners = ['pollChartData'];
+
+    protected function getPageName() 
+    { 
+        return 'assetsPage'; 
+    }
+    public function getSoftwarePageName() 
+    { 
+        return 'softwarePage'; 
+    }
  
     public function mount()
     {
@@ -71,22 +80,24 @@ class SuperAdminDashboard extends Component
     public function getExpiringAssetsProperty()
     {
         return Asset::whereIn('expiry_status', ['warning_3m', 'warning_2m', 'warning_1m', 'expired'])
+            ->where('show_status', 1)
             ->orderBy('warranty_expiration', 'asc')
-            ->paginate(5);  
+            ->paginate(5, ['*'], $this->getPageName());  
     }
 
     public function getExpiringSoftwareProperty()
     {
         return Software::whereIn('expiry_status', ['warning_3m', 'warning_2m', 'warning_1m', 'expired'])
+            ->where('show_status', 1)
             ->orderBy('expiry_date', 'asc')
-            ->paginate(5);
+            ->paginate(5, ['*'], $this->getSoftwarePageName());
     }
 
     public function removeAsset($id)
     {
         $asset = Asset::find($id);
         if ($asset && $asset->expiry_status === 'expired') {
-            $asset->delete();
+            $asset->update(['show_status' => 0]);
             $this->pollChartData();
         }
     }
@@ -95,7 +106,7 @@ class SuperAdminDashboard extends Component
     {
         $software = Software::find($id);
         if ($software && $software->expiry_status === 'expired') {
-            $software->delete();
+            $software->update(['show_status' => 0]);
             $this->pollChartData();
         }
     }
@@ -105,6 +116,9 @@ class SuperAdminDashboard extends Component
         return view('livewire.dashboard.super-admin-dashboard', [
             'expiringAssets' => $this->expiringAssets,
             'expiringSoftware' => $this->expiringSoftware,
+            'hasExpiredAssets' => $this->hasExpiredAssets,
+            'hasExpiredSoftware' => $this->hasExpiredSoftware,
+            'user' => $this->user,
         ]);
     }
 
@@ -123,6 +137,19 @@ class SuperAdminDashboard extends Component
             'assetCounts' => $this->assetCounts,
             'softwareCounts' => $this->softwareCounts,
         ]);
+    }
+    public function getHasExpiredAssetsProperty()
+    {
+        return Asset::where('expiry_status', 'expired')
+            ->where('show_status', 1)
+            ->exists();
+    }
+
+    public function getHasExpiredSoftwareProperty()
+    {
+        return Software::where('expiry_status', 'expired')
+            ->where('show_status', 1)
+            ->exists();
     }
 
 }

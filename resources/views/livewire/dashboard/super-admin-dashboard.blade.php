@@ -21,7 +21,9 @@
                                 <th>Asset Code</th>
                                 <th>Exp. Date</th>
                                 <th>Status</th>
-                                <th>Action</th>
+                                @if($hasExpiredAssets)
+                                    <th>Action</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -45,18 +47,19 @@
                                         @endif
                                     </td>
                                     <!-- Action Column for Remove Button -->
-                                    <td data-label="Action" class="text-center">
-                                        @if($asset->expiry_status === 'expired' && ($user->isAdmin() || $user->isSuperAdmin()))
-                                            <button 
-                                                wire:click="removeAsset({{ $asset->id }})" 
-                                                class="inline-flex items-center text-red-600 hover:text-red-800 text-sm font-medium focus:outline-none"
-                                                title="Remove Asset"
-                                            >
-                                                <i class="fas fa-trash-alt mr-1"></i>
-                                            </button>
-
-                                        @endif
-                                    </td>
+                                    @if($hasExpiredAssets)
+                                        <td data-label="Action" class="text-center">
+                                            @if($asset->expiry_status === 'expired' && ($user->isAdmin() || $user->isSuperAdmin()))
+                                                <button 
+                                                    wire:click="removeAsset({{ $asset->id }})" 
+                                                    class="inline-flex items-center text-red-600 hover:text-red-800 text-sm font-medium focus:outline-none"
+                                                    title="Remove Asset"
+                                                >
+                                                    <i class="fas fa-trash-alt mr-1"></i>
+                                                </button>
+                                            @endif
+                                        </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>
@@ -66,7 +69,7 @@
                         </tbody>
                     </table>
 
-                    <div mt-6 pagination-container>
+                    <div mt-6 mb-4 pagination-container>
                         {{ $expiringAssets->links() }}
                     </div>
                     
@@ -106,7 +109,9 @@
                                 <th>Software Code</th>
                                 <th>Expiration Date</th>
                                 <th>Status</th>
-                                <th>Action</th>
+                                @if($hasExpiredSoftware)
+                                    <th>Action</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -129,17 +134,19 @@
                                         @endif
                                     </td>
                                     <!-- Action Column for Remove Button -->
-                                    <td data-label="Action" class="text-center">
-                                        @if($software->expiry_status === 'expired' && ($user->isAdmin() || $user->isSuperAdmin()))
-                                            <button 
-                                                wire:click="removeSoftware({{ $software->id }})"
-                                                class="inline-flex items-center text-red-600 hover:text-red-800 text-sm font-medium focus:outline-none"
-                                                title="Remove Software" 
-                                            >
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        @endif
-                                    </td>
+                                    @if($hasExpiredSoftware)
+                                        <td data-label="Action" class="text-center">
+                                            @if($software->expiry_status === 'expired' && ($user->isAdmin() || $user->isSuperAdmin()))
+                                                <button 
+                                                    wire:click="removeSoftware({{ $software->id }})"
+                                                    class="inline-flex items-center text-red-600 hover:text-red-800 text-sm font-medium focus:outline-none"
+                                                    title="Remove Software" 
+                                                >
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            @endif
+                                        </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>
@@ -149,7 +156,7 @@
                         </tbody>
                     </table>
 
-                    <div mt-6 pagination-container>
+                    <div mt-6 mb-4 pagination-container>
                         {{ $expiringSoftware->links() }}
                     </div>
                 </div>

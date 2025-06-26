@@ -524,6 +524,9 @@
                             <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
                                 <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Warranty Expiration</label>
                                 <p class="text-lg">{{ $viewAsset->warranty_expiration->format('M d, Y') }}</p>
+                                @if ($viewAsset->expiry_status === 'expired' && $viewAsset->show_status === 0)
+                                    <p class="text-red-500 font-medium">Expired</p>
+                                @endif
                             </div>
 
                             <!-- Status -->

@@ -23,6 +23,7 @@ class Software extends Model
         'expiry_flag',
         'expiry_status',
         'last_notified_at',
+        'show_status',
     ];
 
     protected $casts = [

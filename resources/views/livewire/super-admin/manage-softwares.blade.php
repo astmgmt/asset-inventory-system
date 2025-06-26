@@ -55,10 +55,7 @@
                         <td data-label="License Key" class="text-center">{{ substr($software->license_key, 0, 8) . '...' }}</td>
                         <td data-label="Added By" class="text-center">{{ $software->addedBy?->name ?? 'N/A' }}</td>
                         <td data-label="Expiry Date" class="text-center">
-                            {{ $software->expiry_date->format('M d, Y') }}
-                            @if($software->expiry_date < now()->addDays(30))
-                                <span class="expiring-badge">Expiring</span>
-                            @endif
+                            {{ $software->expiry_date->format('M d, Y') }}                            
                         </td>
                         <td data-label="Actions" class="text-center">
                             <div class="flex justify-center gap-3">
@@ -253,15 +250,10 @@
                         <div class="bg-white dark:bg-gray-700 rounded-md p-4 shadow-sm">
                             <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Expiry Date</label>
                             <p class="text-lg flex items-center space-x-2">
-                                <span>{{ $viewSoftware->expiry_date->format('M d, Y') }}</span>
-                                @if($viewSoftware->expiry_date < now()->addDays(30))
-                                    <span
-                                        class="inline-block bg-yellow-300 text-yellow-900 text-xs font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide">
-                                        Expiring
-                                    </span>
-                                @endif
+                                <span>{{ $viewSoftware->expiry_date->format('M d, Y') }}</span>                                
                             </p>
                         </div>
+
 
                         <!-- Added By -->
                         <div class="bg-white dark:bg-gray-700 rounded-md p-4 shadow-sm">
@@ -272,7 +264,9 @@
                         <!-- Expiry Status -->
                         <div class="bg-white dark:bg-gray-700 rounded-md p-4 shadow-sm">
                             <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Expiry Status</label>
-                            <p class="text-lg">{{ $viewSoftware->expiry_status }}</p>
+                            <p class="text-lg text-red-500">
+                                {{ ucwords(str_replace('_', ' ', $viewSoftware->expiry_status)) }}
+                            </p>
                         </div>
                     </div>
                 @endif
