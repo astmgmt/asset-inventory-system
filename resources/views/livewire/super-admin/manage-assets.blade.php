@@ -447,123 +447,133 @@
         @endif
 
 
+        
         @if ($showViewModal)
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-4xl p-8 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-                <h2 class="text-3xl font-semibold mb-8 border-b border-gray-300 dark:border-gray-700 pb-4">
-                    Asset Details: {{ $viewAsset->name ?? '' }}
-                </h2>
+            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-4xl p-8 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+                    <h2 class="text-3xl font-semibold mb-8 border-b border-gray-300 dark:border-gray-700 pb-4">
+                        Asset Details: {{ $viewAsset->name ?? '' }}
+                    </h2>
 
-                @if($viewAsset)
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-                        <!-- Asset Code -->
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
-                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Asset Code</label>
-                            <p class="text-lg">{{ $viewAsset->asset_code }}</p>
-                        </div>
+                    @if($viewAsset)
+                        @php
+                            // Compute disabled state for print button
+                            $isPrintDisabled = in_array($viewAsset->condition->condition_name, ['Disposed', 'Defective']);
+                        @endphp
 
-                        <!-- Serial Number -->
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
-                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Serial Number</label>
-                            <p class="text-lg">{{ $viewAsset->serial_number ?? 'None' }}</p>
-                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+                            <!-- Asset Code -->
+                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Asset Code</label>
+                                <p class="text-lg">{{ $viewAsset->asset_code }}</p>
+                            </div>
 
-                        <!-- Brand -->
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
-                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Brand</label>
-                            <p class="text-lg">{{ $viewAsset->name }}</p>
-                        </div>
+                            <!-- Serial Number -->
+                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Serial Number</label>
+                                <p class="text-lg">{{ $viewAsset->serial_number ?? 'None' }}</p>
+                            </div>
 
-                        <!-- Model -->
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
-                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Model</label>
-                            <p class="text-lg">{{ $viewAsset->model_number }}</p>
-                        </div>
+                            <!-- Brand -->
+                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Brand</label>
+                                <p class="text-lg">{{ $viewAsset->name }}</p>
+                            </div>
 
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
-                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Description</label>
-                            <p class="text-lg">{{ $viewAsset->description }}</p>
-                        </div>
+                            <!-- Model -->
+                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Model</label>
+                                <p class="text-lg">{{ $viewAsset->model_number }}</p>
+                            </div>
 
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
-                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Quantity</label>
-                            <p class="text-lg">{{ $viewAsset->quantity }}</p>
-                        </div>
+                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Description</label>
+                                <p class="text-lg">{{ $viewAsset->description }}</p>
+                            </div>
 
-                        <!-- Category -->
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
-                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Category</label>
-                            <p class="text-lg">{{ $viewAsset->category->category_name }}</p>
-                        </div>
+                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Quantity</label>
+                                <p class="text-lg">{{ $viewAsset->quantity }}</p>
+                            </div>
 
-                        <!-- Condition -->
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
-                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Condition</label>
-                            <p class="text-lg">{{ $viewAsset->condition->condition_name }}</p>
-                        </div>
+                            <!-- Category -->
+                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Category</label>
+                                <p class="text-lg">{{ $viewAsset->category->category_name }}</p>
+                            </div>
 
-                        <!-- Location -->
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
-                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Location</label>
-                            <p class="text-lg">{{ $viewAsset->location->location_name }}</p>
-                        </div>
+                            <!-- Condition -->
+                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Condition</label>
+                                <p class="text-lg">{{ $viewAsset->condition->condition_name }}</p>
+                            </div>
 
-                        <!-- Vendor/Supplier -->
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
-                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Vendor/Supplier</label>
-                            <p class="text-lg">{{ $viewAsset->vendor->vendor_name }}</p>
-                        </div>
+                            <!-- Location -->
+                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Location</label>
+                                <p class="text-lg">{{ $viewAsset->location->location_name }}</p>
+                            </div>
 
-                        <!-- Warranty Expiration -->
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
-                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Warranty Expiration</label>
-                            <p class="text-lg">{{ $viewAsset->warranty_expiration->format('M d, Y') }}</p>
-                        </div>
+                            <!-- Vendor/Supplier -->
+                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Vendor/Supplier</label>
+                                <p class="text-lg">{{ $viewAsset->vendor->vendor_name }}</p>
+                            </div>
 
-                        <!-- Status -->
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
-                            <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Status</label>
-                            <p class="text-lg">
-                                @if($viewAsset->condition->condition_name === 'Disposed' && $viewAsset->is_disposed)
-                                    <span class="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">Disposed</span>
-                                @else
-                                    @php
-                                        $conditionName = $viewAsset->condition->condition_name;
-                                        $conditionClass = match(strtolower($conditionName)) {
-                                            'defective' => 'bg-red-100 text-red-800',
-                                            'new' => 'bg-blue-100 text-blue-800',
-                                            'available' => 'bg-green-100 text-green-800',
-                                            'borrowed' => 'bg-indigo-100 text-indigo-800',
-                                            default => 'bg-gray-100 text-gray-800',
-                                        };
-                                    @endphp
-                                    <span class="inline-block {{ $conditionClass }} text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">
-                                        {{ $conditionName }}
-                                    </span>
-                                @endif
-                            </p>
+                            <!-- Warranty Expiration -->
+                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Warranty Expiration</label>
+                                <p class="text-lg">{{ $viewAsset->warranty_expiration->format('M d, Y') }}</p>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Status</label>
+                                <p class="text-lg">
+                                    @if($viewAsset->condition->condition_name === 'Disposed' && $viewAsset->is_disposed)
+                                        <span class="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">Disposed</span>
+                                    @else
+                                        @php
+                                            $conditionName = $viewAsset->condition->condition_name;
+                                            $conditionClass = match(strtolower($conditionName)) {
+                                                'defective' => 'bg-red-100 text-red-800',
+                                                'new' => 'bg-blue-100 text-blue-800',
+                                                'available' => 'bg-green-100 text-green-800',
+                                                'borrowed' => 'bg-indigo-100 text-indigo-800',
+                                                default => 'bg-gray-100 text-gray-800',
+                                            };
+                                        @endphp
+                                        <span class="inline-block {{ $conditionClass }} text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">
+                                            {{ $conditionName }}
+                                        </span>
+                                    @endif
+                                </p>
+                            </div>
                         </div>
+                    @endif
+
+                    <!-- Footer -->
+                    <div class="mt-10 flex justify-end space-x-4">
+                        <!-- Print Button - Conditionally Disabled -->
+                        <a href="{{ $isPrintDisabled ? '#' : route('assets.pdf', ['id' => $viewAsset->id]) }}"
+                        @if(!$isPrintDisabled) target="_blank" @endif
+                        class="inline-flex items-center px-6 py-3 text-sm font-medium rounded-md transition 
+                                {{ $isPrintDisabled 
+                                        ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                                        : 'bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500' }}"
+                        @if($isPrintDisabled) onclick="return false;" @endif>
+                            <i class="fas fa-print mr-2"></i> Print
+                        </a>
+
+                        <!-- Close Button -->
+                        <button type="button" wire:click="closeModals"
+                                class="inline-flex items-center px-6 py-3 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition">
+                            <i class="fas fa-xmark mr-2"></i> Close
+                        </button>
                     </div>
-                @endif
-
-                <!-- Footer -->
-                <div class="mt-10 flex justify-end space-x-4">
-                    <!-- Print Button -->
-                    <a href="{{ route('assets.pdf', ['id' => $viewAsset->id]) }}"
-                    target="_blank"
-                    class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
-                        <i class="fas fa-print mr-2"></i> Print
-                    </a>
-
-                    <!-- Close Button -->
-                    <button type="button" wire:click="closeModals"
-                            class="inline-flex items-center px-6 py-3 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition">
-                        <i class="fas fa-xmark mr-2"></i> Close
-                    </button>
                 </div>
             </div>
-        </div>
-    @endif
+@endif
 
 
 
