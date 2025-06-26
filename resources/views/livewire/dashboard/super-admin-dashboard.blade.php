@@ -74,14 +74,14 @@
             </div>
 
             <!-- Asset Chart -->
-            <div class="box-container">
+            <div class="box-container" wire:ignore>
                 <div class="box-header">
                     <h2 class="box-title">Asset Expiration Overview</h2>
                 </div>
                 <div class="box-body"
                     x-data="assetChart(@js($assetCounts))"
                     x-init="init()"
-                    wire:key="asset-chart-{{ $expiringAssets->currentPage() }}"
+                    wire:key="asset-chart"
                     x-on:chartDataUpdated.window="updateData($event.detail.assetCounts)">
                     <canvas id="assetExpiryChart" height="250"></canvas>
                 </div>
@@ -156,14 +156,14 @@
             </div>
 
             <!-- Software Chart -->
-            <div class="box-container">
+            <div class="box-container" wire:ignore>
                 <div class="box-header">
                     <h2 class="box-title">Software Expiration Overview</h2>
                 </div>
-                <div class="box-body"
+                <div class="box-body"                    
                     x-data="softwareChart(@js($softwareCounts))"
                     x-init="init()"
-                    wire:key="software-chart-{{ $expiringSoftware->currentPage() }}"
+                    wire:key="software-chart"
                     x-on:chartDataUpdated.window="updateData($event.detail.softwareCounts)">
                     <canvas id="softwareExpiryChart" height="250"></canvas>
                 </div>

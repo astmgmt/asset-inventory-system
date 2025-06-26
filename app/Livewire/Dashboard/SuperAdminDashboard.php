@@ -32,7 +32,7 @@ class SuperAdminDashboard extends Component
         $this->refreshExpiryStatuses();
         $this->loadCounts();
 
-        $this->dispatchBrowserEvent('chartDataUpdated', [
+        $this->dispatch('chartDataUpdated', [
             'assetCounts' => $this->assetCounts,
             'softwareCounts' => $this->softwareCounts,
         ]);
@@ -40,8 +40,8 @@ class SuperAdminDashboard extends Component
 
     protected function refreshExpiryStatuses()
     {
-        Asset::all()->each(fn ($asset) => $asset->updateExpiryStatus());
-        Software::all()->each(fn ($software) => $software->updateExpiryStatus());
+        Asset::chunk(100, fn($assets) => $assets->each->updateExpiryStatus());
+        Software::chunk(100, fn($software) => $software->each->updateExpiryStatus());
     }
 
     protected function loadCounts()
@@ -87,6 +87,7 @@ class SuperAdminDashboard extends Component
         $asset = Asset::find($id);
         if ($asset && $asset->expiry_status === 'expired') {
             $asset->delete();
+            $this->pollChartData();
         }
     }
 
@@ -95,6 +96,7 @@ class SuperAdminDashboard extends Component
         $software = Software::find($id);
         if ($software && $software->expiry_status === 'expired') {
             $software->delete();
+            $this->pollChartData();
         }
     }
 
