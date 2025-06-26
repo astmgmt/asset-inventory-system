@@ -35,7 +35,7 @@ class UserReturnTransactions extends Component
     public function render()
     {
         $transactions = AssetBorrowTransaction::where('user_id', Auth::id())
-            ->whereIn('status', ['Borrowed', 'PendingReturnApproval', 'ReturnRejected'])
+            ->whereIn('status', ['Borrowed', 'PendingReturnApproval', 'ReturnRejected', 'PartiallyReturned'])
             ->when($this->search, function ($query) {
                 $query->where('borrow_code', 'like', '%'.$this->search.'%');
             })
@@ -51,11 +51,12 @@ class UserReturnTransactions extends Component
     public function openReturnModal($transactionId)
     {
         $this->selectedTransaction = AssetBorrowTransaction::with(['borrowItems' => function ($query) {
-            $query->where('status', 'Borrowed')->with('asset');
+            $query->whereIn('status', ['Borrowed', 'ReturnRejected'])
+                ->with('asset');
         }])->findOrFail($transactionId);
 
         $this->returnRemarks = '';
-        $this->selectedItems = $this->selectedTransaction->borrowItems->pluck('id')->toArray(); // Now filtered
+        $this->selectedItems = $this->selectedTransaction->borrowItems->pluck('id')->toArray();
         $this->selectAll = true;
         $this->showReturnModal = true;
     }

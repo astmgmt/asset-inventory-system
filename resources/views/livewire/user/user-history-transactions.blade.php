@@ -85,12 +85,21 @@
                                         <i class="fas fa-eye"></i> View
                                     </button>
                                     
-                                    <button 
-                                        wire:click="generateHistoryPdf({{ $record->id }})"
-                                        class="print-btn bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded-md transition mr-1"
-                                    >
-                                        <i class="fas fa-print"></i> Print
-                                    </button>
+                                    @if($this->canPrint($record->status))
+                                        <button 
+                                            wire:click="generateHistoryPdf({{ $record->id }})" 
+                                            class="bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded-md transition mr-1"
+                                        >
+                                            <i class="fas fa-print"></i> Print
+                                        </button>
+                                    @else
+                                        <button 
+                                            class="bg-gray-300 text-gray-500 py-1 px-2 rounded-md cursor-not-allowed mr-1" 
+                                            disabled
+                                        >
+                                            <i class="fas fa-print"></i> Print
+                                        </button>
+                                    @endif
                                     
                                     <button 
                                         wire:click="confirmDelete({{ $record->id }})"
@@ -121,13 +130,7 @@
                 <div class="modal max-w-6xl" x-on:click.away="$wire.showDetailsModal = false">
                     <div class="modal-header">
                         <h2 class="modal-title">Transaction Details</h2>
-                        <div class="flex items-center">
-                            <button 
-                                wire:click="generateHistoryPdf({{ $selectedHistory->id }})"
-                                class="print-btn bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded-md transition mr-2"
-                            >
-                                <i class="fas fa-print mr-1"></i> Print PDF
-                            </button>
+                        <div class="flex items-center">                            
                             <button wire:click="$set('showDetailsModal', false)" class="modal-close">&times;</button>
                         </div>
                     </div>
@@ -162,13 +165,13 @@
                                     <div class="overflow-x-auto">
                                         <table class="details-table text-xs">
                                             <thead class="thead-center">
-                                                <tr class="text-center">
-                                                    <th>Asset Code</th>
-                                                    <th>Brand</th>
-                                                    <th>Model</th>
-                                                    <th>Qty</th>
-                                                    <th>Purpose</th>
-                                                    <th>Date</th>
+                                                <tr>
+                                                    <th class="text-center">Asset Code</th>
+                                                    <th class="text-center">Brand</th>
+                                                    <th class="text-center">Model</th>
+                                                    <th class="text-center">Qty</th>
+                                                    <th class="text-center">Purpose</th>
+                                                    <th class="text-center">Date</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -211,12 +214,12 @@
                                         <table class="details-table text-xs">
                                             <thead class="thead-center">
                                                 <tr>
-                                                    <th>Asset Code</th>
-                                                    <th>Brand</th>
-                                                    <th>Model</th>
-                                                    <th>Qty</th>
-                                                    <th>Date</th>
-                                                    <th>Status</th>
+                                                    <th class="text-center">Asset Code</th>
+                                                    <th class="text-center">Brand</th>
+                                                    <th class="text-center">Model</th>
+                                                    <th class="text-center">Qty</th>
+                                                    <th class="text-center">Date</th>
+                                                    <th class="text-center">Status</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -326,6 +329,7 @@
             font-weight: 600;
             background-color: #e6f4ea !important;
         }
+       
         .status-badge {
             @apply px-2 py-1 rounded-full text-xs font-medium;
         }

@@ -90,20 +90,15 @@ class ApproveReturnRequests extends Component
 
         $pendingReturnItems = null;
         $returnReceivedBy = Auth::user()->name; 
-        $borrowApprovedBy = ''; 
-        $returnDate = now();
+        $returnCode = $this->generateReturnCode();
+        $transaction = $this->selectedTransaction;
 
         try {
-            DB::transaction(function () use (&$pendingReturnItems, $returnReceivedBy, &$borrowApprovedBy) {
-                $transaction = $this->selectedTransaction;
-
+            DB::transaction(function () use (&$pendingReturnItems, $returnReceivedBy, $returnCode, $transaction) {
                 // Get the borrow approver's name
-                if ($transaction->approved_by_user_id) {
-                    $borrowApprover = User::find($transaction->approved_by_user_id);
-                    $borrowApprovedBy = $borrowApprover ? $borrowApprover->name : 'N/A';
-                } else {
-                    $borrowApprovedBy = 'N/A';
-                }
+                $borrowApprovedBy = $transaction->approvedByUser
+                    ? $transaction->approvedByUser->name
+                    : 'N/A';
 
                 $availableConditionId = AssetCondition::where('condition_name', 'Available')->firstOrFail()->id;
 
@@ -118,21 +113,17 @@ class ApproveReturnRequests extends Component
                     throw new \Exception('No pending return requests found for approval.');
                 }
 
+                // Update return items status
                 foreach ($pendingReturnItems as $returnItem) {
                     $returnItem->update([
+                        'return_code' => $returnCode,
                         'approval_status' => 'Approved',
                         'approved_at' => now(),
                         'approved_by_user_id' => Auth::id(),
                     ]);
                 }
 
-                
-                // Get the earliest return date from the items
-                $earliestReturnDate = $pendingReturnItems->min('returned_at');
-                if ($earliestReturnDate) {
-                    $returnDate = $earliestReturnDate;
-                }
-
+                // Process each returned item
                 foreach ($pendingReturnItems as $returnItem) {
                     $borrowItem = $returnItem->borrowItem;
                     $asset = $borrowItem->asset;
@@ -142,18 +133,19 @@ class ApproveReturnRequests extends Component
                     $asset->update(['condition_id' => $availableConditionId]);
                 }
 
+                // Check if all items are returned
                 $allItemsReturned = $transaction->borrowItems->every(function ($item) {
                     return $item->status === 'Returned';
                 });
 
+                // Update transaction status
                 $transaction->update([
-                    'status' => $allItemsReturned ? 'Returned' : 'Borrowed',
+                    'status' => $allItemsReturned ? 'Returned' : 'PartiallyReturned',
                     'returned_at' => $allItemsReturned ? now() : null,
                     'remarks' => $this->approveRemarks,
                 ]);
 
-                $returnCode = $this->generateReturnCode();
-
+                // Prepare return data
                 $returnItemsData = $pendingReturnItems->map(function ($returnItem) {
                     $borrowItem = $returnItem->borrowItem;
                     return [
@@ -168,39 +160,33 @@ class ApproveReturnRequests extends Component
                     ];
                 })->toArray();
 
-                // Create return_data with both fields
                 $returnData = [
                     'return_items' => $returnItemsData,
                     'return_received_by' => $returnReceivedBy,
                     'approved_by' => $borrowApprovedBy,
-                    'return_date' => $returnDate->format('Y-m-d H:i:s')
+                    'return_date' => now()->format('Y-m-d H:i:s')
                 ];
 
-                $history = UserHistory::where('borrow_code', $transaction->borrow_code)
-                    ->whereNull('return_code')
-                    ->first();
+                // Create history record - always create new for each approval action
+                UserHistory::create([
+                    'user_id' => $transaction->user_id,
+                    'borrow_code' => $transaction->borrow_code,
+                    'return_code' => $returnCode,
+                    'status' => 'Return Approved',
+                    'return_data' => $returnData,
+                    'action_date' => now()
+                ]);
 
-                if ($allItemsReturned && $history) {
-                    $history->update([
-                        'return_code' => $returnCode,
-                        'status' => 'Return Approved',
-                        'return_data' => $returnData,
-                        'action_date' => now()
-                    ]);
-                } else {
-                    UserHistory::create([
-                        'user_id' => $transaction->user_id,
-                        'borrow_code' => $transaction->borrow_code,
-                        'return_code' => $returnCode,
-                        'status' => 'Return Approved',
-                        'return_data' => $returnData,
-                        'action_date' => now()
-                    ]);
-                }
+                // Hide previous borrow approval records for this transaction
+                UserHistory::where('borrow_code', $transaction->borrow_code)
+                    ->where('status', 'Borrow Approved')
+                    ->whereNull('return_code')
+                    ->update(['return_code' => 'HIDDEN-'.$returnCode]);
+
             });
 
-            $returnCode = $pendingReturnItems->first()->return_code ?? 'RT-' . now()->format('Ymd');
-            $this->sendReturnApprovalEmail($this->selectedTransaction, $returnCode);
+            // Send email with consistent return code
+            $this->sendReturnApprovalEmail($transaction, $returnCode);
 
             $this->successMessage = "Return approved successfully!";
             $this->reset(['showApproveModal', 'selectedTransaction', 'approveRemarks', 'approveBorrowItems']);
@@ -214,11 +200,12 @@ class ApproveReturnRequests extends Component
     {
         try {
             $transactionId = $this->selectedTransaction->id;
+            $transaction = null;
 
-            DB::transaction(function () {
+            DB::transaction(function () use (&$transaction) {
                 $transaction = $this->selectedTransaction;
 
-                // Use the filtered rejectBorrowItems instead of refiltering
+                // Update return items status
                 foreach ($this->rejectBorrowItems as $borrowItem) {
                     foreach ($borrowItem->returnItems as $returnItem) {
                         if ($returnItem->approval_status === 'Pending') {
@@ -230,18 +217,32 @@ class ApproveReturnRequests extends Component
                         }
                     }
 
-                    $borrowItem->update([
-                        'status' => 'Borrowed',
-                    ]);
+                    $borrowItem->update(['status' => 'Borrowed']);
                 }
 
+                // Update transaction status
                 $transaction->update([
                     'remarks' => $this->rejectRemarks,
                     'status' => 'Borrowed',
                 ]);
+
+                // Create history record for return rejection
+                UserHistory::create([
+                    'user_id' => $transaction->user_id,
+                    'borrow_code' => $transaction->borrow_code,
+                    'return_code' => $this->generateReturnCode(),
+                    'status' => 'Return Denied',
+                    'return_data' => [
+                        'remarks' => $this->rejectRemarks,
+                        'rejected_by' => Auth::user()->name,
+                        'rejected_at' => now()->format('Y-m-d H:i:s')
+                    ],
+                    'action_date' => now()
+                ]);
             });
 
-            $this->sendReturnRejectionEmail($transactionId, $this->rejectRemarks);
+            // Send rejection email
+            $this->sendReturnRejectionEmail($transaction->id, $this->rejectRemarks);
 
             $this->successMessage = "Return request rejected successfully!";
             $this->reset([
@@ -255,10 +256,12 @@ class ApproveReturnRequests extends Component
             $this->dispatch('return-rejected');
 
         } catch (\Exception $e) {
-            $this->errorMessage = "Error rejecting return: " . $e->getMessage();
             Log::error("Reject return error: " . $e->getMessage());
+            $this->errorMessage = "Error rejecting return: " . $e->getMessage();
         }
     }
+
+
 
     public function clearMessages()
     {
@@ -268,14 +271,16 @@ class ApproveReturnRequests extends Component
     private function generateReturnCode()
     {
         $date = now()->format('Ymd');
-        $lastReturn = UserHistory::where('return_code', 'like', "RT-{$date}-%")
+        $lastReturn = AssetReturnItem::where('return_code', 'like', "RT-{$date}-%")
             ->orderBy('return_code', 'desc')
             ->first();
-            
+        
         $number = $lastReturn ? (int)substr($lastReturn->return_code, -8) + 1 : 1;
         
         return sprintf("RT-%s-%08d", $date, $number);
     }
+
+
     
     private function generateReturnApprovalPDF($transaction, $returnCode)
     {

@@ -1,92 +1,105 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>Asset QR Sticker - {{ $asset->asset_code }}</title>
-    <style>
-        @page {
-            size: 4in 3.7in;
-            margin: 0;
-        }
-        html, body {
-            margin: 0; padding: 0;
-            width: 4in; height: 3.7in;
-            font-family: Arial, sans-serif;
-            font-size: 10px;
-            display: flex;
-            justify-content: center; /* horizontal center */
-            align-items: center;     /* vertical center */
-            /* prevents page break issues in some PDF engines */
-            box-sizing: border-box;
-        }
-        .sticker {
-            width: 3.9in;
-            height: 3.6in;
-            display: table;
-            table-layout: fixed;
-            border: 1px dotted #ccc;
-            box-sizing: border-box;
-        }
-        .left-column, .right-column {
-            display: table-cell;
-            vertical-align: top;
-            padding: 0.15in;
-            box-sizing: border-box;
-        }
-        .left-column {
-            width: 2in;
-        }
-        .right-column {
-            width: 1.9in;
-            border-left: 1px solid #eee;
-            text-align: center;
-            vertical-align: top;
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
         }
         .header {
-            display: inline-block;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 10px;
-            width: 100%;
         }
-        .header img {
+        .logo {
             height: 50px;
         }
-        .company-name {
+        .title-container {
+            text-align: center;
+            flex-grow: 1;
+            margin-right: 50px;
+        }
+        .title {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .subtitle {
+            font-size: 11px;
+            color: #555;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 11px;
+            font-weight: bold;
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        .info-pair-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            table-layout: fixed;
+        }
+        .info-pair-table td {
+            padding: 6px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        .info-pair-table .label {
+            font-weight: bold;
+            background-color: #f5f5f5;
+            width: 30%;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .items-table th,
+        .items-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .items-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 40px;
+        }
+        .signature {
+            width: 250px;
+        }
+        .flex-container {
+            display: flex;
+            justify-content: flex-start;
+            gap: 80px;
+        }
+        .accountability-message {
+            font-size: 11px;
+        }
+        .highlighted-message {
+            background-color: #f4f7fb; 
+            border-left: 4px solid #007BFF; 
+            padding: 12px 16px;
+            border-radius: 4px;
+            color: #333;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+        .status-badge {
+            padding: 2px 6px;
+            border-radius: 4px;
             font-size: 10px;
-            color: #666;
-            margin-top: 2px;
         }
-        .label {
-            margin-bottom: 0.1in;
-            line-height: 1.3;
+        .status-good {
+            background-color: #d4edda;
+            color: #155724;
         }
-        .label strong {
-            display: inline-block;
-            width: 0.7in;
-        }
-        .qrcode-container img {
-            width: 2in;
-            height: 2in;
-            border: 1px solid #000;
-            display: block;
-            margin: 0 auto;
+        .status-damaged {
+            background-color: #f8d7da;
+            color: #721c24;
         }
     </style>
-</head>
-<body>
-    <div class="sticker">
-        <div class="left-column">
-            <div class="header">
-                <img src="{{ public_path('images/logo.png') }}" alt="Company Logo" />
-                <div class="company-name">Asset Inventory System</div>
-            </div>
-            <div class="label"><strong>Name:</strong> {{ $asset->name }}</div>
-            <div class="label"><strong>Model:</strong> {{ $asset->model_number }}</div>
-            <div class="label"><strong>SN:</strong> {{ $asset->serial_number }}</div>
-        </div>
-        <div class="right-column qrcode-container">
-            <img src="data:image/png;base64,{{ $qrCode }}" alt="QR Code" />
-        </div>
-    </div>
-</body>
-</html>

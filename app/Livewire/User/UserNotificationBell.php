@@ -3,14 +3,14 @@
 namespace App\Livewire\User;
 
 use Livewire\Component;
-use App\Models\AssetBorrowTransaction;
-use App\Models\AssetReturnItem;
+use App\Models\UserHistory;
 use Illuminate\Support\Facades\Auth;
 
 class UserNotificationBell extends Component
 {
-    public $notificationCount = 0;
-    public $recentNotifications = [];
+    public $notifications = [];
+    public $count = 0;
+    public $isMarkingRead = false;
 
     protected $listeners = ['refreshNotifications' => 'refreshNotifications'];
 
@@ -19,61 +19,65 @@ class UserNotificationBell extends Component
         $this->refreshNotifications();
     }
 
+    
     public function refreshNotifications()
     {
-        $user = Auth::user();
-        $threeDaysAgo = now()->subDays(3);
-
-        // Get borrow status updates
-        $borrowUpdates = AssetBorrowTransaction::where('user_id', $user->id)
-            ->whereIn('status', ['Borrowed', 'BorrowRejected'])
-            ->where('updated_at', '>', $threeDaysAgo)
-            ->select('id', 'borrow_code', 'status', 'updated_at')
+        $this->notifications = UserHistory::where('user_id', Auth::id())
+            ->whereNull('read_at')
+            ->where(function ($query) {
+                $query->where('status', 'Borrow Approved')
+                    ->orWhere('status', 'Borrow Denied')
+                    ->orWhere('status', 'Return Approved')
+                    ->orWhere('status', 'Return Denied');
+            })
+            ->orderBy('action_date', 'desc')
             ->get()
-            ->map(function ($transaction) {
-                return [
-                    'type' => 'borrow',
-                    'status' => $transaction->status,
-                    'code' => $transaction->borrow_code,
-                    'time' => $transaction->updated_at,
-                    'message' => $this->getStatusMessage($transaction->status, $transaction->borrow_code)
-                ];
-            });
+            ->toArray();
 
-        // Get return status updates
-        $returnUpdates = AssetReturnItem::where('returned_by_user_id', $user->id)
-            ->whereIn('approval_status', ['Approved', 'Rejected'])
-            ->where('updated_at', '>', $threeDaysAgo)
-            ->with('borrowItem.borrowTransaction')
-            ->get()
-            ->map(function ($returnItem) {
-                return [
-                    'type' => 'return',
-                    'status' => $returnItem->approval_status,
-                    'code' => $returnItem->borrowItem->borrowTransaction->borrow_code,
-                    'time' => $returnItem->updated_at,
-                    'message' => $this->getStatusMessage($returnItem->approval_status.'Return', $returnItem->borrowItem->borrowTransaction->borrow_code)
-                ];
-            });
-
-        $this->recentNotifications = $borrowUpdates->concat($returnUpdates)
-            ->sortByDesc('time')
-            ->take(5)
-            ->values();
-
-        $this->notificationCount = $this->recentNotifications->count();
+        $this->count = count($this->notifications);
     }
 
-    private function getStatusMessage($status, $code)
-    {
-        $messages = [
-            'Borrowed' => "Borrow Approved: Your request #$code has been approved",
-            'BorrowRejected' => "Borrow Rejected: Your request #$code was declined",
-            'ApprovedReturn' => "Return Approved: Your return for #$code was accepted",
-            'RejectedReturn' => "Return Rejected: Your return for #$code was declined",
-        ];
 
-        return $messages[$status] ?? "Status update for request #$code";
+
+
+    public function markAsRead($id)
+    {
+        $this->isMarkingRead = true;
+        
+        $notification = UserHistory::find($id);
+        if ($notification && $notification->user_id == Auth::id()) {
+            $notification->update(['read_at' => now()]);
+            $this->refreshNotifications();
+        }
+        
+        $this->isMarkingRead = false;
+        return $id;
+    }
+
+    public function markAllAsRead()
+    {
+        $this->isMarkingRead = true;
+        
+        UserHistory::where('user_id', Auth::id())
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+            
+        $this->refreshNotifications();
+        $this->isMarkingRead = false;
+    }
+
+    public function getRoute($status)
+    {
+        switch($status) {
+            case 'Borrow Approved':
+            case 'Return Denied':
+                return route('user.return.transactions');
+            case 'Borrow Denied':
+            case 'Return Approved':
+                return route('user.history');
+            default:
+                return '#';
+        }
     }
 
     public function render()

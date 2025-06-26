@@ -213,9 +213,7 @@ Route::middleware([
         ->name('assignments.accountability-form')
         ->middleware('role:Super Admin,Admin');
 
-    Route::get('/user/history', UserHistoryTransactions::class)
-        ->name('user.history')
-        ->middleware('role:User');
+
 
 
     // MANAGE ACCOUNTS - Approve, Edit, Delete and View Accounts   
@@ -260,18 +258,21 @@ Route::middleware([
         ->name('user.transactions')
         ->middleware('role:User');
 
-    // USER RETURN TRANSACTIONS
+    // USER RETURN TRANSACTIONS  
+
+    Route::get('/borrow-transactions', UserBorrowTransactions::class)
+        ->name('user.borrow.transactions')
+        ->middleware('role:User');
+        
     Route::get('/user/return/transactions', UserReturnTransactions::class)
         ->name('user.return.transactions')
         ->middleware('role:User');
 
-    Route::get('/borrow-transactions', \App\Livewire\User\UserBorrowTransactions::class)
-        ->name('user.borrow.transactions')
+    Route::get('/user/history', UserHistoryTransactions::class)
+        ->name('user.history')
         ->middleware('role:User');
-        
-    Route::get('/return-transactions', \App\Livewire\User\UserReturnTransactions::class)
-        ->name('user.return.transactions')
-        ->middleware('role:User');
+
+    
 
     // Add PDF route
     Route::get('/return-pdf/{returnCode}', function($returnCode) {

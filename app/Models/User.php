@@ -129,4 +129,10 @@ class User extends Authenticatable
         return $this->hasMany(AssetBorrowTransaction::class, 'approved_by_user_id');
     }
 
+    // app/Models/User.php
+    public function histories()
+    {
+        return $this->hasMany(UserHistory::class);
+    }
+
 }

@@ -28,11 +28,22 @@ class UserHistoryTransactions extends Component
     public function render()
     {
         $history = UserHistory::where('user_id', Auth::id())
+            ->whereNotIn('status', ['Borrow Approved']) // Exclude regular borrow approvals
+            ->where(function ($query) {
+                $query->where('status', 'Borrow Denied')
+                    ->orWhere('status', 'Return Approved')
+                    ->orWhere('status', 'Return Denied')
+                    // Show borrow approvals that have not been hidden
+                    ->orWhere(function ($q) {
+                        $q->where('status', 'Borrow Approved')
+                            ->whereNull('return_code');
+                    });
+            })
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('borrow_code', 'like', '%'.$this->search.'%')
-                      ->orWhere('return_code', 'like', '%'.$this->search.'%')
-                      ->orWhere('status', 'like', '%'.$this->search.'%');
+                    ->orWhere('return_code', 'like', '%'.$this->search.'%')
+                    ->orWhere('status', 'like', '%'.$this->search.'%');
                 });
             })
             ->orderBy('action_date', 'desc')
@@ -42,6 +53,8 @@ class UserHistoryTransactions extends Component
             'history' => $history
         ]);
     }
+
+
 
     public function showDetails($historyId)
     {
@@ -102,26 +115,40 @@ class UserHistoryTransactions extends Component
     {
         $history = UserHistory::findOrFail($historyId);
         $user = Auth::user();
+
+        if ($history->status === 'Borrow Denied') {
+            $this->errorMessage = "Cannot generate PDF for denied borrow requests";
+            return;
+        }
         
-        // Handle borrow data
-        $borrowData = [];
-        if ($history->borrow_data) {
-            if (is_array($history->borrow_data)) {
-                $borrowData = $history->borrow_data;
-            } else {
-                $borrowData = $history->borrow_data->toArray();
+        // Get the borrow approval record
+        $borrowApprovalRecord = UserHistory::where('borrow_code', $history->borrow_code)
+            ->where('status', 'Borrow Approved')
+            ->first();
+        
+        // Get the borrow approver name
+        $borrowApprovedBy = 'N/A';
+        if ($borrowApprovalRecord) {
+            // Check if borrow_data has approved_by
+            if (isset($borrowApprovalRecord->borrow_data['approved_by'])) {
+                $borrowApprovedBy = $borrowApprovalRecord->borrow_data['approved_by'];
+            }
+            // Check if borrow_data has approved_by_user_id
+            elseif (isset($borrowApprovalRecord->borrow_data['approved_by_user_id'])) {
+                $approver = User::find($borrowApprovalRecord->borrow_data['approved_by_user_id']);
+                $borrowApprovedBy = $approver ? $approver->name : 'N/A';
+            }
+            // Check if transaction has approved_by_user_id
+            elseif (isset($borrowApprovalRecord->borrow_data['id'])) {
+                $transaction = AssetBorrowTransaction::find($borrowApprovalRecord->borrow_data['id']);
+                if ($transaction && $transaction->approvedByUser) {
+                    $borrowApprovedBy = $transaction->approvedByUser->name;
+                }
             }
         }
         
-        // Handle return data
-        $returnData = [];
-        if ($history->return_data) {
-            if (is_array($history->return_data)) {
-                $returnData = $history->return_data;
-            } else {
-                $returnData = $history->return_data->toArray();
-            }
-        }
+        // Get the return received by name
+        $returnReceivedBy = $history->return_data['return_received_by'] ?? 'N/A';
         
         // Extract transaction details
         $transactionData = [
@@ -131,28 +158,17 @@ class UserHistoryTransactions extends Component
                 'name' => $user->name,
                 'department' => $user->department->name ?? 'N/A',
             ],
-            'requestedBy' => [
-                'name' => $history->requestedBy->name ?? 'N/A',
-            ],
-            'approvedBy' => [
-                'name' => $history->approvedBy->name ?? 'N/A',
-                'department' => $history->approvedBy->department->name ?? 'N/A',
-            ],
-            'returnedBy' => [
-                'name' => $history->returnedBy->name ?? 'N/A',
-            ],
+            'borrow_approved_by' => $borrowApprovedBy,
+            'return_received_by' => $returnReceivedBy,
             'borrowed_at' => $history->action_date->format('M d, Y H:i'),
             'returned_at' => $history->return_date ? $history->return_date->format('M d, Y H:i') : 'N/A',
             'remarks' => $history->remarks ?? 'N/A',
-            'borrowItems' => $borrowData['borrow_items'] ?? [],
-            'returnItems' => $returnData['return_items'] ?? [],
-            'return_data' => $returnData,
+            'borrowItems' => $borrowApprovalRecord->borrow_data['borrow_items'] ?? [],
+            'returnItems' => $history->return_data['return_items'] ?? [],
         ];
 
         $pdf = Pdf::loadView('pdf.history-details', [
             'transaction' => (object)$transactionData,
-            'approver' => (object)$transactionData['approvedBy'],
-            'returner' => (object)$transactionData['returnedBy'],
             'borrowDate' => $transactionData['borrowed_at'],
             'returnDate' => $transactionData['returned_at']
         ]);
@@ -164,6 +180,8 @@ class UserHistoryTransactions extends Component
             "Asset-History-{$history->borrow_code}.pdf"
         );
     }
+
+
 
     private function sendDeletionEmail($history)
     {
@@ -193,5 +211,10 @@ class UserHistoryTransactions extends Component
     public function clearMessages()
     {
         $this->reset(['successMessage', 'errorMessage']);
+    }
+
+    public function canPrint($status)
+    {
+        return !in_array($status, ['Borrow Denied']);
     }
 }

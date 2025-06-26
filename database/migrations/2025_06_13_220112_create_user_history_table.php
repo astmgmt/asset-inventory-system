@@ -22,6 +22,7 @@ return new class extends Migration
             $table->json('borrow_data')->nullable();
             $table->json('return_data')->nullable();
             $table->timestamp('action_date');
+            $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });
     }

@@ -149,10 +149,30 @@
                     <a href="{{ route('dashboard.user') }}"><i class="fas fa-home"></i> Home</a>
 
                     <!-- Borrow Assets -->
-                    <a href="{{ route('user.borrow.assets') }}"><i class="fas fa-hand-holding"></i> Borrow Assets</a>
-                    
-                    <!-- Transactions -->
-                    <a href="{{ route('user.transactions') }}"><i class="fas fa-exchange-alt"></i> Transactions</a>
+                    <a href="{{ route('user.borrow.assets') }}"><i class="fas fa-hand-holding"></i> Borrow Assets</a>                   
+
+                    <button @click="open === 5 ? open = null : open = 5" class="nav-link-button" type="button">
+                        <i class="fas fa-receipt"></i> Transactions
+                        <i class="fas" :class="open === 5 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
+                    </button>
+
+                    <div x-show="open === 5" x-collapse class="nav-submenu">
+                        <a href="{{ route('user.borrow.transactions') }}">
+                            <i class="fas fa-hand-holding"></i> Borrow
+                        </a>
+                        <a href="{{ route('user.return.transactions') }}">
+                            <i class="fas fa-undo-alt"></i> Return
+                        </a>
+                        <a href="{{ route('user.history') }}">
+                            <i class="fas fa-history"></i> History
+                        </a>
+                    </div>
+
+
+
+
+
+
                 @endif
             @endauth
         </nav>
@@ -205,7 +225,7 @@
                         <i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
                     </button>
 
-                    {{-- NOTIFICATION BELL --}}
+                    {{-- NOTIFICATION BELLS --}}
                     @if(auth()->check())
                         @if(auth()->user()->isUser())
                             <livewire:user.user-notification-bell />

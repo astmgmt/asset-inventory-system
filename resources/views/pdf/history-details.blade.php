@@ -140,61 +140,52 @@
             </tr>
             <tr>
                 <td class="label">Borrow Date:</td>
-                {{-- <td>{{ $borrowDate }}</td> --}}
-                <td>{{ \Carbon\Carbon::parse($borrowDate)->format('M d, Y') }}</td>
+                <td>{{ $borrowDate }}</td>
                 <td class="label">Return Date:</td>                
-                <td>
-                    @if(isset($transaction->return_data['return_date']) && $transaction->return_data['return_date'])
-                        {{ \Carbon\Carbon::parse($transaction->return_data['return_date'])->format('M d, Y') }}
-                    @else
-                        N/A
-                    @endif
-                </td>
+                <td>{{ $returnDate }}</td>
             </tr>
             <tr>
                 <td class="label">Approved By:</td>
-                <td>{{ $transaction->return_data['approved_by'] ?? 'N/A' }}</td>
+                <td>{{ $transaction->borrow_approved_by }}</td>
                 <td class="label">Return Received By:</td>
-                <td>{{ $transaction->return_data['return_received_by'] ?? 'N/A' }}</td>
+                <td>{{ $transaction->return_received_by }}</td>
             </tr>
             <tr>
                 <td class="label">Remarks:</td>
-                <td colspan="3">{{ $transaction->remarks ?? 'N/A' }}</td>
+                <td colspan="3">{{ $transaction->remarks }}</td>
             </tr>
         </table>
     </div>
 
-    <div class="section">
-        <div class="section-title">Borrowed Assets</div>
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th>Asset Code</th>
-                    <th>Brand</th>
-                    <th>Model</th>
-                    <th>Serial #</th>
-                    <th>Quantity</th>
-                    <th>Purpose</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($transaction->borrowItems as $item)
+    @if(count($transaction->borrowItems) > 0)
+        <div class="section">
+            <div class="section-title">Borrowed Assets</div>
+            <table class="items-table">
+                <thead>
                     <tr>
-                        <td>{{ $item['asset']['asset_code'] ?? 'N/A' }}</td>
-                        <td>{{ $item['asset']['name'] ?? 'N/A' }}</td>
-                        <td>{{ $item['asset']['model_number'] ?? 'N/A' }}</td>
-                        <td>{{ $item['asset']['serial_number'] ?? 'N/A' }}</td>
-                        <td>{{ $item['quantity'] ?? 'N/A' }}</td>
-                        <td>{{ !empty($item['purpose']) ? $item['purpose'] : 'N/A' }}</td>
+                        <th>Asset Code</th>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th>Serial #</th>
+                        <th>Quantity</th>
+                        <th>Purpose</th>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="6">No borrowed assets</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @foreach($transaction->borrowItems as $item)
+                        <tr>
+                            <td>{{ $item['asset']['asset_code'] ?? 'N/A' }}</td>
+                            <td>{{ $item['asset']['name'] ?? 'N/A' }}</td>
+                            <td>{{ $item['asset']['model_number'] ?? 'N/A' }}</td>
+                            <td>{{ $item['asset']['serial_number'] ?? 'N/A' }}</td>
+                            <td>{{ $item['quantity'] ?? 'N/A' }}</td>
+                            <td>{{ !empty($item['purpose']) ? $item['purpose'] : 'N/A' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @endif
 
     @if(count($transaction->returnItems) > 0)
         <div class="section">
@@ -213,14 +204,14 @@
                 <tbody>
                     @foreach($transaction->returnItems as $item)
                         <tr>
-                            <td>{{ $item['asset']['asset_code'] ?? ($item['borrow_item']['asset']['asset_code'] ?? 'N/A') }}</td>
-                            <td>{{ $item['asset']['name'] ?? ($item['borrow_item']['asset']['name'] ?? 'N/A') }}</td>
-                            <td>{{ $item['asset']['model_number'] ?? ($item['borrow_item']['asset']['model_number'] ?? 'N/A') }}</td>
-                            <td>{{ $item['asset']['serial_number'] ?? ($item['borrow_item']['asset']['serial_number'] ?? 'N/A') }}</td>
-                            <td>{{ $item['quantity'] ?? ($item['borrow_item']['quantity'] ?? 'N/A') }}</td>
+                            <td>{{ $item['borrow_item']['asset']['asset_code'] ?? 'N/A' }}</td>
+                            <td>{{ $item['borrow_item']['asset']['name'] ?? 'N/A' }}</td>
+                            <td>{{ $item['borrow_item']['asset']['model_number'] ?? 'N/A' }}</td>
+                            <td>{{ $item['borrow_item']['asset']['serial_number'] ?? 'N/A' }}</td>
+                            <td>{{ $item['borrow_item']['quantity'] ?? 'N/A' }}</td>
                             <td>
-                                <span class="status-badge {{ $item['status'] === 'Good' ? 'status-good' : 'status-damaged' }}">
-                                    {{ $item['status'] ?? 'Returned' }}
+                                <span class="status-badge status-good">
+                                    Returned
                                 </span>
                             </td>
                         </tr>
@@ -232,7 +223,7 @@
 
     <div class="section">
         <div class="accountability-message highlighted-message">            
-            <strong>Note:</strong>This document serves as an official record of the asset borrowing and return transaction.
+            <strong>Note:</strong> This document serves as an official record of the asset borrowing and return transaction.
         </div>
     </div>
 
@@ -255,7 +246,7 @@
                 <p style="margin-bottom: 24px;">&nbsp;</p>
                 <p style="border-bottom: 1px solid #333; margin: 0; padding-bottom: 4px;">&nbsp;</p>
                 <p style="text-align: center; margin-top: 4px; margin-bottom: 8px;">
-                    {{ $transaction->return_data['approved_by'] ?? 'N/A' }}
+                    {{ $transaction->borrow_approved_by }}
                 </p>
                 <p style="text-align: center; margin-top: 4px;">
                     Authorized Signature
