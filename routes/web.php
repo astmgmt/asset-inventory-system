@@ -41,6 +41,8 @@ use App\Http\Controllers\SuperAdmin\AssetPdfController;
 
 use App\Livewire\AccountProfile\EditProfile;
 
+use App\Livewire\Contact\ContactUs;
+
 use App\Http\Controllers\Auth\CustomAuthenticatedSessionController;
 use App\Http\Controllers\Auth\CustomRegisteredUserController;
 
@@ -54,6 +56,9 @@ use App\Http\Controllers\User\ReturnController;
 Route::get('/', function () {
     return view('auth.login'); 
 });
+
+
+
 
 // GUEST ROUTES
 Route::middleware('guest')->group(function () {
@@ -81,6 +86,9 @@ Route::middleware('guest')->group(function () {
     
     Route::post('/reset-password', [NewPasswordController::class, 'store'])
         ->name('password.update');
+
+    Route::get('/contact', ContactUs::class)
+        ->name('contact');
 });
 
 // OVERRIDE FORTIFY AUTHENTICATION

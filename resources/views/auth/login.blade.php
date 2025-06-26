@@ -56,21 +56,25 @@
                     @endif
                 </div>            
 
-                <!-- Buttons -->
                 <div class="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-4">
-                    <x-button
-                        type="submit"
-                        class="w-full sm:w-auto text-lg md:text-base px-6 md:px-4 py-3 md:py-2 text-center normal-case rounded-md bg-indigo-600 text-white hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition inline-flex items-center justify-center">
+                    <button type="submit"
+                        class="w-full sm:w-auto text-base px-6 py-3 text-center font-semibold normal-case rounded-md bg-indigo-600 text-white hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition inline-flex items-center justify-center">
                         {{ __('Login') }}
-                    </x-button>
+                    </button>
 
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}"
-                        class="w-full sm:w-auto text-sm md:text-xs px-6 md:px-4 py-3 md:py-2 text-center font-bold normal-case rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition inline-flex items-center justify-center">
-                            {{ __('Register') }}
-                        </a>
-                    @endif
+                    <a href="{{ route('register') }}"
+                    class="w-full sm:w-auto text-base px-6 py-3 text-center font-semibold normal-case rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition inline-flex items-center justify-center">
+                        {{ __('Register') }}
+                    </a>
                 </div>
+
+                <div class="text-center mt-4">
+                    <a href="{{ route('contact') }}"
+                        class="text-sm font-semibold text-gray-600 hover:text-indigo-600 underline">
+                        Need help? Contact Us
+                    </a>
+                </div>
+
            
             </form>
         </div>

@@ -168,11 +168,6 @@
                         </a>
                     </div>
 
-
-
-
-
-
                 @endif
             @endauth
         </nav>
