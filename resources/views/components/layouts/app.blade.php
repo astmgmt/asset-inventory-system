@@ -86,7 +86,7 @@
                         <i class="fas" :class="open === 3 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 3" x-collapse class="nav-submenu">
-                        <a href="{{route('manage.softwares')}}"><i class="fas fa-plus-circle"></i> Add Software</a>
+                        <a href="{{route('manage.softwares')}}"><i class="fas fa-cogs"></i> Manage Software</a>
                         <a href="{{route('software.assignment')}}"><i class="fas fa-share-square"></i> Assign Software</a>                         
                         <a href="{{ route('track.software') }}"><i class="fas fa-chart-line"></i> Track Software</a>
                     </div>                   
@@ -127,7 +127,7 @@
                         <i class="fas" :class="open === 3 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 3" x-collapse class="nav-submenu">
-                        <a href="{{route('manage.softwares')}}"><i class="fas fa-plus-circle"></i> Add Software</a>
+                        <a href="{{route('manage.softwares')}}"><i class="fas fa-cogs"></i> Manage Software</a>
                         <a href="{{route('software.assignment')}}"><i class="fas fa-share-square"></i> Assign Software</a>
                         <a href="{{ route('track.software') }}"><i class="fas fa-chart-line"></i> Track Software</a>
                     </div>                   

@@ -69,7 +69,7 @@
                         </tbody>
                     </table>
 
-                    <div mt-6 mb-4 pagination-container>
+                    <div mt-6 pagination-container>
                         {{ $expiringAssets->links() }}
                     </div>
                     

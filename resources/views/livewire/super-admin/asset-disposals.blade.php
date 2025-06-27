@@ -208,7 +208,7 @@
     <!-- Confirmation Modal -->
     @if($showConfirmModal)
         <div class="modal-backdrop" x-data="{ show: @entangle('showConfirmModal') }" x-show="show">
-            <div class="modal" x-on:click.away="$wire.showConfirmModal = false">
+            <div class="modal w-[50%] max-w-none mx-auto bg-white rounded shadow-lg" x-on:click.away="$wire.showConfirmModal = false">
                 <div class="modal-header">
                     <h2 class="modal-title">Confirm Asset Disposal</h2>
                     <button wire:click="closeModal" class="modal-close">&times;</button>

@@ -105,7 +105,7 @@
                     </div>
                 </div>
                 
-                <!-- Account Stats -->
+                <!-- Account Stats
                 <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-6 flex-1 flex flex-col justify-between">
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 border-b pb-3 mb-4">
                         Account Statistics
@@ -128,6 +128,7 @@
                         </div>                       
                     </div>
                 </div>
+                -->
             </div>
         </div>
     </div>
