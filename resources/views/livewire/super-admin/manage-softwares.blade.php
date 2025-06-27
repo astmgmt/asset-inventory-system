@@ -281,22 +281,34 @@
         </div>
     @endif
 
-
     <!-- Delete Confirmation Modal -->
     @if ($showDeleteModal)
         <div class="modal-backdrop">
             <div class="modal modal-delete">
-                <h2 class="modal-title">Confirm Deletion</h2>
-                <p class="modal-text">Are you sure you want to delete this software? This action cannot be undone.</p>
-                
-                <div class="modal-actions">
-                    <button wire:click="deleteSoftware" class="btn btn-danger">
-                        <i class="fas fa-trash-alt"></i> Confirm
+                <h2 class="text-lg font-semibold text-red-700 mb-2">Confirm Deletion</h2>
+                <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4 rounded-md">
+                    <p class="text-sm text-red-700 mb-0">
+                        Are you sure you want to delete this software? 
+                        <strong class="font-medium">This action cannot be undone.</strong>
+                    </p>
+                </div>
+                <div class="flex space-x-4 justify-center">
+                    <button 
+                        wire:click="deleteSoftware" 
+                        class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
+                        type="button"
+                    >
+                        <i class="fas fa-trash-alt mr-2"></i> Confirm
                     </button>
-                    <button wire:click="closeModals" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Cancel
+                    <button 
+                        wire:click="closeModals" 
+                        class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition"
+                        type="button"
+                    >
+                        <i class="fas fa-times mr-2"></i> Cancel
                     </button>
                 </div>
+
             </div>
         </div>
     @endif

@@ -85,28 +85,44 @@
         @if ($confirmingUserDeletion)
             <div class="modal-backdrop">
                 <div class="modal modal-delete">
-                    <h2 class="modal-title">Confirm Deletion</h2>
-                    <p class="modal-text">Enter your password to confirm deletion of this account.</p>
-
-                    <input
-                        type="password"
-                        wire:model.defer="password"
-                        class="modal-input mb-4"
-                        placeholder="Super Admin Password"
-                    />
-
-                    @error('password')
-                        <div class="flex items-center gap-2 mt-2 mb-4 text-sm text-red-700 bg-red-100 p-2 rounded-md">
-                            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M12 5c-3.866 0-7 3.134-7 7s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7z"/>
-                            </svg>
-                            <span>{{ $message }}</span>
+                    <h2 class="text-lg font-semibold mb-2 text-red-700">
+                        Confirm Deletion
+                    </h2>
+                    <div class="bg-danger border-l-4 border-red-500 p-3 sm:p-4 rounded-md shadow-sm mb-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 pt-0.5">
+                                <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3 text-sm text-red-800 leading-tight">                                
+                                Enter your password to permanently delete this account. This action cannot be undone.
+                            </div>
                         </div>
-                    @enderror
+                    </div>
 
-                    <div class="modal-actions mt-2">
-                        <div class="flex items-center space-x-4 mt-6">
+                    <div class="mb-2">
+                        <input
+                            type="password"
+                            wire:model.defer="password"
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                            placeholder="Super Admin Password"
+                        />
+                        
+                        @error('password')
+                            <div class="flex items-start gap-2 mt-2 text-sm text-red-700 bg-red-100 p-2 rounded-md">
+                                <svg class="w-4 h-4 text-red-600 mt-0.5" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 9v2m0 4h.01M12 5c-3.866 0-7 3.134-7 7s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7z"/>
+                                </svg>
+                                <span>{{ $message }}</span>
+                            </div>
+                        @enderror
+                    </div>
+                    <!-- Action Buttons -->
+                    <div class="modal-actions mt-4">
+                        <div class="flex items-center space-x-4">
                             <button
                                 wire:click="deleteUser"
                                 class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
@@ -123,7 +139,6 @@
                                 Cancel
                             </button>
                         </div>
-
                     </div>
                 </div>
             </div>

@@ -192,24 +192,41 @@
                 <button wire:click="$set('showApproveModal', false)" class="modal-close">&times;</button>
             </div>
             
-            <div class="modal-body">
-                <div class="text-center p-4">
-                    <p class="text-lg mb-4">Are you sure you want to approve this borrow request?</p>
-                    <p class="mb-4">Borrow Code: <strong>{{ $selectedTransaction->borrow_code ?? 'N/A' }}</strong></p>
-                    
-                    <div class="mt-4">
-                        <label for="approve-remarks" class="block text-sm font-medium text-gray-700 mb-1">
-                            Remarks (Optional)
+            <div class="modal-body">                
+                <div class="bg-info border-l-4 border-blue-500 p-3 sm:p-4 rounded-md shadow-sm mb-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 pt-0.5">
+                            <svg class="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3 text-sm text-blue-800 leading-tight">
+                            Are you sure you want to approve this borrow request?
+                            <strong class="block font-medium mt-0.5">This action will notify the borrower and move the request forward.</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center p-3 sm:p-4 bg-white rounded-md border border-gray-200 shadow-sm">
+                    <p class="text-sm text-gray-700 mb-2 leading-snug">
+                        Borrow Code: 
+                        <strong class="text-gray-900">{{ $selectedTransaction->borrow_code ?? 'N/A' }}</strong>
+                    </p>
+
+                    <div class="mt-3 text-left">
+                        <label for="approve-remarks" class="block text-xs font-medium text-gray-700 mb-1">
+                            Remarks <span class="text-gray-400">(Optional)</span>
                         </label>
                         <textarea 
                             id="approve-remarks" 
                             wire:model="approveRemarks" 
                             rows="3" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm leading-tight resize-none"
                             placeholder="Add any remarks for the borrower..."
                         ></textarea>
                     </div>
                 </div>
+
             </div>
             
             <div class="modal-footer flex justify-end space-x-3 mt-4">
@@ -240,25 +257,46 @@
             </div>
             
             <div class="modal-body">
-                <div class="text-center p-4">
-                    <p class="text-lg mb-4">Are you sure you want to reject this borrow request?</p>
-                    <p class="mb-4">Borrow Code: <strong>{{ $selectedTransaction->borrow_code ?? 'N/A' }}</strong></p>
-                    
-                    <div class="mt-4">
-                        <label for="deny-remarks" class="block text-sm font-medium text-gray-700 mb-1">
-                            Reason for Rejection (Required)
+                <div class="bg-danger border-l-4 border-red-500 p-3 sm:p-4 rounded-md shadow-sm mb-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 pt-0.5">
+                            <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3 text-sm text-red-800 leading-tight">
+                            Are you sure you want to reject this borrow request?
+                            <strong class="block font-medium mt-0.5">This action is final and will notify the requester immediately.</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Rejection Content -->
+                <div class="text-center p-3 sm:p-4 bg-white rounded-md border border-gray-200 shadow-sm">
+                    <p class="text-sm text-gray-700 mb-2 leading-snug">
+                        Borrow Code: 
+                        <strong class="text-gray-900">{{ $selectedTransaction->borrow_code ?? 'N/A' }}</strong>
+                    </p>
+
+                    <div class="mt-3 text-left">
+                        <label for="deny-remarks" class="block text-xs font-medium text-gray-700 mb-1">
+                            Reason for Rejection <span class="text-red-500">(Required)</span>
                         </label>
                         <textarea 
                             id="deny-remarks" 
                             wire:model="denyRemarks" 
                             rows="3" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            placeholder="Please provide a reason for rejection..."
                             required
+                            class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm leading-tight resize-none"
+                            placeholder="Please provide a reason for rejection..."
                         ></textarea>
-                        @error('denyRemarks') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        @error('denyRemarks') 
+                            <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> 
+                        @enderror
                     </div>
                 </div>
+
+
             </div>
             
             <div class="modal-footer flex justify-end space-x-3 mt-4">

@@ -2,7 +2,6 @@
     <h1 class="page-title main-title">Approve Return Requests</h1>
 
     <div>
-        <!-- Success/Error Messages -->
         @if ($successMessage)
             <div class="success-message mb-4" 
                  x-data="{ show: true }" 
@@ -82,7 +81,7 @@
                                     wire:click="openApproveModal({{ $transaction->id }})"
                                     class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded text-sm transition duration-150 ease-in-out"
                                 >
-                                    <i class="fas fa-check mr-1"></i> Approve
+                                    <i class="fas fa-check mr-1"></i> Details
                                 </button>
 
                                 <button 
@@ -118,48 +117,60 @@
                     </div>
                     
                     <div class="modal-body">
-                        <div class="mb-4">
-                            <h3 class="font-semibold">Borrower:</h3>
-                            <p>{{ $selectedTransaction->user->name }}</p>
+                        <div class="bg-success border-l-4 border-green-500 p-3 sm:p-4 rounded-md shadow-sm mb-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 pt-0.5">
+                                    <svg class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3 text-sm text-green-800 leading-tight">
+                                    Borrow request is ready for approval.
+                                    <strong class="block font-medium mt-0.5">Please confirm the borrower's details and asset list below.</strong>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <table class="user-table">
-                            <thead>
-                                <tr>
-                                    <th>Asset Code</th>
-                                    <th>Asset Name</th>
-                                    <th>Quantity</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($approveBorrowItems as $item)
+
+                        <!-- Borrower Info (Inline & Compact) -->
+                        <div class="mb-3 text-md text-gray-700 leading-tight">
+                            <span class="font-medium">Borrower:</span>
+                            <span class="font-semibold text-green-600">{{ $selectedTransaction->user->name }}</span>
+                        </div>
+
+                        <!-- Asset Table -->
+                        <div class="overflow-x-auto rounded-md border border-gray-200 shadow-sm mb-4">
+                            <table class="min-w-full text-sm text-left text-gray-700">
+                                <thead class="bg-gray-100 text-xs uppercase text-gray-600">
                                     <tr>
-                                        <td data-label="Asset Code" class="text-center">
-                                            {{ $item->asset->asset_code }}
-                                        </td>
-                                        <td data-label="Asset Name" class="text-center">
-                                            {{ $item->asset->name }}
-                                        </td>
-                                        <td data-label="Quantity" class="text-center">
-                                            {{ $item->quantity }}
-                                        </td>
+                                        <th class="px-4 py-2">Asset Code</th>
+                                        <th class="px-4 py-2">Asset Name</th>
+                                        <th class="px-4 py-2 text-center">Quantity</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                        
-                        <!-- Remarks section -->
-                        <div class="mt-6">
-                            <label for="approve-remarks" class="block text-sm font-medium text-gray-700 mb-1">
-                                Remarks (Optional)
+                                </thead>
+                                <tbody class="bg-white">
+                                    @foreach($approveBorrowItems as $item)
+                                        <tr class="border-t">
+                                            <td class="px-4 py-2">{{ $item->asset->asset_code }}</td>
+                                            <td class="px-4 py-2">{{ $item->asset->name }}</td>
+                                            <td class="px-4 py-2 text-center">{{ $item->quantity }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Remarks Section -->
+                        <div class="mt-4 text-left">
+                            <label for="approve-remarks" class="block text-xs font-medium text-gray-700 mb-1">
+                                Remarks <span class="text-gray-400">(Optional)</span>
                             </label>
                             <textarea 
                                 id="approve-remarks" 
                                 wire:model="approveRemarks" 
                                 rows="3" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                placeholder="Add any remarks for the borrower..."
                                 name="approveRemarks"
+                                class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm leading-tight resize-none"
+                                placeholder="Add any remarks for the borrower..."
                             ></textarea>
                         </div>
                     </div>
@@ -194,52 +205,66 @@
                     </div>
                     
                     <div class="modal-body">
-                        <div class="mb-4">
-                            <h3 class="font-semibold">Borrower:</h3>
-                            <p>{{ $selectedTransaction->user->name }}</p>
+                        <div class="bg-danger border-l-4 border-red-500 p-3 sm:p-4 rounded-md shadow-sm mb-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 pt-0.5">
+                                    <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3 text-sm text-red-800 leading-tight">
+                                    Rejecting this borrow request will notify the borrower and cancel the transaction.
+                                    <strong class="block font-medium mt-0.5">Please review the items and provide a reason below.</strong>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <table class="user-table">
-                            <thead>
-                                <tr>
-                                    <th>Asset Code</th>
-                                    <th>Asset Name</th>
-                                    <th>Quantity</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($rejectBorrowItems as $item)
+
+                        <div class="mb-3 text-sm text-gray-700 leading-tight">
+                            <span class="font-medium">Borrower:</span>
+                            <span class="font-medium text-red-600">{{ $selectedTransaction->user->name }}</span>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-md border border-gray-200 shadow-sm mb-4">
+                            <table class="min-w-full text-sm text-left text-gray-700">
+                                <thead class="bg-gray-100 text-xs uppercase text-gray-600">
                                     <tr>
-                                        <td data-label="Asset Code" class="text-center">
-                                            {{ $item->asset->asset_code }}
-                                        </td>
-                                        <td data-label="Asset Name" class="text-center">
-                                            {{ $item->asset->name }}
-                                        </td>
-                                        <td data-label="Quantity" class="text-center">
-                                            {{ $item->quantity }}
-                                        </td>
+                                        <th class="px-4 py-2">Asset Code</th>
+                                        <th class="px-4 py-2">Asset Name</th>
+                                        <th class="px-4 py-2 text-center">Quantity</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                        
-                        <!-- Remarks section -->
-                        <div class="mt-6">
-                            <label for="reject-remarks" class="block text-sm font-medium text-gray-700 mb-1">
-                                Reason for Rejection (Required)
+                                </thead>
+                                <tbody class="bg-white">
+                                    @foreach($rejectBorrowItems as $item)
+                                        <tr class="border-t">
+                                            <td class="px-4 py-2 text-center">{{ $item->asset->asset_code }}</td>
+                                            <td class="px-4 py-2 text-center">{{ $item->asset->name }}</td>
+                                            <td class="px-4 py-2 text-center">{{ $item->quantity }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="mt-4 text-left">
+                            <label for="reject-remarks" class="block text-xs font-medium text-gray-700 mb-1">
+                                Reason for Rejection <span class="text-red-500">(Required)</span>
                             </label>
                             <textarea 
                                 id="reject-remarks" 
                                 wire:model="rejectRemarks" 
                                 rows="3" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                placeholder="Explain why this return is being rejected..."
-                                required
                                 name="rejectRemarks"
+                                required
+                                class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm leading-tight resize-none"
+                                placeholder="Explain why this return is being rejected..."
                             ></textarea>
-                            @error('rejectRemarks') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            @error('rejectRemarks') 
+                                <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> 
+                            @enderror
                         </div>
+
+
+
                     </div>
                     
                     <div class="modal-footer flex justify-end space-x-3 mt-4">

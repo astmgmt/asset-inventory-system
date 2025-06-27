@@ -59,7 +59,7 @@
                             </button>
                             <button 
                                 wire:click="printBatch({{ $batch->id }})" 
-                                class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-1 px-3 rounded-md shadow-sm transition-colors duration-200"
+                                class="bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded-md shadow-sm transition-colors duration-200"
                                 title="Print PDF"
                             >
                                 <i class="fas fa-print"></i> Print

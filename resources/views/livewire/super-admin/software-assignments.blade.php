@@ -105,103 +105,109 @@
                 </div>
                 
                 <div class="modal-body">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            User Email or Username
-                        </label>
-                        <input 
-                            type="text" 
-                            wire:model="userIdentifier"
-                            placeholder="Enter user's email or username"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        >
-                    </div>
-                    
-                    @if(count($selectedSoftware))
-                        <table class="user-table">
-                            <thead>
-                                <tr>
-                                    <th class="w-12">
-                                        <input 
-                                            type="checkbox" 
-                                            wire:click="toggleSelectAll"
-                                            @if(count($selectedForAssignment) === count($selectedSoftware)) checked @endif
-                                            class="checkbox-success"
-                                        >
-                                    </th>
-                                    <th>Software</th>
-                                    <th>License</th>
-                                    <th>Quantity</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($selectedSoftware as $software)
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4 rounded-md">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                User Email or Username
+                            </label>
+                            <input 
+                                type="text" 
+                                wire:model="userIdentifier"
+                                placeholder="Enter user's email or username"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            >
+                        </div>
+                        
+                        @if(count($selectedSoftware))
+                            <table class="user-table w-full text-center">
+                                <thead>
                                     <tr>
-                                        <td class="text-center">
+                                        <th class="w-12">
                                             <input 
                                                 type="checkbox" 
-                                                wire:model="selectedForAssignment"
-                                                value="{{ $software['id'] }}"
-                                                class="checkbox-item"
+                                                wire:click="toggleSelectAll"
+                                                @if(count($selectedForAssignment) === count($selectedSoftware)) checked @endif
+                                                class="checkbox-success"
                                             >
-                                        </td>
-                                        <td data-label="Software" class="text-center">
-                                            {{ $software['name'] }} ({{ $software['code'] }})
-                                        </td>
-                                        <td data-label="License" class="text-center">
-                                            {{ substr($software['license_key'], 0, 8) }}****
-                                        </td>
-                                        <td data-label="Quantity" class="text-center">
-                                            <input 
-                                                type="number" 
-                                                min="1" 
-                                                max="{{ $software['max_quantity'] }}"
-                                                value="{{ $software['quantity'] }}"
-                                                wire:change="updateCartQuantity({{ $software['id'] }}, $event.target.value)"
-                                                class="form-input w-20 text-center"
-                                            >
-                                        </td>
-                                        <td data-label="Action" class="text-center">
-                                            <button 
-                                                wire:click="removeFromCart('{{ $software['id'] }}')" 
-                                                class="text-red-600 hover:text-red-800"
-                                            >
-                                                &times;
-                                            </button>
-                                        </td>
+                                        </th>
+                                        <th>Software</th>
+                                        <th>License</th>
+                                        <th>Quantity</th>
+                                        <th>Action</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    @else
-                        <p class="text-center py-4">Your cart is empty</p>
-                    @endif
-                    
-                    @if ($errorMessage)
-                        <div class="error-message mt-4">
-                            {{ $errorMessage }}
-                        </div>
-                    @endif
+                                </thead>
+                                <tbody>
+                                    @foreach($selectedSoftware as $software)
+                                        <tr>
+                                            <td class="text-center">
+                                                <input 
+                                                    type="checkbox" 
+                                                    wire:model="selectedForAssignment"
+                                                    value="{{ $software['id'] }}"
+                                                    class="checkbox-item"
+                                                >
+                                            </td>
+                                            <td data-label="Software" class="text-center">
+                                                {{ $software['name'] }} ({{ $software['code'] }})
+                                            </td>
+                                            <td data-label="License" class="text-center">
+                                                {{ substr($software['license_key'], 0, 8) }}****
+                                            </td>
+                                            <td data-label="Quantity" class="text-center">
+                                                <input 
+                                                    type="number" 
+                                                    min="1" 
+                                                    max="{{ $software['max_quantity'] }}"
+                                                    value="{{ $software['quantity'] }}"
+                                                    wire:change="updateCartQuantity({{ $software['id'] }}, $event.target.value)"
+                                                    class="form-input w-20 text-center"
+                                                >
+                                            </td>
+                                            <td data-label="Action" class="text-center">
+                                                <button 
+                                                    wire:click="removeFromCart('{{ $software['id'] }}')" 
+                                                    class="text-red-600 hover:text-red-800"
+                                                >
+                                                    &times;
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @else
+                            <p class="text-center py-4">Your cart is empty</p>
+                        @endif
+                        
+                        @if ($errorMessage)
+                            <div class="error-message mt-4 text-red-600 font-medium">
+                                {{ $errorMessage }}
+                            </div>
+                        @endif
+                    </div>
                 </div>
                 
-                <div class="modal-footer">
+                <div class="modal-footer flex items-center space-x-4">
                     @if(count($selectedSoftware))
                         <button 
-                            class="btn btn-danger"
+                            type="button"
                             x-data
                             x-on:click="if(confirm('Remove all items?')) { $wire.clearCart(); }"
+                            class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
                         >
                             Clear Cart
                         </button>
                     @endif
+
                     <div class="flex-1"></div>
+
                     <button 
+                        type="button"
                         wire:click="assign" 
                         wire:loading.attr="disabled"
-                        class="btn btn-secondary btn-update flex items-center gap-2"
+                        class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition"
                     >
-                        <i class="fas fa-paper-plane"></i>
+                        <i class="fas fa-paper-plane mr-2"></i>
                         <span wire:loading.remove>Assign Software</span>
                         <span wire:loading>Processing...</span>
                     </button>

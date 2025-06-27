@@ -106,37 +106,43 @@
                 
                 <div class="modal-body">
                     @if($selectedAsset)
-                        <!-- Reduced font size and spacing for asset details -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-1 mb-2 text-sm">
-                            <div>
-                                <p class="font-medium text-xs text-gray-500">Asset Code:</p>
-                                <p>{{ $selectedAsset->asset_code }}</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-sm font-sans">
+                            <div class="p-2 border border-gray-200 rounded-lg shadow-sm bg-white">
+                                <p class="font-semibold text-xs text-gray-600 uppercase tracking-wide mb-0.5">Asset Code</p>
+                                <p class="text-gray-800 leading-tight">{{ $selectedAsset->asset_code }}</p>
                             </div>
-                            <div>
-                                <p class="font-medium text-xs text-gray-500">Asset Name:</p>
-                                <p>{{ $selectedAsset->name }}</p>
+                            <div class="p-2 border border-gray-200 rounded-lg shadow-sm bg-white">
+                                <p class="font-semibold text-xs text-gray-600 uppercase tracking-wide mb-0.5">Asset Name</p>
+                                <p class="text-gray-800 leading-tight">{{ $selectedAsset->name }}</p>
                             </div>
-                            <div>
-                                <p class="font-medium text-xs text-gray-500">Category:</p>
-                                <p>{{ $selectedAsset->category->category_name }}</p>
+                            <div class="p-2 border border-gray-200 rounded-lg shadow-sm bg-white">
+                                <p class="font-semibold text-xs text-gray-600 uppercase tracking-wide mb-0.5">Category</p>
+                                <p class="text-gray-800 leading-tight">{{ $selectedAsset->category->category_name }}</p>
                             </div>
-                            <div>
-                                <p class="font-medium text-xs text-gray-500">Location:</p>
-                                <p>{{ $selectedAsset->location->location_name }}</p>
+                            <div class="p-2 border border-gray-200 rounded-lg shadow-sm bg-white">
+                                <p class="font-semibold text-xs text-gray-600 uppercase tracking-wide mb-0.5">Location</p>
+                                <p class="text-gray-800 leading-tight">{{ $selectedAsset->location->location_name }}</p>
                             </div>
-                            <div>
-                                <p class="font-medium text-xs text-gray-500">Condition:</p>
+                            <div class="p-2 border border-gray-200 rounded-lg shadow-sm bg-white">
+                                <p class="font-semibold text-xs text-gray-600 uppercase tracking-wide mb-0.5">Condition</p>
                                 <p>
-                                    <span class="status-badge {{ strtolower($selectedAsset->condition->condition_name) }}">
+                                    <span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-full
+                                        {{ 
+                                        strtolower($selectedAsset->condition->condition_name) === 'good' ? 'bg-green-100 text-green-800' : 
+                                        (strtolower($selectedAsset->condition->condition_name) === 'fair' ? 'bg-yellow-100 text-yellow-800' : 
+                                        (strtolower($selectedAsset->condition->condition_name) === 'poor' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'))
+                                        }}">
                                         {{ $selectedAsset->condition->condition_name }}
                                     </span>
                                 </p>
                             </div>
-                            <div>
-                                <p class="font-medium text-xs text-gray-500">Serial Number:</p>
-                                <p>{{ $selectedAsset->serial_number }}</p>
+                            <div class="p-2 border border-gray-200 rounded-lg shadow-sm bg-white">
+                                <p class="font-semibold text-xs text-gray-600 uppercase tracking-wide mb-0.5">Serial Number</p>
+                                <p class="text-gray-800 leading-tight">{{ $selectedAsset->serial_number }}</p>
                             </div>
                         </div>
+
+
 
                         <!-- Full spacing for form elements -->
                         <div class="mt-4 border-t border-gray-200 pt-4">
@@ -208,7 +214,7 @@
     <!-- Confirmation Modal -->
     @if($showConfirmModal)
         <div class="modal-backdrop" x-data="{ show: @entangle('showConfirmModal') }" x-show="show">
-            <div class="modal w-[50%] max-w-none mx-auto bg-white rounded shadow-lg" x-on:click.away="$wire.showConfirmModal = false">
+            <div class="modal modal-delete" x-on:click.away="$wire.showConfirmModal = false">
                 <div class="modal-header">
                     <h2 class="modal-title">Confirm Asset Disposal</h2>
                     <button wire:click="closeModal" class="modal-close">&times;</button>
