@@ -147,12 +147,14 @@
                                             <input 
                                                 type="number" 
                                                 min="1" 
-                                                max="{{ $asset['max_quantity'] }}"
-                                                value="{{ $asset['quantity'] }}"
+                                                max="1" 
+                                                value="1"
+                                                readonly
                                                 wire:change="updateCartQuantity({{ $asset['id'] }}, $event.target.value)"
-                                                class="form-input w-20 text-center"
+                                                class="form-input w-20 text-center"                                                 
                                             >
                                         </td>
+
 
                                         <td data-label="Purpose" class="text-center">
                                             <input 
