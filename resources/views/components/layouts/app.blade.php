@@ -77,6 +77,7 @@
                         <a href="{{ route('asset.assignment') }}"><i class="fas fa-random"></i> Assign Asset</a>
                         <a href="{{ route('approve.requests') }}"><i class="fas fa-hand-paper"></i> Borrow Request(s)</a>
                         <a href="{{ route('approve.return') }}"><i class="fas fa-undo-alt"></i> Return Request(s)</a>
+                        <a href="{{ route('track.assets') }}"><i class="fas fa-chart-line"></i> Track Assets</a>
                         <a href="{{ route('asset.disposal') }}"><i class="fas fa-trash-alt"></i> Dispose Asset</a>                                               
                     </div>
 
@@ -118,6 +119,7 @@
                         <a href="{{ route('asset.assignment') }}"><i class="fas fa-random"></i> Assign Asset</a>
                         <a href="{{ route('approve.requests') }}"><i class="fas fa-hand-paper"></i> Borrow Request(s)</a>
                         <a href="{{ route('approve.return') }}"><i class="fas fa-undo-alt"></i> Return Request(s)</a>
+                        <a href="{{ route('track.assets') }}"><i class="fas fa-chart-line"></i> Track Assets</a>
                         <a href="{{ route('asset.disposal') }}"><i class="fas fa-trash-alt"></i> Dispose Asset</a>                                               
                     </div>
 

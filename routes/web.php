@@ -26,6 +26,7 @@ use App\Livewire\SuperAdmin\AssetDisposals;
 use App\Livewire\SuperAdmin\PrintAssets;
 use App\Livewire\SuperAdmin\PrintSoftwares;
 use App\Livewire\SuperAdmin\PrintQRCodes;
+use App\Livewire\SuperAdmin\TrackAssets;
 
 use App\Livewire\User\UserBorrowAsset; 
 use App\Livewire\User\UserContainers;
@@ -197,7 +198,9 @@ Route::middleware([
             ->name('print.qrcodes')
             ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
 
-
+    Route::get('/track/assets',TrackAssets::class)
+            ->name('track.assets')
+            ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
             
 
     // GENERATE PRINTABLE QRCODE IN PDF
