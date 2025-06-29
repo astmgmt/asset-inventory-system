@@ -121,7 +121,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date *</label>
                             <input type="date" wire:model="expiry_date"
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                class="form-input w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             @error('expiry_date') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
                         </div>
                     </div>
@@ -154,9 +154,7 @@
                 <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Edit Software</h2>
 
                 <form wire:submit.prevent="updateSoftware">
-                    <!-- 2-column grid layout -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Software Name -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Software Name *</label>
                             <input type="text" wire:model="software_name"
@@ -176,7 +174,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date *</label>
                             <input type="date" wire:model="expiry_date"
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                class="form-input w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             @error('expiry_date') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
                         </div>
 
@@ -208,46 +206,45 @@
 
     @if ($showViewModal)
         <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div
-                class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-3xl p-8 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-                <h2 class="text-3xl font-semibold mb-8 border-b border-gray-300 dark:border-gray-700 pb-4">
+            <div class="bg-gray-50 rounded-lg shadow-2xl w-full max-w-4xl p-8 text-gray-900 transition-colors duration-300 max-h-[90vh] overflow-y-auto">
+                <h2 class="text-gray-700 text-2xl font-semibold mb-8 border-b border-gray-300 pb-4">
                     Software Details: {{ $viewSoftware->software_name ?? '' }}
                 </h2>
 
                 @if($viewSoftware)
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                         <!-- Software Code -->
-                        <div class="bg-white dark:bg-gray-700 rounded-md p-4 shadow-sm">
+                        <div class="asset-details rounded-md p-4 shadow-sm">
                             <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Software Code</label>
                             <p class="text-lg font-medium break-words">{{ $viewSoftware->software_code }}</p>
                         </div>
 
                         <!-- License Key -->
-                        <div class="bg-white dark:bg-gray-700 rounded-md p-4 shadow-sm">
+                        <div class="asset-details rounded-md p-4 shadow-sm">
                             <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">License Key</label>
                             <p class="text-lg break-words">{{ $viewSoftware->license_key }}</p>
                         </div>
 
                         <!-- Software Name -->
-                        <div class="bg-white dark:bg-gray-700 rounded-md p-4 shadow-sm">
+                        <div class="asset-details rounded-md p-4 shadow-sm">
                             <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Software Name</label>
                             <p class="text-lg font-medium">{{ $viewSoftware->software_name }}</p>
                         </div>
 
                         <!-- Description -->
-                        <div class="bg-white dark:bg-gray-700 rounded-md p-4 shadow-sm">
+                        <div class="asset-details rounded-md p-4 shadow-sm">
                             <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Description</label>
                             <p class="text-lg whitespace-pre-line">{{ $viewSoftware->description }}</p>
                         </div>
 
                         <!-- Quantity -->
-                        <div class="bg-white dark:bg-gray-700 rounded-md p-4 shadow-sm">
+                        <div class="asset-details rounded-md p-4 shadow-sm">
                             <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Quantity</label>
                             <p class="text-lg">{{ $viewSoftware->quantity }}</p>
                         </div>
 
                         <!-- Expiry Date -->
-                        <div class="bg-white dark:bg-gray-700 rounded-md p-4 shadow-sm">
+                        <div class="asset-details rounded-md p-4 shadow-sm">
                             <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Expiry Date</label>
                             <p class="text-lg flex items-center space-x-2">
                                 <span>{{ $viewSoftware->expiry_date->format('M d, Y') }}</span>                                
@@ -256,13 +253,13 @@
 
 
                         <!-- Added By -->
-                        <div class="bg-white dark:bg-gray-700 rounded-md p-4 shadow-sm">
+                        <div class="asset-details rounded-md p-4 shadow-sm">
                             <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Added By</label>
                             <p class="text-lg">{{ $viewSoftware->addedBy?->name ?? 'N/A' }}</p>
                         </div>
 
                         <!-- Expiry Status -->
-                        <div class="bg-white dark:bg-gray-700 rounded-md p-4 shadow-sm">
+                        <div class="asset-details rounded-md p-4 shadow-sm">
                             <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Expiry Status</label>
                             <p class="text-lg text-red-500">
                                 {{ ucwords(str_replace('_', ' ', $viewSoftware->expiry_status)) }}

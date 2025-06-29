@@ -21,19 +21,19 @@
     @endif
 
     <!-- Print Form Card -->
-    <div class="bg-white shadow-md rounded-lg p-6 mb-6 border border-gray-200">
+    <div class="section-wrapper shadow-md rounded-lg p-6 mb-6 border border-gray-200">
         <form wire:submit.prevent="printAssets" class="space-y-6">
 
             <!-- Filter Options -->
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Filter Options</label>
+                <label class="block text-sm font-semibold mb-2">Filter Options</label>
                 <div class="flex items-center space-x-6">
-                    <label class="inline-flex items-center text-sm text-gray-600">
+                    <label class="inline-flex items-center text-sm">
                         <input type="radio" wire:model.live="filterOption" value="by_date"
                             class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
                         <span class="ml-2">By Date</span>
                     </label>
-                    <label class="inline-flex items-center text-sm text-gray-600">
+                    <label class="inline-flex items-center text-sm">
                         <input type="radio" wire:model.live="filterOption" value="select_all"
                             class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
                         <span class="ml-2">Select All</span>
@@ -44,11 +44,11 @@
             <!-- Date Inputs -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="dateFrom" class="block text-sm font-medium text-gray-700 mb-1">Date From</label>
+                    <label for="dateFrom" class="block text-sm font-medium mb-1">Date From</label>
                     <input 
                         type="date" 
                         id="dateFrom" 
-                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm @if($filterOption == 'select_all') opacity-50 cursor-not-allowed @endif"
+                        class="form-input block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm @if($filterOption == 'select_all') opacity-50 cursor-not-allowed @endif"
                         wire:model="dateFrom"
                         @if($filterOption == 'select_all') disabled @endif
                     >
@@ -57,11 +57,11 @@
                     @enderror
                 </div>
                 <div>
-                    <label for="dateTo" class="block text-sm font-medium text-gray-700 mb-1">Date To</label>
+                    <label for="dateTo" class="block text-sm font-medium mb-1">Date To</label>
                     <input 
                         type="date" 
                         id="dateTo" 
-                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm @if($filterOption == 'select_all') opacity-50 cursor-not-allowed @endif"
+                        class="form-input block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm @if($filterOption == 'select_all') opacity-50 cursor-not-allowed @endif"
                         wire:model="dateTo"
                         @if($filterOption == 'select_all') disabled @endif
                     >
@@ -85,10 +85,10 @@
 
 
     <!-- Print Logs Card -->
-    <div class="bg-white shadow-md rounded-lg p-6 border border-gray-200">
+    <div class=".section-wrapper shadow-md rounded-lg p-6 border border-gray-200">
         <!-- Card Header -->
         <div class="mb-6 text-center">
-            <h3 class="text-xl font-semibold text-gray-800">Print History</h3>
+            <h3 class="text-xl font-semibold">Print History</h3>
         </div>
 
         <!-- Search Bar -->
@@ -97,7 +97,7 @@
                 type="text" 
                 placeholder="Search by print code..." 
                 wire:model.live.debounce.300ms="search"
-                class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                class="form-input w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             >
             @if($search)
                 <button 
@@ -114,38 +114,40 @@
 
         <!-- Print Logs Table -->
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <table class="user-table min-w-full divide-y divide-gray-200 text-sm">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Print Code</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Date From</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Date To</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Printed At</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Printed By</th>
-                        <th class="px-4 py-3 text-center font-semibold text-gray-700">Actions</th>
+                        <th class="px-4 py-3 text-center font-semibold ">Print Code</th>
+                        <th class="px-4 py-3 text-center font-semibold ">Date From</th>
+                        <th class="px-4 py-3 text-center font-semibold ">Date To</th>
+                        <th class="px-4 py-3 text-center font-semibold ">Printed At</th>
+                        <th class="px-4 py-3 text-center font-semibold ">Printed By</th>
+                        <th class="px-4 py-3 text-center font-semibold ">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 bg-white">
                     @forelse($printLogs as $log)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-2">{{ $log->print_code }}</td>
-                            <td class="px-4 py-2">{{ $log->date_from ? \Carbon\Carbon::parse($log->date_from)->format('M d, Y') : 'All' }}</td>
-                            <td class="px-4 py-2">{{ $log->date_to ? \Carbon\Carbon::parse($log->date_to)->format('M d, Y') : 'All' }}</td>
-                            <td class="px-4 py-2">{{ $log->created_at->format('M d, Y H:i') }}</td>
-                            <td class="px-4 py-2">{{ $log->user->name }}</td>
-                            <td class="px-4 py-2 text-center space-x-2">
-                                <button 
-                                    wire:click="printAgain({{ $log->id }})"
-                                    class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition"
-                                >
-                                    <i class="fas fa-print mr-1"></i> Print
-                                </button>
-                                <button 
-                                    wire:click="confirmDelete({{ $log->id }})"
-                                    class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition"
-                                >
-                                    <i class="fas fa-trash mr-1"></i> Delete
-                                </button>
+                        <tr>
+                            <td data-label="Print Code" class="px-4 py-2">{{ $log->print_code }}</td>
+                            <td data-label="Date From" class="px-4 py-2">{{ $log->date_from ? \Carbon\Carbon::parse($log->date_from)->format('M d, Y') : 'All' }}</td>
+                            <td data-label="Date To" class="px-4 py-2">{{ $log->date_to ? \Carbon\Carbon::parse($log->date_to)->format('M d, Y') : 'All' }}</td>
+                            <td data-label="Printed At" class="px-4 py-2">{{ $log->created_at->format('M d, Y H:i') }}</td>
+                            <td data-label="Printed By" class="px-4 py-2">{{ $log->user->name }}</td>
+                            <td data-label="Actions" class="px-4 py-2 text-center">
+                                <div class="flex justify-center space-x-2">
+                                    <button 
+                                        wire:click="printAgain({{ $log->id }})"
+                                        class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition mb-1"
+                                    >
+                                        <i class="fas fa-print mr-1"></i> Print
+                                    </button>
+                                    <button 
+                                        wire:click="confirmDelete({{ $log->id }})"
+                                        class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition mb-1"
+                                    >
+                                        <i class="fas fa-trash mr-1"></i> Delete
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @empty

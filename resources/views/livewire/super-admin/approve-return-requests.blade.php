@@ -24,7 +24,7 @@
         <div class="search-bar mb-6 w-full md:w-1/3 relative">
             <input 
                 type="text" 
-                placeholder="Search by borrow code..." 
+                placeholder="Search code, borrower..." 
                 wire:model.live.debounce.300ms="search"
                 class="search-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 name="search"
@@ -76,22 +76,23 @@
                             <td data-label="Requested At" class="text-center">
                                 {{ $transaction->return_requested_at ? $transaction->return_requested_at->format('M d, Y H:i') : 'N/A' }}
                             </td>
-                            <td data-label="Actions" class="text-center space-x-2">
-                                <button 
-                                    wire:click="openApproveModal({{ $transaction->id }})"
-                                    class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded text-sm transition duration-150 ease-in-out"
-                                >
-                                    <i class="fas fa-check mr-1"></i> Details
-                                </button>
+                            <td data-label="Actions" class="text-center">
+                                <div class="flex justify-center space-x-2">
+                                    <button 
+                                        wire:click="openApproveModal({{ $transaction->id }})"
+                                        class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded text-sm transition duration-150 ease-in-out mb-1"
+                                    >
+                                        <i class="fas fa-check mr-1"></i> Details
+                                    </button>
 
-                                <button 
-                                    wire:click="openRejectModal({{ $transaction->id }})"
-                                    class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-3 rounded text-sm transition duration-150 ease-in-out"
-                                >
-                                    <i class="fas fa-times mr-1"></i> Reject
-                                </button>
+                                    <button 
+                                        wire:click="openRejectModal({{ $transaction->id }})"
+                                        class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-3 rounded text-sm transition duration-150 ease-in-out mb-1"
+                                    >
+                                        <i class="fas fa-times mr-1"></i> Reject
+                                    </button>
+                                </div>
                             </td>
-
                         </tr>
                     @empty
                         <tr>

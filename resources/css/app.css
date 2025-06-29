@@ -915,6 +915,75 @@ html.dark .logout-btn {
     position: absolute;
 }
 
+/* Dark mode styles for the bell icon */
+.dark .fa-bell {
+    color: #d7ac00; 
+}
+
+.dark .btn-notification:hover {
+    color: #fde68a !important;
+}
+
+.dark .section-wrapper {
+    background-color: #2d3748; /* Dark gray */
+    color: #e2e8f0; /* Light text */
+    padding: 1rem;
+    border-radius: 0.5rem; /* Optional: rounded corners */
+}
+
+.dark .box-container {
+    background-color: #2d3748; /* Dark gray */
+    color: #e2e8f0; /* Light text */
+    border: 1px solid #4a5568; /* Optional: subtle border for separation */
+}
+
+
+.dark .asset-details {
+    background-color: #374151; 
+    color: #e2e8f0;           
+}
+
+.dark .asset-details label {
+    color: #d1d5db;            
+}
+
+.dark .asset-details-title {
+    color: #cbd5e1; 
+}
+
+
+/* User Dashboard */
+.box-lightblue-bg {
+    background-color: #ebf8ff; 
+}
+
+.box-lightgreen-bg {
+    background-color: #d1fae5; 
+}
+
+.bg-lightgray-bg {
+    background-color: #f3f4f6;
+}
+
+.box-lightorange-bg {
+    background-color: #ffedd5; /* Tailwind orange-100 */
+}
+
+.th-logs {
+    background-color: #ffedd5;
+}
+
+.dark .th-logs {
+    background-color: #2d3748;
+}
+
+.dark .box-container {
+    background-color: #1e293b; 
+    color: #e2e8f0; 
+}
+
+
+
 
 .status-badge {
     @apply px-2 py-1 rounded text-xs font-medium;

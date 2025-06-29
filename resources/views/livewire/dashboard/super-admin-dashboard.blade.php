@@ -4,11 +4,10 @@
     </h1>
 
     <!-- First Section: Asset Monitoring -->
-    <div class="section-wrapper bg-white p-6 rounded-lg mb-10">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4"><!-- Asset Monitoring --></h2>
+    <div class="section-wrapper p-6 rounded-lg mb-10">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Asset Table -->
-            <div class="box-container">
+            <div class="box-container p-3 rounded-md">
                 <div class="box-header">
                     <h2 class="box-title">Assets Expiring</h2>
                 </div>
@@ -77,7 +76,7 @@
             </div>
 
             <!-- Asset Chart -->
-            <div class="box-container" wire:ignore>
+            <div class="box-container p-3 rounded-md" wire:ignore>
                 <div class="box-header">
                     <h2 class="box-title">Asset Expiration Overview</h2>
                 </div>
@@ -93,11 +92,11 @@
     </div>
 
     <!-- Second Section: Software Monitoring -->
-    <div class="section-wrapper bg-white p-6 rounded-lg">
+    <div class="section-wrapper p-6 rounded-lg">
         <h2 class="text-lg font-semibold text-gray-800 mb-4"><!-- Software Monitoring --></h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Software Table -->
-            <div class="box-container">
+            <div class="box-container p-3 rounded-md">
                 <div class="box-header">
                     <h2 class="box-title">Software Subscriptions Expiring</h2>
                 </div>
@@ -163,7 +162,7 @@
             </div>
 
             <!-- Software Chart -->
-            <div class="box-container" wire:ignore>
+            <div class="box-container p-3 rounded-md" wire:ignore>
                 <div class="box-header">
                     <h2 class="box-title">Software Expiration Overview</h2>
                 </div>
@@ -180,17 +179,31 @@
 </div>
 
 
-<script> 
+<script>
     function assetChart(initialCounts) {
         return {
             chart: null,
             counts: initialCounts,
             init() {
                 this.renderChart();
+
+                // Listen to theme toggle from AlpineJS
+                window.addEventListener('theme-changed', () => {
+                    if (this.chart) {
+                        this.chart.destroy();
+                    }
+                    this.renderChart();
+                });
             },
             renderChart() {
                 const ctx = document.getElementById('assetExpiryChart');
                 if (!ctx) return;
+
+                const isDarkMode = document.documentElement.classList.contains('dark');
+                const textColor = isDarkMode ? '#e2e8f0' : '#1a202c';
+                const gridColor = isDarkMode ? '#4a5568' : '#e5e7eb';
+                const tooltipBg = isDarkMode ? '#2d3748' : '#ffffff';
+
                 this.chart = new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -210,10 +223,37 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: textColor
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: tooltipBg,
+                                titleColor: textColor,
+                                bodyColor: textColor,
+                                footerColor: textColor
+                            }
+                        },
                         scales: {
+                            x: {
+                                ticks: {
+                                    color: textColor
+                                },
+                                grid: {
+                                    color: gridColor
+                                }
+                            },
                             y: {
                                 beginAtZero: true,
-                                ticks: { precision: 0 }
+                                ticks: {
+                                    precision: 0,
+                                    color: textColor
+                                },
+                                grid: {
+                                    color: gridColor
+                                }
                             }
                         }
                     }
@@ -239,10 +279,24 @@
             counts: initialCounts,
             init() {
                 this.renderChart();
+
+                // Listen to theme toggle from AlpineJS
+                window.addEventListener('theme-changed', () => {
+                    if (this.chart) {
+                        this.chart.destroy();
+                    }
+                    this.renderChart();
+                });
             },
             renderChart() {
                 const ctx = document.getElementById('softwareExpiryChart');
                 if (!ctx) return;
+
+                const isDarkMode = document.documentElement.classList.contains('dark');
+                const textColor = isDarkMode ? '#e2e8f0' : '#1a202c';
+                const gridColor = isDarkMode ? '#4a5568' : '#e5e7eb';
+                const tooltipBg = isDarkMode ? '#2d3748' : '#ffffff';
+
                 this.chart = new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -262,10 +316,37 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: textColor
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: tooltipBg,
+                                titleColor: textColor,
+                                bodyColor: textColor,
+                                footerColor: textColor
+                            }
+                        },
                         scales: {
+                            x: {
+                                ticks: {
+                                    color: textColor
+                                },
+                                grid: {
+                                    color: gridColor
+                                }
+                            },
                             y: {
                                 beginAtZero: true,
-                                ticks: { precision: 0 }
+                                ticks: {
+                                    precision: 0,
+                                    color: textColor
+                                },
+                                grid: {
+                                    color: gridColor
+                                }
                             }
                         }
                     }
@@ -285,10 +366,11 @@
         };
     }
 
-
+    // Optional: polling data refresh
     document.addEventListener('livewire:load', () => {
         setInterval(() => {
             Livewire.emit('pollChartData');
-        }, 60000); // 1 minute
+        }, 60000); // every 60 seconds
     });
 </script>
+

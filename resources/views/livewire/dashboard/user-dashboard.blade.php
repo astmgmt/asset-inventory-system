@@ -1,7 +1,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" wire:poll.60s>
 
     <!-- Pie Chart Card -->
-    <div class="box-container">
+    <div class="box-container p-3 rounded-md">
         <div class="box-header">
             <h2 class="box-title">My Transaction Overview</h2>
         </div>
@@ -22,18 +22,18 @@
         <!-- Nested 3 Cards -->
         <div class="flex flex-col gap-4">
             <!-- Borrowed -->
-            <div class="box-container bg-blue-100 p-4 text-center rounded-lg shadow">
+            <div class="box-container box-lightblue-bg p-4 text-center rounded-lg shadow">
                 <h3 class="text-lg font-semibold">Borrowed Items</h3>
                 <p class="text-2xl font-bold text-blue-700">{{ $borrowedCount }}</p>
             </div>
 
             <!-- Returned -->
-            <div class="box-container bg-green-100 p-4 text-center rounded-lg shadow">
+            <div class="box-container box-lightgreen-bg p-4 text-center rounded-lg shadow">
                 <h3 class="text-lg font-semibold">Returned Items</h3>
                 <p class="text-2xl font-bold text-green-700">{{ $returnedCount }}</p>
             </div>
 
-            <div class="box-container bg-gray-100 p-4 rounded-lg shadow">
+            <div class="box-container bg-lightgray-bg p-4 rounded-lg shadow">
                 <div class="box-header">
                     <h2 class="box-title text-center">Recent Transactions</h2>
                 </div>
@@ -41,9 +41,9 @@
                     <table class="user-table w-full bg-gray-50">
                         <thead>
                             <tr>
-                                <th class="bg-gray-50">Date</th>
-                                <th class="bg-gray-50">Activity</th>
-                                <th class="bg-gray-50">Status</th>
+                                <th>Date</th>
+                                <th>Activity</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -90,7 +90,7 @@
         </div>
 
         <!-- RECENT LOGS SECTION -->
-        <div class="box-container bg-orange-100 p-4 text-center rounded-lg shadow">
+        <div class="box-container box-lightorange-bg p-4 text-center rounded-lg shadow">
             <div class="box-header">
                 <h2 class="box-title">📅 Recent Logs</h2>
             </div>
@@ -98,9 +98,9 @@
                 <table class="user-table w-full bg-orange-50">
                     <thead>
                         <tr>
-                            <th class="bg-orange-50">Date</th>
-                            <th class="bg-orange-50">Activity</th>
-                            <th class="bg-orange-50">Status</th>
+                            <th class="th-logs">Date</th>
+                            <th class="th-logs">Activity</th>
+                            <th class="th-logs">Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -174,18 +174,32 @@ function userTransactionChart(initialData) {
     return {
         chart: null,
         data: initialData,
-        init() {
-            const ctx = document.getElementById('userTransactionChart').getContext('2d');
 
-            if (this.chart !== null) {
-                this.chart.destroy();
-            }
+        init() {
+            this.renderChart();
+
+            // Re-render on dark/light theme change
+            window.addEventListener('theme-changed', () => {
+                if (this.chart) {
+                    this.chart.destroy();
+                }
+                this.renderChart();
+            });
+        },
+
+        renderChart() {
+            const ctx = document.getElementById('userTransactionChart').getContext('2d');
+            if (!ctx) return;
+
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const textColor = isDarkMode ? '#e2e8f0' : '#1a202c'; // light-gray or dark text
+            const tooltipBg = isDarkMode ? '#2d3748' : '#ffffff';
 
             const isEmpty = this.data.borrowed === 0 && this.data.returned === 0;
 
             const labels = isEmpty ? ['No Data'] : ['Borrowed', 'Returned'];
             const dataValues = isEmpty ? [1] : [this.data.borrowed, this.data.returned];
-            const backgroundColors = isEmpty ? ['#e5e7eb'] : ['#93c5fd', '#6ee7b7'];  
+            const backgroundColors = isEmpty ? ['#e5e7eb'] : ['#93c5fd', '#6ee7b7'];
             const borderColors = isEmpty ? ['#d1d5db'] : ['#60a5fa', '#34d399'];
 
             this.chart = new Chart(ctx, {
@@ -204,10 +218,17 @@ function userTransactionChart(initialData) {
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            display: !isEmpty 
+                            display: !isEmpty,
+                            labels: {
+                                color: textColor
+                            }
                         },
                         tooltip: {
-                            enabled: !isEmpty, 
+                            enabled: !isEmpty,
+                            backgroundColor: tooltipBg,
+                            titleColor: textColor,
+                            bodyColor: textColor,
+                            footerColor: textColor,
                             callbacks: {
                                 label: function (context) {
                                     return `${context.label}: ${context.parsed}`;
@@ -218,15 +239,20 @@ function userTransactionChart(initialData) {
                 }
             });
         },
+
         updateData(newData) {
             this.data = newData;
 
             const isEmpty = this.data.borrowed === 0 && this.data.returned === 0;
+            const labels = isEmpty ? ['No Data'] : ['Borrowed', 'Returned'];
+            const dataValues = isEmpty ? [1] : [this.data.borrowed, this.data.returned];
+            const backgroundColors = isEmpty ? ['#f9fafb'] : ['#93c5fd', '#6ee7b7'];
+            const borderColors = isEmpty ? ['#d1d5db'] : ['#60a5fa', '#34d399'];
 
-            this.chart.data.labels = isEmpty ? ['No Data'] : ['Borrowed', 'Returned'];
-            this.chart.data.datasets[0].data = isEmpty ? [1] : [this.data.borrowed, this.data.returned];
-            this.chart.data.datasets[0].backgroundColor = isEmpty ? ['#f9fafb'] : ['#93c5fd', '#6ee7b7'];
-            this.chart.data.datasets[0].borderColor = isEmpty ? ['#d1d5db'] : ['#60a5fa', '#34d399'];
+            this.chart.data.labels = labels;
+            this.chart.data.datasets[0].data = dataValues;
+            this.chart.data.datasets[0].backgroundColor = backgroundColors;
+            this.chart.data.datasets[0].borderColor = borderColors;
             this.chart.options.plugins.legend.display = !isEmpty;
             this.chart.options.plugins.tooltip.enabled = !isEmpty;
 

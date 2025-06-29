@@ -197,7 +197,7 @@
                             <!-- Condition (Fixed to "New") -->
                             <div class="form-group">
                                 <label>Condition *</label>
-                                <div class="form-input bg-gray-100">
+                                <div class="form-input">
                                     New
                                 </div>
                                 <input type="hidden" wire:model="condition_id">
@@ -444,8 +444,8 @@
         
         @if ($showViewModal)
             <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-4xl p-8 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-                    <h2 class="text-3xl font-semibold mb-8 border-b border-gray-300 dark:border-gray-700 pb-4">
+                <div class="bg-gray-50 rounded-lg shadow-2xl w-full max-w-4xl p-8 text-gray-900 transition-colors duration-300 max-h-[90vh] overflow-y-auto">
+                    <h2 class="text-gray-700 text-2xl font-semibold mb-8 border-b border-gray-300 pb-4">
                         Asset Details: {{ $viewAsset->name ?? '' }}
                     </h2>
 
@@ -457,65 +457,65 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
                             <!-- Asset Code -->
-                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <div class="asset-details p-4 rounded-md shadow-sm">
                                 <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Asset Code</label>
                                 <p class="text-lg">{{ $viewAsset->asset_code }}</p>
                             </div>
 
                             <!-- Serial Number -->
-                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <div class="asset-details p-4 rounded-md shadow-sm">
                                 <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Serial Number</label>
                                 <p class="text-lg">{{ $viewAsset->serial_number ?? 'None' }}</p>
                             </div>
 
                             <!-- Brand -->
-                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <div class="asset-details p-4 rounded-md shadow-sm">
                                 <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Brand</label>
                                 <p class="text-lg">{{ $viewAsset->name }}</p>
                             </div>
 
                             <!-- Model -->
-                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <div class="asset-details p-4 rounded-md shadow-sm">
                                 <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Model</label>
                                 <p class="text-lg">{{ $viewAsset->model_number }}</p>
                             </div>
 
-                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <div class="asset-details p-4 rounded-md shadow-sm">
                                 <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Description</label>
                                 <p class="text-lg">{{ $viewAsset->description }}</p>
                             </div>
 
-                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <div class="asset-details p-4 rounded-md shadow-sm">
                                 <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Quantity</label>
                                 <p class="text-lg">{{ $viewAsset->quantity }}</p>
                             </div>
 
                             <!-- Category -->
-                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <div class="asset-details p-4 rounded-md shadow-sm">
                                 <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Category</label>
                                 <p class="text-lg">{{ $viewAsset->category->category_name }}</p>
                             </div>
 
                             <!-- Condition -->
-                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <div class="asset-details p-4 rounded-md shadow-sm">
                                 <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Condition</label>
                                 <p class="text-lg">{{ $viewAsset->condition->condition_name }}</p>
                             </div>
 
                             <!-- Location -->
-                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <div class="asset-details p-4 rounded-md shadow-sm">
                                 <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Location</label>
                                 <p class="text-lg">{{ $viewAsset->location->location_name }}</p>
                             </div>
 
                             <!-- Vendor/Supplier -->
-                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <div class="asset-details p-4 rounded-md shadow-sm">
                                 <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Vendor/Supplier</label>
                                 <p class="text-lg">{{ $viewAsset->vendor->vendor_name }}</p>
                             </div>
 
                             <!-- Warranty Expiration -->
-                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <div class="asset-details p-4 rounded-md shadow-sm">
                                 <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Warranty Expiration</label>
                                 <p class="text-lg">{{ $viewAsset->warranty_expiration->format('M d, Y') }}</p>
                                 @if ($viewAsset->expiry_status === 'expired' && $viewAsset->show_status === 0)
@@ -524,7 +524,7 @@
                             </div>
 
                             <!-- Status -->
-                            <div class="bg-white dark:bg-gray-700 p-4 rounded-md shadow-sm">
+                            <div class="asset-details p-4 rounded-md shadow-sm">
                                 <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Status</label>
                                 <p class="text-lg">
                                     @if($viewAsset->condition->condition_name === 'Disposed' && $viewAsset->is_disposed)

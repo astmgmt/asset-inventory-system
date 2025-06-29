@@ -109,7 +109,7 @@
                             <h3 class="text-lg font-semibold mb-3">Borrow Details</h3>
                             @if(count($borrowItems))
                                 <div class="overflow-x-auto">
-                                    <table class="details-table">
+                                    <table class="user-table">
                                         <thead>
                                             <tr>
                                                 <th>Asset Code</th>
@@ -144,7 +144,7 @@
                             <h3 class="text-lg font-semibold mb-3">Return Details</h3>
                             @if(count($returnItems))
                                 <div class="overflow-x-auto">
-                                    <table class="details-table">
+                                    <table class="user-table">
                                         <thead>
                                             <tr>
                                                 <th>Asset Code</th>
@@ -157,10 +157,10 @@
                                         <tbody>
                                             @foreach($returnItems as $item)
                                                 <tr>
-                                                    <td>{{ $item['borrow_item']['asset']['asset_code'] ?? 'N/A' }}</td>
-                                                    <td>{{ $item['borrow_item']['asset']['name'] ?? 'N/A' }}</td>
-                                                    <td>{{ $item['borrow_item']['asset']['model_number'] ?? 'N/A' }}</td>
-                                                    <td>{{ $item['borrow_item']['quantity'] ?? 'N/A' }}</td>
+                                                    <td data-label="Asset Code">{{ $item['borrow_item']['asset']['asset_code'] ?? 'N/A' }}</td>
+                                                    <td data-label="Brand">{{ $item['borrow_item']['asset']['name'] ?? 'N/A' }}</td>
+                                                    <td data-label="Model">{{ $item['borrow_item']['asset']['model_number'] ?? 'N/A' }}</td>
+                                                    <td data-label="Qty.">{{ $item['borrow_item']['quantity'] ?? 'N/A' }}</td>
                                                     <td>
                                                         <span class="status-badge {{ $item['status'] === 'Returned' ? 'status-good' : 'status-damaged' }}">
                                                             {{ $item['status'] ?? 'N/A' }}

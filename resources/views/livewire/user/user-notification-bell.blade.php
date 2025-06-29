@@ -2,7 +2,7 @@
     <!-- Bell Icon -->
     <button 
         @click="open = !open"
-        class="relative p-2 text-gray-700 hover:bg-gray-100 rounded-full dark:text-gray-300 dark:hover:bg-gray-700 focus:outline-none mr-4"
+        class="btn-notification relative p-2 text-gray-700 hover:bg-gray-100 rounded-full dark:text-gray-300 dark:hover:bg-gray-700 focus:outline-none mr-4"
         wire:loading.class="opacity-50 cursor-not-allowed"
     >
         <i class="fas fa-bell text-lg"></i>

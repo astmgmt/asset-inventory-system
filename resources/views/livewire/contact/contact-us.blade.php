@@ -1,10 +1,10 @@
 <x-layouts.guest>
-    <div class="login-gradient-bg w-full">
+    <div class="login-gradient-bg w-full overflow-y-auto min-h-screen">
 
         <div class="relative z-10 w-full max-w-6xl flex flex-col items-center mt-12 mb-16">
             <!-- Logo -->
-            <div class="flex justify-center mb-4">
-                <img src="{{ asset('images/company.png') }}" alt="Custom Logo" class="h-48 w-48 md:h-36 md:w-36 object-contain" />
+            <div class="logo-container flex justify-center mb-4">
+                <img src="{{ asset('images/company.png') }}" alt="Custom Logo" class="max-h-48 max-w-48 md:max-h-36 md:max-w-36 object-contain" />
             </div>
 
             
@@ -73,15 +73,24 @@
                             class="w-full sm:w-auto text-base px-6 py-2 text-center rounded-md bg-indigo-600 text-white hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition inline-flex items-center justify-center">
                         <span wire:loading.remove>Send Message</span>
                         <span wire:loading>
-                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Sending...
+                            <div class="flex justify-center items-center x-2">                                
+                                Sending...
+                                <svg class="animate-spin h-5 w-5 text-white text-center" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>     
+                            </div>                       
                         </span>
                     </button>
                 </div>
             </form>
         </div>
-    </div>
+        <style>
+            @media screen and (max-width: 1366px) {
+                .logo-container {
+                    margin: 10rem auto;
+                }
+            }
+        </style>        
+    </div>    
 </x-layouts.guest>

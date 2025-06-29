@@ -24,7 +24,7 @@
     <div class="search-bar mb-6 w-full md:w-1/3 relative">
         <input 
             type="text" 
-            placeholder="Search code, borrower, department..." 
+            placeholder="Search code, borrower..." 
             wire:model.live.debounce.300ms="search"
             class="search-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
@@ -69,26 +69,28 @@
                                 {{ $transaction->created_at->format('M d, Y H:i') }}
                             </td>
                             <td data-label="Actions" class="text-center">
-                                <button 
-                                    wire:click="showDetails({{ $transaction->id }})"
-                                    class="view-btn bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md transition"
-                                >
-                                    <i class="fas fa-eye"></i> Details
-                                </button>
-                                
-                                <button 
-                                    wire:click="confirmApprove({{ $transaction->id }})"
-                                    class="approve-btn bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded-md ml-2 transition"
-                                >
-                                    <i class="fas fa-check"></i> Approve
-                                </button>
-                                
-                                <button 
-                                    wire:click="confirmDeny({{ $transaction->id }})"
-                                    class="deny-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md ml-2 transition"
-                                >
-                                    <i class="fas fa-times"></i> Deny
-                                </button>
+                                <div class="flex justify-center space-x-2">
+                                    <button 
+                                        wire:click="showDetails({{ $transaction->id }})"
+                                        class="view-btn bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md transition mb-1"
+                                    >
+                                        <i class="fas fa-eye"></i> Details
+                                    </button>
+                                    
+                                    <button 
+                                        wire:click="confirmApprove({{ $transaction->id }})"
+                                        class="approve-btn bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded-md transition mb-1"
+                                    >
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                    
+                                    <button 
+                                        wire:click="confirmDeny({{ $transaction->id }})"
+                                        class="deny-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md transition mb-1"
+                                    >
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @empty

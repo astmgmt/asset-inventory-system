@@ -10,23 +10,22 @@
     background-color: rgba(45, 55, 72, 0.8);
     padding: 1rem;
     border-radius: 0.5rem;
+    color: #ffffff;
 }
 
 /* Pagination links in both modes */
 .pagination-container .pagination li a,
 .pagination-container .pagination li span {
-    color: #1a1a1a; /* Dark text for buttons */
+    color: #1a1a1a; 
 }
 
-/* Dark mode pagination links - keep same as light mode */
 .dark .pagination-container .pagination li a,
 .dark .pagination-container .pagination li span {
     background-color: transparent;
-    color: #1a1a1a; /* Maintain dark text */
+    color: #ffffff; 
     border-color: #4a5568;
 }
 
-/* Active pagination link in both modes */
 .pagination-container .pagination li.active span {
     background-color: #4299e1;
     color: #ffffff;

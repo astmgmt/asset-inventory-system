@@ -77,35 +77,35 @@
                                 {{ $record->action_date->format('M d, Y') }}
                             </td>
                             <td data-label="Actions" class="text-center">
-                                <div class="d-flex">
+                                <div class="flex justify-center space-x-2">
                                     <button 
                                         wire:click="showDetails({{ $record->id }})"
-                                        class="view-btn bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-md transition mr-1"
+                                        class="view-btn bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-md transition mb-1"
                                     >
                                         <i class="fas fa-eye"></i> View
                                     </button>
-                                    
+
                                     @if($this->canPrint($record->status))
                                         <button 
                                             wire:click="generateHistoryPdf({{ $record->id }})" 
-                                            class="bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded-md transition mr-1"
+                                            class="bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded-md transition mb-1"
                                         >
                                             <i class="fas fa-print"></i> Print
                                         </button>
                                     @else
                                         <button 
-                                            class="bg-gray-300 text-gray-500 py-1 px-2 rounded-md cursor-not-allowed mr-1" 
+                                            class="bg-gray-300 text-gray-500 py-1 px-2 rounded-md cursor-not-allowed mb-1" 
                                             disabled
                                         >
                                             <i class="fas fa-print"></i> Print
                                         </button>
                                     @endif
-                                    
+
                                     <button 
                                         wire:click="confirmDelete({{ $record->id }})"
-                                        class="delete-btn bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded-md transition"
+                                        class="delete-btn bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded-md transition mb-1"
                                     >
-                                        <i class="fas fa-trash"></i> Delete
+                                        <i class="fas fa-trash-alt"></i> Delete
                                     </button>
                                 </div>
                             </td>
@@ -280,14 +280,28 @@
                 </div>
                 
                 <div class="modal-body">
-                    <div class="text-center p-6">
-                        <p class="text-lg mb-4">Do you really want to delete this history record?</p>
-                        <p class="text-danger font-bold">This will be deleted permanently from your account!</p>
-                        <p class="mt-4">Borrow Code: <strong>{{ $selectedHistory->borrow_code ?? 'N/A' }}</strong></p>
-                        <p class="mt-2">Status: <strong>{{ $selectedHistory->status ?? 'N/A' }}</strong></p>
+                    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4 rounded-lg">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    Do you really want to delete this history record?
+                                    <strong class="font-medium">This will be deleted permanently from your account!</strong>
+                                </p>
+                                <p class="text-sm text-yellow-700 mt-2">
+                                    Borrow Code: <strong>{{ $selectedHistory->borrow_code ?? 'N/A' }}</strong>
+                                </p>
+                                <p class="text-sm text-yellow-700 mt-1">
+                                    Status: <strong>{{ $selectedHistory->status ?? 'N/A' }}</strong>
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                
+                </div>                
                 <div class="modal-footer">
                     <button 
                         wire:click="$set('showDeleteModal', false)" 
