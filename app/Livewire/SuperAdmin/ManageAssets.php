@@ -23,7 +23,6 @@ class ManageAssets extends Component
     public $locations;
     public $vendors;
     
-    // Asset fields
     public $assetId;
     public $name;
     public $description;
@@ -36,7 +35,6 @@ class ManageAssets extends Component
     public $vendor_id;
     public $warranty_expiration;
     
-    // Search properties
     public $modelInput = '';
     public $modelSuggestions = [];
     public $categorySearch = '';
@@ -46,22 +44,20 @@ class ManageAssets extends Component
     public $vendorSearch = '';
     public $vendorSuggestions = [];
     
-    // Dropdown visibility
     public $showModelDropdown = false;
     public $showCategoryDropdown = false;
     public $showLocationDropdown = false;
     public $showVendorDropdown = false;
     
-    // Modals
     public $showAddModal = false;
     public $showEditModal = false;
     public $showViewModal = false;
     public $showDeleteModal = false;
     
-    // View asset
     public $viewAsset;
+
+    public $originalConditionId;
     
-    // Messages
     public $successMessage = '';
     public $errorMessage = '';
 
@@ -214,6 +210,8 @@ class ManageAssets extends Component
         $this->vendor_id = $asset->vendor_id;
         $this->warranty_expiration = $asset->warranty_expiration->format('Y-m-d');
         $this->serial_number = $asset->serial_number;
+
+        $this->originalConditionId = $asset->condition_id;
         
         $this->showEditModal = true;
     }    
@@ -249,7 +247,8 @@ class ManageAssets extends Component
             'location_id', 'vendor_id', 'warranty_expiration',
             'modelSuggestions', 'categorySearch', 'categorySuggestions',
             'locationSearch', 'locationSuggestions', 'vendorSearch', 'vendorSuggestions',
-            'showModelDropdown', 'showCategoryDropdown', 'showLocationDropdown', 'showVendorDropdown'
+            'showModelDropdown', 'showCategoryDropdown', 'showLocationDropdown', 'showVendorDropdown',
+            'originalConditionId'
         ]);
         $this->resetErrorBag();
         $this->viewAsset = null;
@@ -287,111 +286,109 @@ class ManageAssets extends Component
     }
 
     
-public function createAsset()
-{
-    // Ensure model number is set from input
-    $this->model_number = $this->modelInput;
-    
-    $this->validate([
-        'name' => 'required|string|max:100',
-        'description' => 'nullable|string',
-        'serial_number' => 'nullable|string|max:20|unique:assets,serial_number',
-        'quantity' => 'required|integer|min:1',
-        'model_number' => 'required|string|max:50',
-        'category_id' => 'required|exists:asset_categories,id',
-        'location_id' => 'required|exists:asset_locations,id',
-        'vendor_id' => 'required|exists:vendors,id',
-        'warranty_expiration' => 'required|date',
-    ]);
-
-    // Arrays to store inserted asset data
-    $insertedIds = [];
-    $assetsData = [];
-    
-    DB::transaction(function () use (&$insertedIds, &$assetsData) {
-        // Get the last asset to determine starting points
-        $lastAsset = Asset::orderBy('id', 'desc')->first();
-        $lastId = $lastAsset ? $lastAsset->id : 0;
-        $lastAssetCode = Asset::where('asset_code', 'like', 'AST-%')
-            ->orderBy('asset_code', 'desc')
-            ->first();
-            
-        $lastNum = $lastAssetCode ? intval(substr($lastAssetCode->asset_code, -8)) : 0;
+    public function createAsset()
+    {
+        // Ensure model number is set from input
+        $this->model_number = $this->modelInput;
         
-        $assets = [];
-        $currentDate = now()->format('mdY');
-        $assetCodes = [];
-        
-        // Create assets with unique codes
-        for ($i = 0; $i < $this->quantity; $i++) {
-            // Generate asset code
-            $newNum = $lastNum + 1;
-            $formattedNum = str_pad($newNum, 8, '0', STR_PAD_LEFT);
-            $assetCode = "AST-{$currentDate}-{$formattedNum}";
-            $lastNum = $newNum;
-            
-            // Set serial number only for first asset when quantity > 1
-            $serialNumber = ($i === 0) ? $this->serial_number : null;
+        $this->validate([
+            'name' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'serial_number' => 'nullable|string|max:20|unique:assets,serial_number',
+            'quantity' => 'required|integer|min:1',
+            'model_number' => 'required|string|max:50',
+            'category_id' => 'required|exists:asset_categories,id',
+            'location_id' => 'required|exists:asset_locations,id',
+            'vendor_id' => 'required|exists:vendors,id',
+            'warranty_expiration' => 'required|date',
+        ]);
 
-            $assets[] = [
-                'asset_code' => $assetCode,
-                'serial_number' => $serialNumber,
-                'name' => $this->name,
-                'description' => $this->description,
-                'quantity' => 1, // Each asset has quantity 1
-                'model_number' => $this->model_number,
-                'category_id' => $this->category_id,
-                'condition_id' => $this->condition_id,
-                'location_id' => $this->location_id,
-                'vendor_id' => $this->vendor_id,
-                'warranty_expiration' => $this->warranty_expiration,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
+        // Arrays to store inserted asset data
+        $insertedIds = [];
+        $assetsData = [];
+        
+        DB::transaction(function () use (&$insertedIds, &$assetsData) {
+            // Get the last asset to determine starting points
+            $lastAsset = Asset::orderBy('id', 'desc')->first();
+            $lastId = $lastAsset ? $lastAsset->id : 0;
+            $lastAssetCode = Asset::where('asset_code', 'like', 'AST-%')
+                ->orderBy('asset_code', 'desc')
+                ->first();
+                
+            $lastNum = $lastAssetCode ? intval(substr($lastAssetCode->asset_code, -8)) : 0;
             
-            $assetCodes[] = $assetCode;
+            $assets = [];
+            $currentDate = now()->format('mdY');
+            $assetCodes = [];
+            
+            // Create assets with unique codes
+            for ($i = 0; $i < $this->quantity; $i++) {
+                // Generate asset code
+                $newNum = $lastNum + 1;
+                $formattedNum = str_pad($newNum, 8, '0', STR_PAD_LEFT);
+                $assetCode = "AST-{$currentDate}-{$formattedNum}";
+                $lastNum = $newNum;
+                
+                // Set serial number only for first asset when quantity > 1
+                $serialNumber = ($i === 0) ? $this->serial_number : null;
+
+                $assets[] = [
+                    'asset_code' => $assetCode,
+                    'serial_number' => $serialNumber,
+                    'name' => $this->name,
+                    'description' => $this->description,
+                    'quantity' => 1, // Each asset has quantity 1
+                    'model_number' => $this->model_number,
+                    'category_id' => $this->category_id,
+                    'condition_id' => $this->condition_id,
+                    'location_id' => $this->location_id,
+                    'vendor_id' => $this->vendor_id,
+                    'warranty_expiration' => $this->warranty_expiration,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+                
+                $assetCodes[] = $assetCode;
+            }
+
+            // Insert all assets at once
+            Asset::insert($assets);
+            
+            // Get inserted assets with relationships
+            $insertedAssets = Asset::with(['category', 'condition', 'location', 'vendor'])
+                ->whereIn('asset_code', $assetCodes)
+                ->orderBy('id')
+                ->get();
+                
+            $insertedIds = $insertedAssets->pluck('id')->toArray();
+            $assetsData = $insertedAssets->toArray();
+        });
+
+        $this->successMessage = $this->quantity > 1 
+            ? "{$this->quantity} assets created successfully!" 
+            : "Asset created successfully!";
+            
+        $this->closeModals();
+        $this->dispatch('clear-message');
+
+        // Handle PDF based on quantity
+        if ($this->quantity > 1) {
+            // Generate and download batch PDF
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.asset-batch', [
+                'assets' => $assetsData
+            ])->setPaper([0, 0, 266.4, 288], 'portrait');
+            
+            return response()->streamDownload(
+                function () use ($pdf) {
+                    echo $pdf->stream();
+                },
+                'asset_batch_'.now()->format('Ymd_His').'.pdf'
+            );
+        } else {
+            // For single asset, pass ID to JavaScript correctly
+            $this->dispatch('open-asset-pdf', id: $insertedIds[0]);
         }
-
-        // Insert all assets at once
-        Asset::insert($assets);
-        
-        // Get inserted assets with relationships
-        $insertedAssets = Asset::with(['category', 'condition', 'location', 'vendor'])
-            ->whereIn('asset_code', $assetCodes)
-            ->orderBy('id')
-            ->get();
-            
-        $insertedIds = $insertedAssets->pluck('id')->toArray();
-        $assetsData = $insertedAssets->toArray();
-    });
-
-    $this->successMessage = $this->quantity > 1 
-        ? "{$this->quantity} assets created successfully!" 
-        : "Asset created successfully!";
-        
-    $this->closeModals();
-    $this->dispatch('clear-message');
-
-    // Handle PDF based on quantity
-    if ($this->quantity > 1) {
-        // Generate and download batch PDF
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.asset-batch', [
-            'assets' => $assetsData
-        ])->setPaper([0, 0, 266.4, 288], 'portrait');
-        
-        return response()->streamDownload(
-            function () use ($pdf) {
-                echo $pdf->stream();
-            },
-            'asset_batch_'.now()->format('Ymd_His').'.pdf'
-        );
-    } else {
-        // For single asset, pass ID to JavaScript correctly
-        $this->dispatch('open-asset-pdf', id: $insertedIds[0]);
     }
-}
-
-
 
     public function updateAsset()
     {

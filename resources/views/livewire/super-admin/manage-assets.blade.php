@@ -378,16 +378,50 @@
                             
                             <div class="form-group">
                                 <label>Condition *</label>
-                                <select wire:model="condition_id" class="form-input">
-                                    <option value="">Select Condition</option>
-                                    @foreach($conditions as $condition)
-                                        @if($condition->condition_name !== 'Disposed')
-                                            <option value="{{ $condition->id }}">{{ $condition->condition_name }}</option>
-                                        @endif
-                                    @endforeach
+                                @php
+                                    $borrowedCondition = $conditions->firstWhere('condition_name', 'Borrowed');
+                                    $isBorrowed = $borrowedCondition && $originalConditionId == $borrowedCondition->id;
+                                    
+                                    $currentCondition = $conditions->firstWhere('id', $condition_id);
+                                @endphp
+
+                                <select 
+                                    wire:model="condition_id" 
+                                    class="form-input"
+                                    @if($isBorrowed) disabled @endif
+                                >
+                                    @if($isBorrowed)
+                                        <option value="{{ $borrowedCondition->id }}" selected>
+                                            Borrowed (cannot be changed)
+                                        </option>
+                                    @else
+                                        <option value="{{ $condition_id }}" selected>
+                                            {{ $currentCondition->condition_name ?? 'Current Condition' }}
+                                        </option>
+                                        
+                                        @foreach($conditions as $condition)
+                                            @if(
+                                                $condition->id !== $condition_id &&
+                                                $condition->condition_name !== 'Disposed' &&
+                                                $condition->condition_name !== 'Borrowed'
+                                            )
+                                                <option value="{{ $condition->id }}">
+                                                    {{ $condition->condition_name }}
+                                                </option>
+                                            @endif
+                                        @endforeach
+                                    @endif
                                 </select>
+                                
                                 @error('condition_id') <span class="error">{{ $message }}</span> @enderror
+                                
+                                @if($isBorrowed)
+                                    <p class="text-xs text-red-600 mt-1">
+                                        * Condition cannot be changed for borrowed assets
+                                    </p>
+                                @endif
                             </div>
+
                             
                             <div class="form-group">
                                 <label>Location *</label>
