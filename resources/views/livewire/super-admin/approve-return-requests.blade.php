@@ -118,7 +118,7 @@
                     </div>
                     
                     <div class="modal-body">
-                        <div class="bg-success border-l-4 border-green-500 p-3 sm:p-4 rounded-md shadow-sm mb-4">
+                        <div class="bg-green-50 border-l-4 border-green-500 p-3 sm:p-4 rounded-md shadow-sm mb-4">
                             <div class="flex items-start">
                                 <div class="flex-shrink-0 pt-0.5">
                                     <svg class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -133,7 +133,7 @@
                         </div>
 
                         <!-- Borrower Info (Inline & Compact) -->
-                        <div class="mb-3 text-md text-gray-700 leading-tight">
+                        <div class="mb-3 text-md leading-tight">
                             <span class="font-medium">Borrower:</span>
                             <span class="font-semibold text-green-600">{{ $selectedTransaction->user->name }}</span>
                         </div>
@@ -162,7 +162,7 @@
 
                         <!-- Remarks Section -->
                         <div class="mt-4 text-left">
-                            <label for="approve-remarks" class="block text-xs font-medium text-gray-700 mb-1">
+                            <label for="approve-remarks" class="block text-xs font-medium mb-1">
                                 Remarks <span class="text-gray-400">(Optional)</span>
                             </label>
                             <textarea 
@@ -206,7 +206,7 @@
                     </div>
                     
                     <div class="modal-body">
-                        <div class="bg-danger border-l-4 border-red-500 p-3 sm:p-4 rounded-md shadow-sm mb-4">
+                        <div class="bg-red-50 border-l-4 border-red-500 p-3 sm:p-4 rounded-md shadow-sm mb-4">
                             <div class="flex items-start">
                                 <div class="flex-shrink-0 pt-0.5">
                                     <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -220,7 +220,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-3 text-sm text-gray-700 leading-tight">
+                        <div class="mb-3 text-sm leading-tight">
                             <span class="font-medium">Borrower:</span>
                             <span class="font-medium text-red-600">{{ $selectedTransaction->user->name }}</span>
                         </div>
@@ -247,7 +247,7 @@
                         </div>
 
                         <div class="mt-4 text-left">
-                            <label for="reject-remarks" class="block text-xs font-medium text-gray-700 mb-1">
+                            <label for="reject-remarks" class="block text-xs font-medium mb-1">
                                 Reason for Rejection <span class="text-red-500">(Required)</span>
                             </label>
                             <textarea 

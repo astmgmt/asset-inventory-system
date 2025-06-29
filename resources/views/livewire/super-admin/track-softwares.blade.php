@@ -5,7 +5,7 @@
         <div class="search-bar w-full md:w-1/3 relative">
             <input 
                 type="text" 
-                placeholder="Search asgn. no, user, assigned by..." 
+                placeholder="Search asgn. no, user..." 
                 wire:model.live.debounce.300ms="search"
                 class="search-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -50,20 +50,23 @@
                             </span>
                         </td>
                         <td data-label="Actions" class="text-center space-x-2">
-                            <button 
-                                wire:click="viewBatch({{ $batch->id }})" 
-                                class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1 px-3 rounded-md shadow-sm transition-colors duration-200"
-                                title="View Details"
-                            >
-                                <i class="fas fa-eye"></i> View
-                            </button>
-                            <button 
-                                wire:click="printBatch({{ $batch->id }})" 
-                                class="bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded-md shadow-sm transition-colors duration-200"
-                                title="Print PDF"
-                            >
-                                <i class="fas fa-print"></i> Print
-                            </button>
+                            <div class="flex justify-center items-center space-x-2">
+                                <button 
+                                    wire:click="viewBatch({{ $batch->id }})" 
+                                    class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1 px-3 rounded-md shadow-sm transition-colors duration-200"
+                                    title="View Details"
+                                >
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button 
+                                    wire:click="printBatch({{ $batch->id }})" 
+                                    class="bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded-md shadow-sm transition-colors duration-200"
+                                    title="Print PDF"
+                                >
+                                    <i class="fas fa-print"></i> Print
+                                </button>
+                            </div>
+                            
                         </td>
                     </tr>
                 @empty
@@ -81,7 +84,7 @@
     <!-- View Batch Modal -->
     @if($selectedBatch)
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" x-data x-on:keydown.escape.window="close">
-            <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6 relative" x-on:click.away="close">
+            <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-4xl p-6 relative max-h-[90vh] overflow-y-auto" x-on:click.away="close">
                 {{-- Modal Header --}}
                 <div class="flex items-center justify-between border-b pb-4 mb-6">
                     <h2 class="text-xl font-semibold text-gray-800">
@@ -92,25 +95,25 @@
 
                 {{-- Modal Body --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-gray-50 p-4 rounded-lg border">
-                        <h3 class="text-sm font-medium text-gray-500 mb-1">Assigned To</h3>
-                        <p class="text-gray-800 font-semibold">{{ $selectedBatch->user->name }}</p>
-                        <p class="text-sm text-gray-600">{{ $selectedBatch->user->email }}</p>
+                    <div class="asset-details p-4 rounded-lg border">
+                        <h3 class="text-sm font-medium mb-1">Assigned To</h3>
+                        <p class="font-semibold">{{ $selectedBatch->user->name }}</p>
+                        <p class="text-sm">{{ $selectedBatch->user->email }}</p>
                     </div>
 
-                    <div class="bg-gray-50 p-4 rounded-lg border">
-                        <h3 class="text-sm font-medium text-gray-500 mb-1">Assigned By</h3>
-                        <p class="text-gray-800 font-semibold">{{ $selectedBatch->assignedByUser->name }}</p>
-                        <p class="text-sm text-gray-600">{{ $selectedBatch->assignedByUser->email }}</p>
+                    <div class="asset-details p-4 rounded-lg border">
+                        <h3 class="text-sm font-medium mb-1">Assigned By</h3>
+                        <p class="font-semibold">{{ $selectedBatch->assignedByUser->name }}</p>
+                        <p class="text-sm">{{ $selectedBatch->assignedByUser->email }}</p>
                     </div>
 
-                    <div class="bg-gray-50 p-4 rounded-lg border">
-                        <h3 class="text-sm font-medium text-gray-500 mb-1">Date Assigned</h3>
-                        <p class="text-gray-800">{{ $selectedBatch->date_assigned->format('M d, Y h:i A') }}</p>
+                    <div class="asset-details p-4 rounded-lg border">
+                        <h3 class="text-sm font-medium mb-1">Date Assigned</h3>
+                        <p>{{ $selectedBatch->date_assigned->format('M d, Y h:i A') }}</p>
                     </div>
 
-                    <div class="bg-gray-50 p-4 rounded-lg border">
-                        <h3 class="text-sm font-medium text-gray-500 mb-1">Status</h3>
+                    <div class="asset-details p-4 rounded-lg border">
+                        <h3 class="text-sm font-medium mb-1">Status</h3>
                         <span class="inline-block px-3 py-1 text-xs font-semibold text-white rounded 
                             {{ strtolower($selectedBatch->status) === 'active' ? 'bg-green-500' : 'bg-gray-400' }}">
                             {{ $selectedBatch->status }}
@@ -118,14 +121,14 @@
                     </div>
 
                     <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gray-50 p-4 rounded-lg border">
-                            <h3 class="text-sm font-medium text-gray-500 mb-1">Purpose</h3>
-                            <p class="text-gray-800">{{ $selectedBatch->purpose }}</p>
+                        <div class="asset-details p-4 rounded-lg border">
+                            <h3 class="text-sm font-medium mb-1">Purpose</h3>
+                            <p>{{ $selectedBatch->purpose }}</p>
                         </div>
 
-                        <div class="bg-gray-50 p-4 rounded-lg border">
-                            <h3 class="text-sm font-medium text-gray-500 mb-1">Remarks</h3>
-                            <p class="text-gray-800">{{ $selectedBatch->remarks ?? 'N/A' }}</p>
+                        <div class="asset-details p-4 rounded-lg border">
+                            <h3 class="text-sm font-medium mb-1">Remarks</h3>
+                            <p>{{ $selectedBatch->remarks ?? 'N/A' }}</p>
                         </div>
                     </div>
                 </div>
@@ -133,7 +136,7 @@
                 {{-- Assigned Software Table --}}
                 <h3 class="text-lg font-semibold text-gray-700 mb-3">Assigned Software</h3>
                 <div class="overflow-x-auto mb-6">
-                    <table class="w-full text-sm text-left border border-gray-200 rounded">
+                    <table class="user-table w-full text-sm text-left border border-gray-200 rounded">
                         <thead class="bg-gray-100 text-gray-700 font-semibold">
                             <tr>
                                 <th class="px-4 py-2 border">Software Code</th>
@@ -145,7 +148,7 @@
                         </thead>
                         <tbody>
                             @foreach($selectedBatch->assignmentItems as $item)
-                                <tr class="hover:bg-gray-50">
+                                <tr>
                                     <td class="px-4 py-2 border">{{ $item->software->software_code }}</td>
                                     <td class="px-4 py-2 border">{{ $item->software->software_name }}</td>
                                     <td class="px-4 py-2 border">{{ $item->software->license_key }}</td>

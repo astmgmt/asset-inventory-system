@@ -68,4 +68,8 @@
     }
 }
 
-/* FOR EDIT USER ACCOUNT BY SUPER ADMIN */
+@media screen and (max-width: 1366px) {
+    .register-container {
+        margin-top: 20rem;
+    }
+}

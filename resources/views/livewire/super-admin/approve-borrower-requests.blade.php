@@ -195,7 +195,7 @@
             </div>
             
             <div class="modal-body">                
-                <div class="bg-info border-l-4 border-blue-500 p-3 sm:p-4 rounded-md shadow-sm mb-4">
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 sm:p-4 rounded-md shadow-sm mb-4">
                     <div class="flex items-start">
                         <div class="flex-shrink-0 pt-0.5">
                             <svg class="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -259,7 +259,7 @@
             </div>
             
             <div class="modal-body">
-                <div class="bg-danger border-l-4 border-red-500 p-3 sm:p-4 rounded-md shadow-sm mb-4">
+                <div class="bg-red-50 border-l-4 border-red-500 p-3 sm:p-4 rounded-md shadow-sm mb-4">
                     <div class="flex items-start">
                         <div class="flex-shrink-0 pt-0.5">
                             <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">

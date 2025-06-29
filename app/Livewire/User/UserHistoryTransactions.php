@@ -12,6 +12,7 @@ use App\Services\SendEmail;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 #[Layout('components.layouts.app')]
 class UserHistoryTransactions extends Component
@@ -28,15 +29,25 @@ class UserHistoryTransactions extends Component
     public function render()
     {
         $history = UserHistory::where('user_id', Auth::id())
-            ->whereNotIn('status', ['Borrow Approved']) // Exclude regular borrow approvals
             ->where(function ($query) {
-                $query->where('status', 'Borrow Denied')
-                    ->orWhere('status', 'Return Approved')
-                    ->orWhere('status', 'Return Denied')
-                    // Show borrow approvals that have not been hidden
+                $query->whereIn('status', ['Borrow Denied', 'Return Approved', 'Return Denied'])
                     ->orWhere(function ($q) {
                         $q->where('status', 'Borrow Approved')
-                            ->whereNull('return_code');
+                            ->where(function ($q2) {
+                                $q2->whereNull('return_code')
+                                    ->orWhere('return_code', 'not like', 'HIDDEN%')
+                                    ->orWhere(function ($q3) {
+                                        $q3->where('return_code', 'like', 'HIDDEN%')
+                                            ->whereNotExists(function ($sub) {
+                                                $sub->select(DB::raw(1))
+                                                    ->from('user_histories as uh2')
+                                                    ->whereColumn('uh2.borrow_code', 'user_histories.borrow_code')
+                                                    ->whereNotNull('uh2.return_code')
+                                                    ->where('uh2.return_code', 'not like', 'HIDDEN%')
+                                                    ->whereIn('uh2.status', ['Return Approved', 'Return Denied']);
+                                            });
+                                    });
+                            });
                     });
             })
             ->when($this->search, function ($query) {
@@ -53,8 +64,6 @@ class UserHistoryTransactions extends Component
             'history' => $history
         ]);
     }
-
-
 
     public function showDetails($historyId)
     {
@@ -126,19 +135,15 @@ class UserHistoryTransactions extends Component
             ->where('status', 'Borrow Approved')
             ->first();
         
-        // Get the borrow approver name
         $borrowApprovedBy = 'N/A';
         if ($borrowApprovalRecord) {
-            // Check if borrow_data has approved_by
             if (isset($borrowApprovalRecord->borrow_data['approved_by'])) {
                 $borrowApprovedBy = $borrowApprovalRecord->borrow_data['approved_by'];
             }
-            // Check if borrow_data has approved_by_user_id
             elseif (isset($borrowApprovalRecord->borrow_data['approved_by_user_id'])) {
                 $approver = User::find($borrowApprovalRecord->borrow_data['approved_by_user_id']);
                 $borrowApprovedBy = $approver ? $approver->name : 'N/A';
             }
-            // Check if transaction has approved_by_user_id
             elseif (isset($borrowApprovalRecord->borrow_data['id'])) {
                 $transaction = AssetBorrowTransaction::find($borrowApprovalRecord->borrow_data['id']);
                 if ($transaction && $transaction->approvedByUser) {
@@ -147,10 +152,22 @@ class UserHistoryTransactions extends Component
             }
         }
         
-        // Get the return received by name
         $returnReceivedBy = $history->return_data['return_received_by'] ?? 'N/A';
         
-        // Extract transaction details
+        $timezone = 'Asia/Manila';
+        
+        $borrowDate = 'N/A';
+        if ($borrowApprovalRecord && isset($borrowApprovalRecord->borrow_data['borrowed_at'])) {
+            $borrowDate = \Carbon\Carbon::parse($borrowApprovalRecord->borrow_data['borrowed_at'])
+                ->setTimezone($timezone)
+                ->format('M d, Y H:i');
+        } 
+        elseif ($borrowApprovalRecord) {
+            $borrowDate = $borrowApprovalRecord->action_date
+                ->setTimezone($timezone)
+                ->format('M d, Y H:i');
+        }
+        
         $transactionData = [
             'borrow_code' => $history->borrow_code,
             'return_code' => $history->return_code,
@@ -160,10 +177,14 @@ class UserHistoryTransactions extends Component
             ],
             'borrow_approved_by' => $borrowApprovedBy,
             'return_received_by' => $returnReceivedBy,
-            'borrowed_at' => $history->action_date->format('M d, Y H:i'),
-            'returned_at' => $history->return_date ? $history->return_date->format('M d, Y H:i') : 'N/A',
+            'borrowed_at' => $borrowDate,
+            'returned_at' => isset($history->return_data['return_date']) 
+                ? \Carbon\Carbon::parse($history->return_data['return_date'])
+                    ->setTimezone($timezone)
+                    ->format('M d, Y H:i') 
+                : 'N/A',
             'remarks' => $history->remarks ?? 'N/A',
-            'borrowItems' => $borrowApprovalRecord->borrow_data['borrow_items'] ?? [],
+            'borrowItems' => $borrowApprovalRecord ? ($borrowApprovalRecord->borrow_data['borrow_items'] ?? []) : [],
             'returnItems' => $history->return_data['return_items'] ?? [],
         ];
 
@@ -180,8 +201,6 @@ class UserHistoryTransactions extends Component
             "Asset-History-{$history->borrow_code}.pdf"
         );
     }
-
-
 
     private function sendDeletionEmail($history)
     {

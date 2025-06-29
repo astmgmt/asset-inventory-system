@@ -2,7 +2,7 @@
     <div class="login-gradient-bg w-full min-h-screen overflow-y-auto relative pt-20">
         
         <!-- Registration Form Wrapper -->
-        <div class="relative z-10 w-full max-w-7xl mx-auto min-h-screen flex flex-col items-center px-4 py-10">
+        <div class="register-container relative z-10 w-full max-w-7xl mx-auto min-h-screen flex flex-col items-center px-4 py-10">
             
             <!-- Registration Form -->
             <form method="POST" action="{{ route('register.store') }}" enctype="multipart/form-data"

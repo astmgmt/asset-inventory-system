@@ -147,7 +147,7 @@
                         <!-- Full spacing for form elements -->
                         <div class="mt-4 border-t border-gray-200 pt-4">
                             <div class="mt-4">
-                                <label for="disposalMethod" class="block text-sm font-medium text-gray-700 mb-1">Disposal Method *</label>
+                                <label for="disposalMethod" class="block text-sm font-medium mb-1">Disposal Method *</label>
                                 <select 
                                     wire:model="disposalMethod"
                                     id="disposalMethod" 
@@ -162,7 +162,7 @@
                             </div>
 
                             <div class="mt-4">
-                                <label for="reason" class="block text-sm font-medium text-gray-700 mb-1">Reason for Disposal *</label>
+                                <label for="reason" class="block text-sm font-medium mb-1">Reason for Disposal *</label>
                                 <textarea 
                                     wire:model="reason"
                                     id="reason" 
@@ -174,7 +174,7 @@
                             </div>
 
                             <div class="mt-4">
-                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Additional Notes</label>
+                                <label for="notes" class="block text-sm font-medium mb-1">Additional Notes</label>
                                 <textarea 
                                     wire:model="notes"
                                     id="notes" 
