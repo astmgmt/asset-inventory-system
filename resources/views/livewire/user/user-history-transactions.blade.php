@@ -330,6 +330,11 @@
             border: 1px solid #e2e8f0;
             text-align: center;
         }
+
+        .dark .details-table {
+            background-color: #fcfdfd;
+            color: #cbd5e0;
+        }
         .details-table th {
             background-color: #f7fafc;
             text-align: center;

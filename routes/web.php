@@ -29,7 +29,6 @@ use App\Livewire\SuperAdmin\PrintQRCodes;
 use App\Livewire\SuperAdmin\TrackAssets;
 
 use App\Livewire\User\UserBorrowAsset; 
-use App\Livewire\User\UserContainers;
 use App\Livewire\User\UserBorrowTransactions; 
 use App\Livewire\User\UserReturnTransactions; 
 use App\Livewire\User\UserHistoryTransactions;
@@ -114,12 +113,6 @@ Route::middleware([
     Route::post('/dashboard/superadmin/create', [AccountController::class, 'create'])
         ->name('superadmin.create')
         ->middleware('role:Super Admin');
-
-
-
-    // -------------------------------------------------------------------------------------------------
-
-    // WORKING LIVEWIRE   
 
     Route::get('/superadmin/manage/account', ManageAccount::class)
         ->name('superadmin.manage')
@@ -265,12 +258,7 @@ Route::middleware([
         ->name('user.borrow.assets')
         ->middleware('role:User');
 
-    Route::get('/user/transactions', UserContainers::class)
-        ->name('user.transactions')
-        ->middleware('role:User');
-
     // USER RETURN TRANSACTIONS  
-
     Route::get('/borrow-transactions', UserBorrowTransactions::class)
         ->name('user.borrow.transactions')
         ->middleware('role:User');

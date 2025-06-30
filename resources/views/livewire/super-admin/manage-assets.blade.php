@@ -421,7 +421,6 @@
                                     </p>
                                 @endif
                             </div>
-
                             
                             <div class="form-group">
                                 <label>Location *</label>
