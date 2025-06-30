@@ -12,7 +12,6 @@ use App\Models\AssetBorrowItem;
 use App\Models\AssetCondition;
 use Illuminate\Support\Facades\DB;
 use App\Services\SendEmail;
-// use App\Services\EmailTemplates;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
