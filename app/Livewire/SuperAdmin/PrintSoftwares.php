@@ -75,12 +75,16 @@ class PrintSoftwares extends Component
             ]);
         }
 
-        // Fetch software based on selected filter
-        $softwares = ($this->filterOption == 'select_all')
-            ? Software::with('addedBy')->get()
-            : Software::with('addedBy')
-                ->whereBetween('created_at', [$this->dateFrom, $this->dateTo])
+        if ($this->filterOption == 'select_all') {
+            $softwares = Software::with('addedBy')->get();
+        } else {
+            $start = Carbon::parse($this->dateFrom)->startOfDay();
+            $end = Carbon::parse($this->dateTo)->endOfDay();
+
+            $softwares = Software::with('addedBy')
+                ->whereBetween('created_at', [$start, $end])
                 ->get();
+        }
 
         if ($softwares->isEmpty()) {
             $this->errorMessage = 'No software found.';

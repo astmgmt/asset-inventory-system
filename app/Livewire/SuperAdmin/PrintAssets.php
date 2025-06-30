@@ -75,19 +75,22 @@ class PrintAssets extends Component
             ]);
         }
 
-        // Fetch assets based on selected filter
-        $assets = ($this->filterOption == 'select_all')
-            ? Asset::with(['category', 'condition', 'location', 'vendor'])->get()
-            : Asset::with(['category', 'condition', 'location', 'vendor'])
-                ->whereBetween('created_at', [$this->dateFrom, $this->dateTo])
+        if ($this->filterOption == 'select_all') {
+            $assets = Asset::with(['category', 'condition', 'location', 'vendor'])->get();
+        } else {
+            $start = \Carbon\Carbon::parse($this->dateFrom)->startOfDay();
+            $end = \Carbon\Carbon::parse($this->dateTo)->endOfDay();
+            
+            $assets = Asset::with(['category', 'condition', 'location', 'vendor'])
+                ->whereBetween('created_at', [$start, $end])
                 ->get();
+        }
 
         if ($assets->isEmpty()) {
             $this->errorMessage = 'No assets found.';
             return;
         }
 
-        // Prepare snapshot data
         $snapshot = $assets->map(function ($asset) {
             return [
                 'asset_code' => $asset->asset_code,
@@ -103,7 +106,6 @@ class PrintAssets extends Component
             ];
         })->toArray();
 
-        // Create print log
         $printLog = AssetPrintLog::create([
             'print_code' => $this->generatePrintCode(),
             'date_from' => $this->filterOption == 'by_date' ? $this->dateFrom : null,

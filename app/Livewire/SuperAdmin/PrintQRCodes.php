@@ -114,22 +114,24 @@ class PrintQRCodes extends Component
             ]);
         }
 
-        // Fetch assets based on selected filter
-        $assets = ($this->filterOption == 'select_all')
-            ? Asset::with('location')->get()
-            : Asset::with('location')
-                ->whereBetween('created_at', [$this->dateFrom, $this->dateTo])
+        if ($this->filterOption == 'select_all') {
+            $assets = Asset::with('location')->get();
+        } else {
+            $start = \Carbon\Carbon::parse($this->dateFrom)->startOfDay();
+            $end = \Carbon\Carbon::parse($this->dateTo)->endOfDay();
+
+            $assets = Asset::with('location')
+                ->whereBetween('created_at', [$start, $end])
                 ->get();
+        }
 
         if ($assets->isEmpty()) {
             $this->errorMessage = 'No assets found.';
             return;
         }
 
-        // Set success message
         $this->successMessage = 'Successfully created print job. Generating PDF for download, please wait...';
 
-        // Prepare snapshot data
         $snapshot = $assets->map(function ($asset) {
             return [
                 'asset_code' => $asset->asset_code,
@@ -141,7 +143,6 @@ class PrintQRCodes extends Component
             ];
         })->toArray();
 
-        // Create print log
         $printLog = AssetQrcodeLog::create([
             'print_code' => $this->generatePrintCode(),
             'date_from' => $this->filterOption == 'by_date' ? $this->dateFrom : null,
@@ -150,10 +151,8 @@ class PrintQRCodes extends Component
             'asset_snapshot_data' => $snapshot,
         ]);
 
-        // Attach assets to pivot table
         $printLog->assets()->attach($assets->pluck('id'));
 
-        // Generate QR codes for each asset
         $assetsWithQr = [];
         foreach ($assets as $asset) {
             $qrCode = $this->generateQrCode(
@@ -171,7 +170,6 @@ class PrintQRCodes extends Component
             ];
         }
 
-        // Generate PDF
         $pdf = Pdf::loadView('pdf.asset-qrcodes', [
             'assets' => $assetsWithQr,
             'printLog' => $printLog,
@@ -185,7 +183,6 @@ class PrintQRCodes extends Component
         );
     }
 
-    // Add this method to clear validation
     public function updatedFilterOption($value)
     {
         if ($value === 'select_all') {
@@ -201,7 +198,6 @@ class PrintQRCodes extends Component
         $printLog = AssetQrcodeLog::findOrFail($printLogId);
         $snapshot = $printLog->asset_snapshot_data;
 
-        // Generate QR codes for each asset in snapshot
         $assetsWithQr = [];
         foreach ($snapshot as $assetData) {
             $qrCode = $this->generateQrCode(
