@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserHistory extends Model
 {
+    
+    
     protected $fillable = [
         'user_id',
         'borrow_code',

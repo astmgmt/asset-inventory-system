@@ -25,43 +25,23 @@ class UserHistoryTransactions extends Component
     public $showDeleteModal = false;
     public $successMessage = '';
     public $errorMessage = '';
+    public $historyToDelete = null; 
 
     public function render()
-    {
-        $history = UserHistory::where('user_id', Auth::id())
-            ->where(function ($query) {
-                $query->whereIn('status', ['Borrow Denied', 'Return Approved', 'Return Denied'])
-                    ->orWhere(function ($q) {
-                        $q->where('status', 'Borrow Approved')
-                            ->where(function ($q2) {
-                                $q2->whereNull('return_code')
-                                    ->orWhere('return_code', 'not like', 'HIDDEN%')
-                                    ->orWhere(function ($q3) {
-                                        $q3->where('return_code', 'like', 'HIDDEN%')
-                                            ->whereNotExists(function ($sub) {
-                                                $sub->select(DB::raw(1))
-                                                    ->from('user_histories as uh2')
-                                                    ->whereColumn('uh2.borrow_code', 'user_histories.borrow_code')
-                                                    ->whereNotNull('uh2.return_code')
-                                                    ->where('uh2.return_code', 'not like', 'HIDDEN%')
-                                                    ->whereIn('uh2.status', ['Return Approved', 'Return Denied']);
-                                            });
-                                    });
-                            });
-                    });
-            })
-            ->when($this->search, function ($query) {
-                $query->where(function ($q) {
-                    $q->where('borrow_code', 'like', '%'.$this->search.'%')
-                    ->orWhere('return_code', 'like', '%'.$this->search.'%')
-                    ->orWhere('status', 'like', '%'.$this->search.'%');
-                });
-            })
-            ->orderBy('action_date', 'desc')
-            ->paginate(10);
+    {        
+        $query = UserHistory::where('user_id', Auth::id())
+            ->orderBy('action_date', 'desc');
+
+        if ($this->search) {
+            $query->where(function ($q) {
+                $q->where('borrow_code', 'like', '%'.$this->search.'%')
+                ->orWhere('return_code', 'like', '%'.$this->search.'%')
+                ->orWhere('status', 'like', '%'.$this->search.'%');
+            });
+        }
 
         return view('livewire.user.user-history-transactions', [
-            'history' => $history
+            'history' => $query->paginate(10)
         ]);
     }
 
@@ -87,18 +67,27 @@ class UserHistoryTransactions extends Component
     public function confirmDelete($historyId)
     {
         $this->selectedHistory = UserHistory::findOrFail($historyId);
+        $this->historyToDelete = $historyId; 
         $this->showDeleteModal = true;
     }
 
     public function deleteHistory()
     {
         try {
-            $history = $this->selectedHistory;
+            $history = UserHistory::findOrFail($this->historyToDelete);
+            
             $this->sendDeletionEmail($history);
-            $history->delete();
-
-            $this->successMessage = "History record deleted successfully!";
-            $this->reset(['showDeleteModal', 'selectedHistory']);
+            
+            $deleted = UserHistory::where('id', $this->historyToDelete)->delete();
+            
+            if ($deleted) {
+                $this->successMessage = "History record deleted successfully!";
+                $this->resetPage(); 
+            } else {
+                $this->errorMessage = "Failed to delete history record.";
+            }
+            
+            $this->reset(['showDeleteModal', 'selectedHistory', 'historyToDelete']);
         } catch (\Exception $e) {
             $this->errorMessage = "Failed to delete history: " . $e->getMessage();
         }
@@ -130,7 +119,6 @@ class UserHistoryTransactions extends Component
             return;
         }
         
-        // Get the borrow approval record
         $borrowApprovalRecord = UserHistory::where('borrow_code', $history->borrow_code)
             ->where('status', 'Borrow Approved')
             ->first();

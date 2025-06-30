@@ -57,7 +57,21 @@ class TrackAssets extends Component
 
     public function showDetails($historyId)
     {
-        $this->selectedHistory = UserHistory::with(['user', 'user.role', 'user.department'])->findOrFail($historyId);
+        $history = UserHistory::with(['user', 'user.role', 'user.department'])
+                            ->findOrFail($historyId);
+
+        if (is_null($history->borrow_data)) {
+            $reference = UserHistory::where('borrow_code', $history->borrow_code)
+                                    ->whereNotNull('borrow_data')
+                                    ->first();
+
+            if ($reference) {
+                $history->borrow_data = $reference->borrow_data;
+                $history->save(); 
+            }
+        }
+
+        $this->selectedHistory = $history;
         $this->showDetailsModal = true;
     }
 
