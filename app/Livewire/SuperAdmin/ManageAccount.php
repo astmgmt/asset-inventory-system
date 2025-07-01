@@ -17,9 +17,8 @@ class ManageAccount extends Component
     public $confirmingUserDeletion = false;
     public $userIdToDelete = null;
     public $password = '';
-    public $successMessage = ''; // For success notification
+    public $successMessage = ''; 
 
-    // Reset pagination when search changes
     public function updatingSearch()
     {
         $this->resetPage();
@@ -39,7 +38,7 @@ class ManageAccount extends Component
         $this->confirmingUserDeletion = true;
         $this->resetErrorBag();
         $this->password = '';
-        $this->successMessage = ''; // Clear any previous messages
+        $this->successMessage = ''; 
     }
 
     public function deleteUser()
@@ -57,15 +56,13 @@ class ManageAccount extends Component
         $this->confirmingUserDeletion = false;
         $this->userIdToDelete = null;
         $this->password = '';
-        $this->resetPage(); // Reset pagination after deletion
+        $this->resetPage(); 
         
-        // Reset search and show success message
         $this->search = '';
         $this->successMessage = 'User deleted successfully!';
         $this->clearSuccessMessage();
     }
 
-    // Clear success message after 3 seconds
     public function clearSuccessMessage()
     {
         $this->dispatch('clear-message');

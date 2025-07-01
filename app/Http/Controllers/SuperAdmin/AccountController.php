@@ -11,7 +11,7 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
-class AccountController extends Controller
+class AccountController extends Controller 
 {
     public function showForm()
     {

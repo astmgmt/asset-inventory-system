@@ -179,6 +179,52 @@
                             <span class="text-sm text-red-600 dark:text-red-400">{{ $message }}</span> 
                         @enderror
                     </div>
+
+                    <!-- Department -->
+                    <div>
+                        <label for="departmentSearch" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Department
+                        </label>
+                        <div class="relative">
+                            <input 
+                                id="departmentSearch"
+                                type="text" 
+                                wire:model.live="departmentSearch"
+                                wire:keydown.escape="showDepartmentDropdown = false"
+                                placeholder="Search or add department"
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                autocomplete="off"
+                                wire:click="showDepartmentDropdown = true"
+                            />
+                            @if($showDepartmentDropdown)
+                                <div class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-auto dark:bg-gray-700 dark:border-gray-600">
+                                    @foreach($departmentSuggestions as $dept)
+                                        <div 
+                                            wire:click="selectDepartment('{{ $dept }}')"
+                                            class="px-4 py-2 hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-600 dark:text-white"
+                                        >
+                                            {{ $dept }}
+                                        </div>
+                                    @endforeach
+                                    @if(!in_array($departmentSearch, $departmentSuggestions) && $departmentSearch)
+                                        <div 
+                                            wire:click="selectDepartment('{{ $departmentSearch }}')"
+                                            class="px-4 py-2 text-blue-500 hover:bg-blue-100 cursor-pointer dark:text-blue-300 dark:hover:bg-gray-600"
+                                        >
+                                            Add "{{ $departmentSearch }}"
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                        @error('department_id') 
+                            <span class="text-sm text-red-600 dark:text-red-400">{{ $message }}</span> 
+                        @enderror
+                        
+                        <input type="hidden" wire:model="department_id" />
+                    </div>
+
+
                 </div>
                 
                 <!-- Actions -->
