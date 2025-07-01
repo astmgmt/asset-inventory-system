@@ -81,6 +81,17 @@ class ManageAccount extends Component
         return redirect()->route('superadmin.manage.edit_account', ['id' => $userId]);
     }
 
+    public function getCounterProperty()
+    {
+        return ($this->users->currentPage() - 1) * $this->users->perPage();
+    }
+    
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->resetPage();
+    }
+
     #[Layout('components.layouts.app')]
     public function render()
     {
@@ -90,7 +101,7 @@ class ManageAccount extends Component
                 $query->where('name', 'like', '%' . $this->search . '%')
                       ->orWhere('username', 'like', '%' . $this->search . '%');
             })
-            ->orderBy('id')
+            ->orderBy('id','DESC')
             ->paginate(10);
 
         return view('livewire.super-admin.manage-account', [

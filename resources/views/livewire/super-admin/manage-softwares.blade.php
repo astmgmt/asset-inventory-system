@@ -13,19 +13,26 @@
 
     <!-- Action Bar -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-        <div class="search-bar w-full md:w-1/3 relative">
+        <!-- SEARCH BAR -->
+        <div class="relative w-full lg:w-1/3 mb-5">
             <input                
                 wire:model.live.debounce.300ms="search"
                 type="text"
-                placeholder="Search software..."
-                class="search-input w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Search by name or username..."
+                class="w-full p-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            
             @if($search)
-                <button wire:click="clearSearch" class="absolute right-8 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <button 
+                    wire:click="clearSearch"
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                    title="Clear search"
+                >
                     <i class="fas fa-times"></i>
                 </button>
+            @else
+                <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
             @endif
-            <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>             
         </div>        
         
         <div class="flex justify-end mb-4">

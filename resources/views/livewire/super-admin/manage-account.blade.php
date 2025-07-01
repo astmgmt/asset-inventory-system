@@ -20,22 +20,35 @@
                     type="text"
                     placeholder="Search by name or username..."
                     class="w-full p-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />   
-                <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>             
+                />
+                
+                @if($search)
+                    <button 
+                        wire:click="clearSearch"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 hover:text-gray-600 focus:outline-none"
+                        title="Clear search"
+                    >
+                        <i class="fas fa-times"></i>
+                    </button>
+                @else
+                    <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 pointer-events-none"></i>
+                @endif
             </div>
 
 
             <table class="user-table">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th>
+                        <th>No.</th><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th>
                         <th class="actions-column">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($users as $user)
                         <tr>
-                            <td data-label="ID">{{ $user->id }}</td>
+                            <td data-label="No.">
+                                {{ $loop->index + 1 + ($users->currentPage() - 1) * $users->perPage() }}
+                            </td>
                             <td data-label="Name">{{ $user->name }}</td>
                             <td data-label="Username">{{ $user->username }}</td>
                             <td data-label="Email">{{ $user->email }}</td>

@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //ADDED role_id AS FOREIGN KEY ON USERS TABLE
             $table->foreignId('role_id')->after('id')->constrained('roles')->onDelete('cascade');
         });
     }

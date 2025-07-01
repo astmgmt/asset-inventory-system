@@ -10,20 +10,18 @@ use App\Models\User;
 
 class SoftwareSeeder extends Seeder
 {
+    public function definition(): array
+    {
+        // Prevent factory usage in production
+        if (app()->environment('production')) {
+            return [];
+        }
+        
+        // Original factory code below...
+        return [ /* ... */ ];
+    }
     public function run(): void
     {
-        if (User::count() < 10) {
-            \App\Models\User::factory()->count(10)->create();
-        }
-
-        Software::factory()->count(20)->create();
-
-        SoftwareAssignment::factory()->count(25)->create();
-
-        if (\App\Models\Notification::count() < 10) {
-            \App\Models\Notification::factory()->count(10)->create();
-        }
-
-        SoftwareExpiryNotification::factory()->count(10)->create();
+        
     }
 }

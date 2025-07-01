@@ -11,6 +11,10 @@ class DepartmentFactory extends Factory
 
     public function definition(): array
     {
+        if (app()->environment('production')) {
+            throw new \Exception('Factory usage is disabled in production environment');
+        }
+        
         return [
             'name' => fake()->unique()->company(),
             'description' => fake()->sentence(),

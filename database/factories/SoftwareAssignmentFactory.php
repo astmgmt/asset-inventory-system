@@ -13,6 +13,11 @@ class SoftwareAssignmentFactory extends Factory
 
     public function definition(): array
     {
+
+        if (app()->environment('production')) {
+            throw new \Exception('Factory usage is disabled in production environment');
+        }
+        
         return [
             'software_id'   => Software::inRandomOrder()->first()->id ?? Software::factory(),
             'user_id'       => User::inRandomOrder()->first()->id ?? User::factory(),

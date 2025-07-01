@@ -18,6 +18,9 @@ class AssetFactory extends Factory
 
     public function definition(): array
     {
+        if (app()->environment('production')) {
+            throw new \Exception('Factory usage is disabled in production environment');
+        }
         return [
             'asset_code' => $this->generateFactoryAssetCode(),
             'name' => $this->faker->word(),

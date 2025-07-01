@@ -9,13 +9,18 @@ class DepartmentSeeder extends Seeder
 {
     public function run(): void
     {
-        $departments = ['IT Department', 'HR Department', 'Finance Department', 'Logistics Department'];
+        $departments = [
+            ['name' => 'IT Department', 'description' => 'Handles technology infrastructure'],
+            ['name' => 'HR Department', 'description' => 'Manages human resources'],
+            ['name' => 'Finance Department', 'description' => 'Handles financial operations'],
+            ['name' => 'Logistics Department', 'description' => 'Manages supply chain']
+        ];
 
         foreach ($departments as $dept) {
-            Department::create([
-                'name' => $dept,
-                'description' => $dept . ' handles all related tasks.'
-            ]);
+            Department::firstOrCreate(
+                ['name' => $dept['name']],
+                $dept
+            );
         }
     }
 }

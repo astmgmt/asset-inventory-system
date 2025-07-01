@@ -40,24 +40,23 @@ class SoftwareAssignments extends Component
     public function render()
     {
         $software = Software::query()
-            ->where('expiry_status', 'active')
-            ->where('expiry_flag', false)
-            ->whereNotIn('id', array_keys($this->selectedSoftware))
-            ->whereRaw('(quantity - reserved_quantity) > 0')
+            ->where('expiry_status', '!=', 'expired') // Show all except expired
+            ->where('show_status', true) // Only show_status = 1
+            ->whereRaw('(quantity - reserved_quantity) > 0') // Available licenses
+            ->whereNotIn('id', array_keys($this->selectedSoftware)) // Hide items in cart
             ->when($this->search, function ($query) {
                 $query->where(function($q) {
                     $q->where('software_name', 'like', '%'.$this->search.'%')
-                    ->orWhere('software_code', 'like', '%'.$this->search.'%')
-                    ->orWhere('license_key', 'like', '%'.$this->search.'%');
+                      ->orWhere('software_code', 'like', '%'.$this->search.'%')
+                      ->orWhere('license_key', 'like', '%'.$this->search.'%');
                 });
             })
             ->select(
                 '*',
                 DB::raw('(quantity - reserved_quantity) as available_quantity')
             )
-            ->orderBy('created_at', 'desc') // <- Add this line
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
-
 
         return view('livewire.super-admin.software-assignments', compact('software'));
     }
@@ -66,16 +65,14 @@ class SoftwareAssignments extends Component
     {
         $this->errorMessage = '';
         
-        $software = Software::select(
-                    '*',
-                    DB::raw('(quantity - reserved_quantity) as available_quantity')
-                )->find($softwareId);
-
-        if ($software->available_quantity < 1) {
+        $software = Software::find($softwareId);
+        $available = $software->quantity - $software->reserved_quantity;
+        
+        if ($available < 1) {
             $this->errorMessage = 'This software is no longer available';
             return;
         }
-
+        
         if (!isset($this->selectedSoftware[$softwareId])) {
             $this->selectedSoftware[$softwareId] = [
                 'id' => $software->id,
@@ -83,7 +80,7 @@ class SoftwareAssignments extends Component
                 'code' => $software->software_code,
                 'license_key' => $software->license_key,
                 'quantity' => 1,
-                'max_quantity' => $software->available_quantity,
+                'max_quantity' => $available,
             ];
         }
     }
@@ -93,12 +90,8 @@ class SoftwareAssignments extends Component
         $newQuantity = (int)$newQuantity;
         if ($newQuantity < 1 || !isset($this->selectedSoftware[$softwareId])) return;
 
-        $software = Software::select(
-                    '*',
-                    DB::raw('(quantity - reserved_quantity) as available_quantity')
-                )->find($softwareId);
-                
-        $available = $software->available_quantity;
+        $software = Software::find($softwareId);
+        $available = $software->quantity - $software->reserved_quantity;
 
         if ($newQuantity > $available) {
             $this->addError('quantity_'.$softwareId, 'Insufficient available quantity');
@@ -182,9 +175,8 @@ class SoftwareAssignments extends Component
 
         try {
             $batch = null;
-            $assignmentData = [];
             
-            DB::transaction(function () use (&$batch, $user, &$assignmentData) {
+            DB::transaction(function () use (&$batch, $user) {
                 $assignmentNo = $this->generateAssignmentNo();
                 $batch = SoftwareAssignmentBatch::create([
                     'assignment_no' => $assignmentNo,
@@ -209,8 +201,8 @@ class SoftwareAssignments extends Component
                         throw new \Exception("Software '{$item['name']}' not found");
                     }
 
-                    if ($software->expiry_flag || $software->expiry_status !== 'active') {
-                        throw new \Exception("Software '{$item['name']}' is not active");
+                    if ($software->expiry_status === 'expired') {
+                        throw new \Exception("Software '{$item['name']}' has expired");
                     }
 
                     $available = $software->quantity - $software->reserved_quantity;
@@ -224,7 +216,6 @@ class SoftwareAssignments extends Component
 
                     $software->increment('reserved_quantity', $item['quantity']);
 
-                    // Create assignment item with installation date
                     SoftwareAssignmentItem::create([
                         'assignment_batch_id' => $batch->id,
                         'software_id' => $softwareId,
@@ -232,22 +223,14 @@ class SoftwareAssignments extends Component
                         'status' => 'Assigned',
                         'installation_date' => now(), 
                     ]);
-                    
-                    $assignmentData[] = [
-                        'software_id' => $softwareId,
-                        'name' => $item['name'],
-                        'code' => $item['code'],
-                        'license_key' => $item['license_key'],
-                        'quantity' => $item['quantity'],
-                    ];
                 }
             });
 
             $this->generatedAssignmentNo = $batch->assignment_no;
             $this->sendAssignmentEmail($batch, $user);
-            $this->clearCart();
             $this->successMessage = 'Software assigned successfully!';
             $this->showCartModal = false;
+            $this->clearCart();
 
             // Generate and return PDF for download
             $batch->load([
@@ -294,7 +277,7 @@ class SoftwareAssignments extends Component
         
         $assignmentNo = $batch->assignment_no;
 
-        // Generate email body using Blade template
+        // Generate email body
         $body = View::make('emails.assign-softwares', [
             'assignmentNo' => $assignmentNo,
             'userName' => $user->name,
@@ -333,17 +316,14 @@ class SoftwareAssignments extends Component
         $date = now()->format('Ymd');
         $prefix = "SW-{$date}-";
         
-        // Find the last assignment today with lock
         $lastNo = SoftwareAssignmentBatch::where('assignment_no', 'like', $prefix . '%')
             ->orderBy('assignment_no', 'desc')
-            ->lockForUpdate()
             ->first();
 
-        // Extract the last sequence number
         $lastNum = 0;
         if ($lastNo) {
             $lastCode = $lastNo->assignment_no;
-            $sequencePart = substr($lastCode, -8); // Get last 8 characters
+            $sequencePart = substr($lastCode, -8);
             $lastNum = intval($sequencePart);
         }
 

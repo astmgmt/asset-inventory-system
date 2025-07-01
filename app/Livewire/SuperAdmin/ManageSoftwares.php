@@ -20,6 +20,7 @@ class ManageSoftwares extends Component
     public $description;
     public $license_key;
     public $expiry_date;
+    public $quantity = 1;
     
     // Modals
     public $showAddModal = false;
@@ -120,6 +121,7 @@ class ManageSoftwares extends Component
             'description' => 'nullable|string',
             'license_key' => 'required|string|max:100',
             'expiry_date' => 'required|date',
+            'quantity' => 'required|integer|min:1',
         ]);
 
         Software::create([
@@ -129,7 +131,7 @@ class ManageSoftwares extends Component
             'license_key' => $this->license_key,
             'expiry_date' => $this->expiry_date,
             'added_by' => Auth::id(),
-            'quantity' => 1,
+            'quantity' => $this->quantity,
             'reserved_quantity' => 0,
             'expiry_flag' => false,
             'expiry_status' => 'active',

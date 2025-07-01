@@ -12,6 +12,10 @@ class SoftwareFactory extends Factory
 
     public function definition(): array
     {
+        if (app()->environment('production')) {
+            throw new \Exception('Factory usage is disabled in production environment');
+        }
+        
         return [
             'software_code' => strtoupper(fake()->unique()->bothify('SW-###??')),
             'software_name' => fake()->word() . ' Suite',
