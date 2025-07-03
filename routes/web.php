@@ -201,13 +201,12 @@ Route::middleware([
     // Single asset PDF
     Route::get('assets/{id}/pdf', [AssetPdfController::class, 'generate'])
         ->name('assets.pdf')
-        ->where('id', '[0-9]+'); // Ensure ID is numeric
+        ->where('id', '[0-9]+'); 
 
     // Batch assets PDF
     Route::get('assets/batch-pdf', [AssetPdfController::class, 'generateBatch'])
         ->name('assets.batch-pdf');
 
-    // Corrected the parameter name to match controller expectation
     Route::get('/borrow-pdf/{borrow_code}', [ApproveBorrowController::class, 'generatePDF'])
         ->name('borrow.pdf');
 
@@ -301,7 +300,6 @@ Route::middleware([
     Route::get('/user/history/pdf/{id}', function ($id) {
         $history = App\Models\UserHistory::findOrFail($id);
         
-        // Verify user owns this history record
         if ($history->user_id !== auth()->id()) {
             abort(403);
         }
