@@ -55,12 +55,14 @@
                             <td data-label="Role">{{ $user->role->name ?? 'N/A' }}</td>
                             <td data-label="Status">
                                 <select
+                                    wire:model="userStatusMap.{{ $user->id }}"
                                     wire:change="updateStatus({{ $user->id }}, $event.target.value)"
                                     class="status-dropdown"
+                                    wire:key="status-select-{{ $user->id }}"
                                 >
-                                    <option value="Approved" {{ $user->status === 'Approved' ? 'selected' : '' }}>Approved</option>
-                                    <option value="Pending" {{ $user->status === 'Pending' ? 'selected' : '' }}>Pending</option>
-                                    <option value="Blocked" {{ $user->status === 'Blocked' ? 'selected' : '' }}>Blocked</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Blocked">Blocked</option>
                                 </select>
                             </td>
                             <td data-label="Actions" class="text-center">
@@ -76,8 +78,6 @@
                                     </button>
                                 </div>
                             </td>
-
-
                         </tr>
                     @empty
                         <tr>
@@ -91,7 +91,6 @@
             <div class="mt-4 pagination-container">
                 {{ $users->links() }}
             </div>
-
         </div>
 
         <!-- Delete Confirmation Modal -->
@@ -138,10 +137,18 @@
                         <div class="flex items-center space-x-4">
                             <button
                                 wire:click="deleteUser"
+                                wire:loading.attr="disabled"
+                                wire:loading.class="opacity-50 cursor-not-allowed"
                                 class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
                             >
-                                <i class="fas fa-trash-alt mr-2"></i>
-                                Confirm
+                                <span wire:loading.class.add="hidden" class="flex items-center">
+                                    <i class="fas fa-trash-alt mr-2"></i>
+                                    Confirm
+                                </span>
+                                <span wire:loading.class.remove="hidden" class="hidden flex items-center">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                                    Deleting...
+                                </span>
                             </button>
 
                             <button
@@ -156,6 +163,49 @@
                 </div>
             </div>
         @endif
+
+        <!-- Status Change Confirmation Modal -->
+        @if ($confirmingStatusChange)
+            <div class="modal-backdrop">
+                <div class="modal">
+                    <h2 class="text-lg font-semibold mb-2">
+                        Confirm Status Change
+                    </h2>
+                    <p class="mb-4">
+                        {{ $statusMessage }}
+                    </p>
+                    
+                    <div class="modal-actions mt-4">
+                        <div class="flex items-center space-x-4">
+                            <button
+                                wire:click="changeUserStatus"
+                                wire:loading.attr="disabled"
+                                wire:loading.class="opacity-50 cursor-not-allowed"
+                                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
+                            >
+                                <span wire:loading.class.add="hidden" class="flex items-center">
+                                    <i class="fas fa-check mr-2"></i>
+                                    Yes
+                                </span>
+                                <span wire:loading.class.remove="hidden" class="hidden flex items-center">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                                    Processing...
+                                </span>
+                            </button>
+
+                            <button
+                                wire:click="cancelStatusChange"
+                                class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition"
+                            >
+                                <i class="fas fa-times mr-2"></i>
+                                No
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
     </div>
     <script>
         document.addEventListener('livewire:init', () => {
@@ -163,6 +213,16 @@
                 setTimeout(() => {
                     @this.set('successMessage', '');
                 }, 3000);
+            });
+            
+            Livewire.on('userStatusUpdated', (userId) => {
+                // Force Livewire to update the UI
+                @this.get('userStatusMap');
+            });
+            
+            Livewire.on('userDeleted', (userId) => {
+                // Force Livewire to update the UI
+                @this.get('userStatusMap');
             });
         });
     </script>

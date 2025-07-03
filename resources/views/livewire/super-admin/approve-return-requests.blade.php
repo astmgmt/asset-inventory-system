@@ -160,10 +160,35 @@
                             </table>
                         </div>
 
+                        @php
+                            $returnRemarks = collect();
+                            foreach ($selectedTransaction->borrowItems as $borrowItem) {
+                                foreach ($borrowItem->returnItems as $returnItem) {
+                                    if ($returnItem->approval_status === 'Pending' && $returnItem->remarks) {
+                                        $returnRemarks->push($returnItem->remarks);
+                                    }
+                                }
+                            }
+                            $uniqueRemarks = $returnRemarks->unique();
+                        @endphp
+                        
+                        @if($uniqueRemarks->isNotEmpty())
+                            <div class="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
+                                <h3 class="font-semibold text-[14px] text-green-600 mb-1">User Remarks / Message:</h3>
+                                @foreach($uniqueRemarks as $remark)
+                                    <p class="text-gray-700 mb-2 last:mb-0 text-[14px]">{{ $remark }}</p>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-md">
+                                <p class="text-gray-500 italic">No remarks provided by the borrower for this return</p>
+                            </div>
+                        @endif
+
                         <!-- Remarks Section -->
                         <div class="mt-4 text-left">
                             <label for="approve-remarks" class="block text-xs font-medium mb-1">
-                                Remarks <span class="text-gray-400">(Optional)</span>
+                                Admin Remarks <span class="text-gray-400">(Optional)</span>
                             </label>
                             <textarea 
                                 id="approve-remarks" 
@@ -183,15 +208,21 @@
                         >
                             Cancel
                         </button>
-
+                        
                         <button 
                             wire:click="approveReturn" 
+                            wire:loading.attr="disabled"
+                            wire:loading.class="opacity-50 cursor-not-allowed"
                             class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-medium py-1.5 px-4 rounded text-sm transition duration-150 ease-in-out"
                         >
-                            <i class="fas fa-check mr-2"></i> Approve Return
+                            <span wire:loading.class.add="hidden">
+                                <i class="fas fa-check mr-2"></i> Approve Return
+                            </span>
+                            <span wire:loading.class.remove="hidden" class="hidden flex items-center">
+                                <i class="fas fa-spinner fa-spin mr-2"></i> Processing...
+                            </span>
                         </button>
                     </div>
-
                 </div>
             </div>
         @endif

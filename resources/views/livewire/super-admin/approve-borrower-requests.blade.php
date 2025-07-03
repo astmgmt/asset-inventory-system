@@ -144,6 +144,13 @@
                         </div>
                     </div>
 
+                    @if($selectedTransaction->remarks)
+                        <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                            <h3 class="font-semibold text-[14px] text-blue-600 mb-1">Borrower Remarks / Message:</h3>
+                            <p class="text-gray-700">{{ $selectedTransaction->remarks }}</p>
+                        </div>
+                    @endif
+
                     <table class="user-table w-full text-[12px]">
                         <thead>
                             <tr>
@@ -241,12 +248,18 @@
 
                 <button 
                     wire:click="approveRequest" 
+                    wire:loading.attr="disabled"
+                    wire:loading.class="opacity-50 cursor-not-allowed"
                     class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-medium py-1.5 px-4 rounded text-sm transition duration-150 ease-in-out"
                 >
-                    <i class="fas fa-check mr-2"></i> Confirm
+                    <span wire:loading.class.add="hidden">
+                        <i class="fas fa-check mr-2"></i> Confirm
+                    </span>
+                    <span wire:loading.class.remove="hidden" class="hidden flex items-center">
+                        <i class="fas fa-spinner fa-spin mr-2"></i> Processing...
+                    </span>
                 </button>
             </div>
-
         </div>
     </div>
 

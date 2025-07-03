@@ -584,7 +584,6 @@
 
                     <!-- Footer -->
                     <div class="mt-10 flex justify-end space-x-4">
-                        <!-- Print Button - Conditionally Disabled -->
                         <a href="{{ $isPrintDisabled ? '#' : route('assets.pdf', ['id' => $viewAsset->id]) }}"
                         @if(!$isPrintDisabled) target="_blank" @endif
                         class="inline-flex items-center px-6 py-3 text-sm font-medium rounded-md transition 
@@ -629,9 +628,18 @@
                     <div class="modal-actions flex space-x-3">
                         <button
                             wire:click="deleteAsset"
+                            wire:loading.attr="disabled"
+                            wire:loading.class="opacity-50 cursor-not-allowed"
                             class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
                         >
-                            <i class="fas fa-trash-alt mr-2"></i> Confirm
+                            <span wire:loading.class.add="hidden" class="flex items-center">
+                                <i class="fas fa-trash-alt mr-2"></i>
+                                Confirm
+                            </span>
+                            <span wire:loading.class.remove="hidden" class="hidden flex items-center">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>
+                                Deleting...
+                            </span>
                         </button>
 
                         <button

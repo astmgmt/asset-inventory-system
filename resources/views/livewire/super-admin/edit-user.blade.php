@@ -283,10 +283,18 @@
                     </button>
                     <button 
                         wire:click="updateUser"
+                        wire:loading.attr="disabled"
+                        wire:loading.class="opacity-50 cursor-not-allowed"
                         class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 flex items-center gap-2"
                     >
-                        <i class="fas fa-check"></i>
-                        Confirm
+                        <span wire:loading.class.add="hidden" class="flex items-center gap-2">
+                            <i class="fas fa-check"></i>
+                            Confirm
+                        </span>
+                        <span wire:loading.class.remove="hidden" class="hidden flex items-center gap-2">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            Updating...
+                        </span>
                     </button>
                 </div>
             </div>

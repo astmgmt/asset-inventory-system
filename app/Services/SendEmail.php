@@ -11,13 +11,11 @@ class SendEmail
     public function send($to, $subject, $content, $cc = [], $attachmentContent = null, $attachmentName = null, $isHtml = true)
     {
         try {
-                // Validate recipient email
             if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
                 throw new InvalidArgumentException("Invalid email address: {$to}");
             }
             
             if ($isHtml) {
-                // Content is raw HTML string
                 Mail::html($content, function ($message) use ($to, $subject, $cc, $attachmentContent, $attachmentName) {
                     $message->to($to)->subject($subject);
                     if (!empty($cc)) $message->cc($cc);

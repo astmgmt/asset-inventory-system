@@ -79,10 +79,19 @@
                                     -
                                 @endif
                             </td>
+
                             <td data-label="Remarks" class="text-center">
-                                {{ $transaction->return_remarks ?: 'N/A' }}
-                            </td>
-                            
+                                @if($transaction->return_remarks)
+                                    <div class="remarks-container">
+                                        <div class="truncated-remarks" title="{{ $transaction->return_remarks }}">
+                                            {{ \Illuminate\Support\Str::limit($transaction->return_remarks, 25) }}
+                                        </div>
+                                    </div>
+                                @else
+                                    N/A
+                                @endif
+                            </td>                           
+
                             <td data-label="Actions" class="text-center">
                                 @php
                                     $borrowItems = $transaction->borrowItems;
@@ -303,7 +312,7 @@
                                 <i class="fas fa-paper-plane mr-2"></i> Submit Return Request
                             </span>
                             <span wire:loading>
-                                <i class="fas fa-spinner fa-spin mr-2"></i> Processing...
+                                <i class="fas fa-spinner fa-spin mr-2"></i> Loading...
                             </span>
                         </button>
                     </div>
@@ -350,12 +359,20 @@
                         >
                             No, Cancel
                         </button>
+                        
                         <button 
                             wire:click="processReturn" 
+                            wire:loading.attr="disabled"
+                            wire:loading.class="opacity-50 cursor-not-allowed"
                             class="btn btn-danger ml-4"
                         >
-                            Yes, Return Asset(s)
-                        </button>
+                            <span wire:loading.class.add="hidden">
+                                Yes, Return Asset(s)
+                            </span>
+                            <span wire:loading.class.remove="hidden" class="hidden flex items-center">
+                                <i class="fas fa-spinner fa-spin mr-2"></i> Processing...
+                            </span>
+                        </button>                        
                     </div>
                 </div>
             </div>

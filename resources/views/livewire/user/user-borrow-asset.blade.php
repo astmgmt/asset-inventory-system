@@ -212,11 +212,20 @@
                     <div class="flex-1"></div>
                         <button 
                             wire:click="borrow" 
+                            wire:loading.attr="disabled"
+                            wire:loading.class="opacity-50 cursor-not-allowed"
                             class="btn btn-secondary btn-update flex items-center gap-2"
                         >
-                            <i class="fas fa-paper-plane"></i>
-                            Submit Request
+                            <span wire:loading.class.add="hidden">
+                                <i class="fas fa-paper-plane"></i>
+                                Submit Request
+                            </span>
+                            <span wire:loading.class.remove="hidden" class="hidden flex items-center gap-2">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Processing...
+                            </span>
                         </button>
+                    </div>
                 </div>
             </div>
         </div>

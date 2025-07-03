@@ -299,11 +299,21 @@
                 <div class="flex space-x-4 justify-center">
                     <button 
                         wire:click="deleteSoftware" 
+                        wire:loading.attr="disabled"
+                        wire:loading.class="opacity-50 cursor-not-allowed"
                         class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
                         type="button"
                     >
-                        <i class="fas fa-trash-alt mr-2"></i> Confirm
+                        <span wire:loading.class.add="hidden" class="flex items-center">
+                            <i class="fas fa-trash-alt mr-2"></i>
+                            Confirm
+                        </span>
+                        <span wire:loading.class.remove="hidden" class="hidden flex items-center">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>
+                            Deleting...
+                        </span>
                     </button>
+
                     <button 
                         wire:click="closeModals" 
                         class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition"

@@ -270,10 +270,19 @@
                     @if($selectedAsset)
                         <button 
                             wire:click="performDisposal" 
+                            wire:loading.attr="disabled"
+                            wire:loading.class="opacity-50 cursor-not-allowed"
                             class="btn btn-danger ml-4"
                         >
-                            Confirm Disposal
-                        </button>
+                            <span wire:loading.class.add="hidden" class="flex items-center">
+                                <i class="fas fa-trash-alt mr-2"></i>
+                                Confirm Disposal
+                            </span>
+                            <span wire:loading.class.remove="hidden" class="hidden flex items-center">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>
+                                Disposing...
+                            </span>
+                        </button>                        
                     @endif
                 </div>
             </div>

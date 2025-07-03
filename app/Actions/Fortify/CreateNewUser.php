@@ -27,7 +27,6 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
-        // Create user first to generate ID
         $defaultRole = Role::where('name', 'User')->firstOrFail();
         
         $user = User::create([
@@ -41,7 +40,6 @@ class CreateNewUser implements CreatesNewUsers
             'status' => 'Pending',
         ]);
 
-        // Handle profile photo after user creation (so we have ID)
         if (isset($input['profile_photo']) && $input['profile_photo'] instanceof UploadedFile) {
             $user->updateProfilePhoto($input['profile_photo']);
         }

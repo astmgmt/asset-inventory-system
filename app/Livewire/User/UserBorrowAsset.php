@@ -235,7 +235,6 @@ class UserBorrowAsset extends Component
         }
     }
 
-
     private function sendBorrowRequestEmail($transaction)
     {
         $user = Auth::user();
@@ -263,17 +262,35 @@ class UserBorrowAsset extends Component
             $requestedAssets
         );
         
-        $superAdmin = User::whereHas('role', function($q) {
-            $q->where('name', 'Super Admin');
-        })->first();
-        
+        $superAdmins = User::whereHas('role', function($q) {
+                $q->where('name', 'Super Admin');
+            })
+            ->orderBy('id')
+            ->get();
+
         $admins = User::whereHas('role', function($q) {
-            $q->where('name', 'Admin');
-        })->get();
+                $q->where('name', 'Admin');
+            })
+            ->get();
+
+        $to = $superAdmins->isNotEmpty() 
+            ? $superAdmins->first()->email 
+            : config('mail.from.address');
+
+        $cc = collect();
         
-        $to = $superAdmin ? $superAdmin->email : config('mail.from.address');
-        $cc = $admins->pluck('email')->toArray();
+        if ($superAdmins->count() > 1) {
+            $cc = $cc->merge(
+                $superAdmins->slice(1)->pluck('email')
+            );
+        }
         
+        $cc = $cc->merge(
+            $admins->pluck('email')
+        );
+        
+        $cc = $cc->unique()->values()->toArray();
+
         $emailService = new SendEmail();
         $emailService->send(
             $to,                                          

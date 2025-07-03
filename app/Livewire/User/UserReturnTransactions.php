@@ -109,27 +109,22 @@ class UserReturnTransactions extends Component
     public function processReturn()
     {
         $this->showConfirmationModal = false;
-        
         try {
             DB::transaction(function () {
                 $transaction = $this->selectedTransaction;
                 
-                // Generate unique return code using atomic counter
                 $returnCode = $this->generateUniqueReturnCode();
                 
-                // Get selected borrow items that are still Borrowed
                 $selectedBorrowItems = AssetBorrowItem::whereIn('id', $this->selectedItems)
                     ->where('borrow_transaction_id', $transaction->id) // Security check
                     ->where('status', 'Borrowed') // Prevent double-processing
                     ->with('asset')
                     ->get();
                 
-                // Validate we have items to process
                 if ($selectedBorrowItems->isEmpty()) {
                     throw new \Exception("No valid assets found for return");
                 }
                 
-                // Create return items for selected assets
                 foreach ($selectedBorrowItems as $borrowItem) {
                     AssetReturnItem::create([
                         'return_code' => $returnCode,
@@ -138,33 +133,27 @@ class UserReturnTransactions extends Component
                         'returned_by_department_id' => Auth::user()->department_id,
                         'remarks' => $this->returnRemarks,
                         'returned_at' => now(),
-                        'approval_status' => 'Pending', // Critical for admin approval
+                        'approval_status' => 'Pending', 
                     ]);
                     
-                    // Update item status to PendingReturnApproval
                     $borrowItem->update(['status' => 'PendingReturnApproval']);
                 }
                 
-                // Prepare transaction update data
                 $updateData = [
                     'return_requested_at' => now(),
                     'return_remarks' => $this->returnRemarks,
                 ];
                 
-                // Reset status if previously rejected
                 if ($transaction->status === 'ReturnRejected') {
                     $updateData['status'] = 'Borrowed';
                 }
                 
                 $transaction->update($updateData);
                 
-                // Send email notification
                 $this->sendReturnRequestEmail($transaction->borrow_code, $returnCode, $selectedBorrowItems);
                 
-                // Show success message
                 $this->successMessage = "Return request submitted for admin approval!";
                 
-                // Reset state
                 $this->reset([
                     'showReturnModal', 
                     'selectedTransaction', 
@@ -175,7 +164,7 @@ class UserReturnTransactions extends Component
             });
         } catch (\Exception $e) {
             $this->errorMessage = "Failed to process return request: " . $e->getMessage();
-        }
+        }        
     }
 
     private function generateUniqueReturnCode()
@@ -185,17 +174,14 @@ class UserReturnTransactions extends Component
         
         for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
             try {
-                // Get last ID for today
                 $lastId = AssetReturnItem::where('return_code', 'like', "RT-{$datePart}-%")
                     ->orderBy('id', 'desc')
                     ->value('return_code');
                 
-                // Extract and increment counter
                 $counter = $lastId ? intval(substr($lastId, -8)) + 1 : 1;
                 $paddedCounter = str_pad($counter, 8, '0', STR_PAD_LEFT);
                 $code = "RT-{$datePart}-{$paddedCounter}";
                 
-                // Verify uniqueness
                 if (!AssetReturnItem::where('return_code', $code)->exists()) {
                     return $code;
                 }
@@ -206,7 +192,6 @@ class UserReturnTransactions extends Component
             }
         }
         
-        // Fallback to UUID if all attempts fail
         return 'RT-' . now()->format('Ymd-') . Str::uuid();
     }
 
@@ -225,7 +210,6 @@ class UserReturnTransactions extends Component
             $user = $transaction->user;
             $department = $user->department->name ?? 'N/A';
             
-            // Prepare assets list
             $assetsList = [];
             foreach ($selectedBorrowItems as $item) {
                 $assetsList[] = [
@@ -237,21 +221,35 @@ class UserReturnTransactions extends Component
                 ];
             }
             
-            // Get super admin
-            $superAdmin = User::whereHas('role', function($q) {
-                $q->where('name', 'Super Admin');
-            })->first();
+            $superAdmins = User::whereHas('role', function($q) {
+                    $q->where('name', 'Super Admin');
+                })
+                ->orderBy('id')
+                ->get();
             
-            // Get all admins
             $admins = User::whereHas('role', function($q) {
-                $q->where('name', 'Admin');
-            })->get();
+                    $q->where('name', 'Admin');
+                })
+                ->get();
             
-            // Set recipient and CC
-            $to = $superAdmin ? $superAdmin->email : config('mail.from.address');
-            $cc = $admins->pluck('email')->filter()->toArray();
+            $to = $superAdmins->isNotEmpty() 
+                ? $superAdmins->first()->email 
+                : config('mail.from.address');
             
-            // Generate HTML content
+            $cc = collect();
+            
+            if ($superAdmins->count() > 1) {
+                $cc = $cc->merge(
+                    $superAdmins->slice(1)->pluck('email')
+                );
+            }
+            
+            $cc = $cc->merge(
+                $admins->pluck('email')
+            );
+            
+            $cc = $cc->unique()->values()->toArray();
+            
             $htmlContent = view('emails.return-request-admin', [
                 'returnCode' => $returnCode,
                 'borrowCode' => $borrowCode,
@@ -266,11 +264,11 @@ class UserReturnTransactions extends Component
             $emailService->send(
                 $to,
                 "Return Request: {$returnCode}",
-                $htmlContent,  // Raw HTML content
-                $cc,
-                null,   // No PDF attachment
-                null,   // No attachment name
-                true    // Send as raw HTML
+                $htmlContent,  
+                $cc,            
+                null,         
+                null,           
+                true           
             );
             
             Log::info("Return request email sent for {$returnCode}");

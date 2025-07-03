@@ -21,7 +21,7 @@ class AssetBorrowTransaction extends Model
         'status',
         'remarks',
         'return_requested_at',
-
+        'return_remarks',
     ];
 
     protected $casts = [

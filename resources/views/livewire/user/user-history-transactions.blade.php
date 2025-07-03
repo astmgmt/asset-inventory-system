@@ -45,6 +45,7 @@
                     <th>Borrow Code</th>
                     <th>Return Code</th>
                     <th>Status</th>
+                    <th>Remarks</th>
                     <th>Date</th>
                     <th>Actions</th>
                 </tr>
@@ -82,6 +83,30 @@
                                 {{ $record->status }}
                             </span>
                         </td>
+
+                        <td data-label="Remarks" class="text-center">
+                            @if(in_array($record->status, ['Borrow Denied', 'Return Denied']))
+                                <div class="remarks-container">
+                                    @php                                        
+                                        if ($record->status === 'Borrow Denied') {
+                                            $remarks = $record->borrow_data['remarks'] ?? 
+                                                       $record->remarks ?? 
+                                                       'N/A';
+                                        } else { 
+                                            $remarks = $record->return_data['remarks'] ?? 
+                                                       $record->remarks ?? 
+                                                       'N/A';
+                                        }
+                                    @endphp
+                                    <div class="truncated-remarks" title="{{ $remarks }}">
+                                        {{ \Illuminate\Support\Str::limit($remarks, 25) }}
+                                    </div>
+                                </div>
+                            @else
+                                <p class="text-gray-700 text-sm">N/A</p>
+                            @endif
+                        </td>                        
+
                         <td data-label="Date" class="text-center">
                             {{ $record->action_date->format('M d, Y') }}
                         </td>
@@ -361,6 +386,24 @@
             color: #28a745 !important; /* Bootstrap green */
             font-weight: 600;
             background-color: #e6f4ea !important;
+        }
+
+        .remarks-container {
+            max-width: 200px;
+            margin: 0 auto;
+        }
+        
+        .truncated-remarks {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: help;
+        }
+        
+        @media (max-width: 768px) {
+            .remarks-container {
+                max-width: 150px;
+            }
         }
        
         .status-badge {

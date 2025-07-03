@@ -2,7 +2,6 @@
 
 namespace App\Actions\Fortify;
 
-//ADDED TO OVERRIDE REDIRECTION AFTER REGISTRATION
 use Laravel\Fortify\Contracts\RegisterResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;

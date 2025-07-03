@@ -5,14 +5,20 @@
         class="btn-notification relative p-2 text-gray-700 hover:bg-gray-100 rounded-full focus:outline-none mr-4"
     >
         <i class="fas fa-bell text-lg"></i>
-        @if($borrowCount > 0 || $returnCount > 0)
+        @php
+            $totalCount = $borrowCount + $returnCount;
+            if ($isSuperAdmin) {
+                $totalCount += $pendingUserCount;
+            }
+        @endphp
+        
+        @if($totalCount > 0)
             <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
-                {{ $borrowCount + $returnCount }}
+                {{ $totalCount }}
             </span>
         @endif
     </button>
 
-    <!-- Dropdown -->
     <div 
         x-show="open"
         @click.away="open = false"
@@ -29,6 +35,7 @@
                 {{ $borrowCount }}
             </span>
         </a>
+        
         <a 
             href="{{ route('approve.return') }}" 
             class="flex justify-between items-center px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -38,5 +45,17 @@
                 {{ $returnCount }}
             </span>
         </a>
+        
+        @if($isSuperAdmin && $pendingUserCount > 0)
+        <a 
+            href="{{ route('superadmin.manage') }}" 
+            class="flex justify-between items-center px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+            <span>Pending Users</span>
+            <span class="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                {{ $pendingUserCount }}
+            </span>
+        </a>
+        @endif
     </div>
 </div>

@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\UserHistory;
 use App\Models\AssetReturnItem;
 use App\Models\AssetCondition;
+use App\Models\AssetBorrowItem;
 use App\Services\SendEmail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
@@ -196,44 +197,58 @@ class ApproveReturnRequests extends Component
         }
     }
 
+    
     public function rejectReturn()
     {
         try {
-            $transactionId = $this->selectedTransaction->id;
-            $transaction = null;
-
-            DB::transaction(function () use (&$transaction) {
+            DB::transaction(function () {
                 $transaction = $this->selectedTransaction;
+                $rejectRemarks = $this->rejectRemarks;
 
-                // Update return items status
+                // 1. Collect all pending return item IDs
+                $returnItemIds = [];
                 foreach ($this->rejectBorrowItems as $borrowItem) {
                     foreach ($borrowItem->returnItems as $returnItem) {
                         if ($returnItem->approval_status === 'Pending') {
-                            $returnItem->update([
-                                'approval_status' => 'Rejected',
-                                'approved_at' => now(),
-                                'approved_by_user_id' => Auth::id(),
-                            ]);
+                            $returnItemIds[] = $returnItem->id;
                         }
                     }
-
-                    $borrowItem->update(['status' => 'Borrowed']);
                 }
 
-                // Update transaction status
+                // 2. Bulk update return items
+                if (!empty($returnItemIds)) {
+                    AssetReturnItem::whereIn('id', $returnItemIds)->update([
+                        'approval_status' => 'Rejected',
+                        'approved_at' => now(),
+                        'approved_by_user_id' => Auth::id(),
+                        'remarks' => $rejectRemarks,
+                    ]);
+                }
+
+                // 3. Collect borrow item IDs
+                $borrowItemIds = collect($this->rejectBorrowItems)->pluck('id')->toArray();
+
+                // 4. Bulk update borrow items
+                if (!empty($borrowItemIds)) {
+                    AssetBorrowItem::whereIn('id', $borrowItemIds)->update([
+                        'status' => 'Borrowed'
+                    ]);
+                }
+
+                // 5. Update transaction - CRITICAL FIX: Set return_remarks
                 $transaction->update([
-                    'remarks' => $this->rejectRemarks,
-                    'status' => 'Borrowed',
+                    'return_remarks' => $rejectRemarks, // This populates the field
+                    'status' => 'ReturnRejected',
                 ]);
 
-                // Create history record for return rejection
+                // 6. Create history record
                 UserHistory::create([
                     'user_id' => $transaction->user_id,
                     'borrow_code' => $transaction->borrow_code,
                     'return_code' => $this->generateReturnCode(),
                     'status' => 'Return Denied',
                     'return_data' => [
-                        'remarks' => $this->rejectRemarks,
+                        'remarks' => $rejectRemarks,
                         'rejected_by' => Auth::user()->name,
                         'rejected_at' => now()->format('Y-m-d H:i:s')
                     ],
@@ -242,7 +257,7 @@ class ApproveReturnRequests extends Component
             });
 
             // Send rejection email
-            $this->sendReturnRejectionEmail($transaction->id, $this->rejectRemarks);
+            $this->sendReturnRejectionEmail($this->selectedTransaction->id, $this->rejectRemarks);
 
             $this->successMessage = "Return request rejected successfully!";
             $this->reset([
@@ -253,15 +268,13 @@ class ApproveReturnRequests extends Component
                 'rejectBorrowItems'
             ]);
             
-            $this->dispatch('return-rejected');
+            $this->dispatch('return-rejected')->self();
 
         } catch (\Exception $e) {
             Log::error("Reject return error: " . $e->getMessage());
             $this->errorMessage = "Error rejecting return: " . $e->getMessage();
         }
     }
-
-
 
     public function clearMessages()
     {
@@ -301,7 +314,6 @@ class ApproveReturnRequests extends Component
             $user = $transaction->user;
             $approverName = Auth::user()->name;
             
-            // Prepare return items data
             $returnItems = [];
             foreach ($transaction->borrowItems as $borrowItem) {
                 foreach ($borrowItem->returnItems as $returnItem) {
@@ -318,7 +330,7 @@ class ApproveReturnRequests extends Component
             }
             
             $emailContent = [
-                'emails.return-approved-user', // Your blade template
+                'emails.return-approved-user', 
                 [
                     'returnCode' => $returnCode,
                     'approverName' => $approverName,
@@ -346,7 +358,6 @@ class ApproveReturnRequests extends Component
         try {
             $emailService = new SendEmail();
             
-            // Reload transaction with necessary relationships
             $transaction = AssetBorrowTransaction::with([
                 'user',
                 'borrowItems.asset', // Ensure asset relationship is loaded
@@ -357,14 +368,12 @@ class ApproveReturnRequests extends Component
 
             $user = $transaction->user;
             
-            // Collect rejected asset details
             $assetDetails = [];
             foreach ($transaction->borrowItems as $borrowItem) {
-                // Only include items with rejected return requests
                 if ($borrowItem->returnItems->isNotEmpty()) {
                     $assetDetails[] = [
                         'asset_code' => $borrowItem->asset->asset_code,
-                        'asset_name' => $borrowItem->asset->name, // Fixed property name
+                        'asset_name' => $borrowItem->asset->name, 
                         'model_number' => $borrowItem->asset->model_number,
                         'serial_number' => $borrowItem->asset->serial_number,
                         'quantity' => $borrowItem->quantity,
