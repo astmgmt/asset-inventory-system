@@ -134,19 +134,16 @@ class ApproveReturnRequests extends Component
                     $asset->update(['condition_id' => $availableConditionId]);
                 }
 
-                // Check if all items are returned
                 $allItemsReturned = $transaction->borrowItems->every(function ($item) {
                     return $item->status === 'Returned';
                 });
 
-                // Update transaction status
                 $transaction->update([
                     'status' => $allItemsReturned ? 'Returned' : 'PartiallyReturned',
                     'returned_at' => $allItemsReturned ? now() : null,
                     'remarks' => $this->approveRemarks,
                 ]);
 
-                // Prepare return data
                 $returnItemsData = $pendingReturnItems->map(function ($returnItem) {
                     $borrowItem = $returnItem->borrowItem;
                     return [
@@ -168,7 +165,6 @@ class ApproveReturnRequests extends Component
                     'return_date' => now()->format('Y-m-d H:i:s')
                 ];
 
-                // Create history record - always create new for each approval action
                 UserHistory::create([
                     'user_id' => $transaction->user_id,
                     'borrow_code' => $transaction->borrow_code,
@@ -178,7 +174,6 @@ class ApproveReturnRequests extends Component
                     'action_date' => now()
                 ]);
 
-                // Hide previous borrow approval records for this transaction
                 UserHistory::where('borrow_code', $transaction->borrow_code)
                     ->where('status', 'Borrow Approved')
                     ->whereNull('return_code')
@@ -186,7 +181,6 @@ class ApproveReturnRequests extends Component
 
             });
 
-            // Send email with consistent return code
             $this->sendReturnApprovalEmail($transaction, $returnCode);
 
             $this->successMessage = "Return approved successfully!";
@@ -205,7 +199,6 @@ class ApproveReturnRequests extends Component
                 $transaction = $this->selectedTransaction;
                 $rejectRemarks = $this->rejectRemarks;
 
-                // 1. Collect all pending return item IDs
                 $returnItemIds = [];
                 foreach ($this->rejectBorrowItems as $borrowItem) {
                     foreach ($borrowItem->returnItems as $returnItem) {
@@ -215,7 +208,6 @@ class ApproveReturnRequests extends Component
                     }
                 }
 
-                // 2. Bulk update return items
                 if (!empty($returnItemIds)) {
                     AssetReturnItem::whereIn('id', $returnItemIds)->update([
                         'approval_status' => 'Rejected',
@@ -225,23 +217,19 @@ class ApproveReturnRequests extends Component
                     ]);
                 }
 
-                // 3. Collect borrow item IDs
                 $borrowItemIds = collect($this->rejectBorrowItems)->pluck('id')->toArray();
 
-                // 4. Bulk update borrow items
                 if (!empty($borrowItemIds)) {
                     AssetBorrowItem::whereIn('id', $borrowItemIds)->update([
                         'status' => 'Borrowed'
                     ]);
                 }
 
-                // 5. Update transaction - CRITICAL FIX: Set return_remarks
                 $transaction->update([
                     'return_remarks' => $rejectRemarks, // This populates the field
                     'status' => 'ReturnRejected',
                 ]);
 
-                // 6. Create history record
                 UserHistory::create([
                     'user_id' => $transaction->user_id,
                     'borrow_code' => $transaction->borrow_code,
@@ -256,7 +244,6 @@ class ApproveReturnRequests extends Component
                 ]);
             });
 
-            // Send rejection email
             $this->sendReturnRejectionEmail($this->selectedTransaction->id, $this->rejectRemarks);
 
             $this->successMessage = "Return request rejected successfully!";
@@ -360,7 +347,7 @@ class ApproveReturnRequests extends Component
             
             $transaction = AssetBorrowTransaction::with([
                 'user',
-                'borrowItems.asset', // Ensure asset relationship is loaded
+                'borrowItems.asset', 
                 'borrowItems.returnItems' => function ($query) {
                     $query->where('approval_status', 'Rejected');
                 }

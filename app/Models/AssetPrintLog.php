@@ -24,13 +24,11 @@ class AssetPrintLog extends Model
         'date_to' => 'date',
     ];
 
-    // Relationship to User (who printed)
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relationship to printed assets (pivot)
     public function assets()
     {
         return $this->belongsToMany(Asset::class, 'asset_print_log_assets')

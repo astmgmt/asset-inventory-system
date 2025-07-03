@@ -1,5 +1,4 @@
 <div class="relative" x-data="{ open: false }" wire:poll.10s="refreshCounts">
-    <!-- Bell Icon -->
     <button 
         @click="open = !open"
         class="btn-notification relative p-2 text-gray-700 hover:bg-gray-100 rounded-full focus:outline-none mr-4"

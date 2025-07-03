@@ -42,27 +42,21 @@ class TrackAssets extends Component
                 ->where('asset_id', $this->selectedAssetId)
                 ->when($this->historySearch, function ($query) {
                     $query->where(function ($q) {
-                        // Search borrower name
                         $q->whereHas('transaction.user', function ($userQuery) {
                             $userQuery->where('name', 'like', '%'.$this->historySearch.'%');
                         })
-                        // Search department
                         ->orWhereHas('transaction.user.department', function ($deptQuery) {
                             $deptQuery->where('name', 'like', '%'.$this->historySearch.'%');
                         })
-                        // Search borrow code
                         ->orWhereHas('transaction', function ($transQuery) {
                             $transQuery->where('borrow_code', 'like', '%'.$this->historySearch.'%');
                         })
-                        // Search return code
                         ->orWhereHas('returnItem', function ($returnQuery) {
                             $returnQuery->where('return_code', 'like', '%'.$this->historySearch.'%');
                         })
-                        // Search borrowed date
                         ->orWhereHas('transaction', function ($transQuery) {
                             $transQuery->whereDate('borrowed_at', 'like', '%'.$this->historySearch.'%');
                         })
-                        // Search returned date
                         ->orWhereHas('returnItem', function ($returnQuery) {
                             $returnQuery->whereDate('returned_at', 'like', '%'.$this->historySearch.'%');
                         });

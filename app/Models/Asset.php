@@ -33,7 +33,6 @@ class Asset extends Model
         'warranty_expiration' => 'date',
     ];
 
-    // Add this accessor to format the warranty date
     protected function formattedWarranty(): Attribute
     {
         return Attribute::make(
@@ -41,7 +40,6 @@ class Asset extends Model
         );
     }
 
-    // Add this method to check if warranty is expiring
     public function isWarrantyExpiring()
     {
         return $this->warranty_expiration < now()->addDays(30);

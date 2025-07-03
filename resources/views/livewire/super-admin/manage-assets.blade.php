@@ -42,9 +42,7 @@
             </div>
         </div>
 
-        <!-- ... (table content remains the same) ... -->
         <table class="user-table">           
-            <!-- Table Headers (Visible on Desktop) -->
             <thead>
                 <tr>
                     <th>Asset Code</th>
@@ -58,11 +56,9 @@
                 </tr>
             </thead>
 
-            <!-- Table Body -->
             <tbody>
                 @forelse($assets as $asset)
                     <tr>
-                        <!-- Added data attributes for mobile labels -->
                         <td data-label="Asset Code">{{ $asset->asset_code }}</td>
                         <td data-label="Name">{{ $asset->name }}</td>
                         <td data-label="Name">{{ $asset->model_number }}</td>
@@ -194,7 +190,7 @@
                                 @error('category_id') <span class="error">{{ $message }}</span> @enderror
                             </div>
                             
-                            <!-- Condition (Fixed to "New") -->
+                            <!-- Condition  -->
                             <div class="form-group">
                                 <label>Condition *</label>
                                 <div class="form-input">
@@ -649,8 +645,6 @@
                             <i class="fas fa-times mr-2"></i> Cancel
                         </button>
                     </div>
-
-
                 </div>
             </div>
         @endif
@@ -664,7 +658,6 @@
                 }, 3000);
             });
             
-            // Close dropdowns when clicking outside
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.relative')) {
                     @this.set('showModelDropdown', false);
@@ -674,9 +667,7 @@
                 }
             });
 
-            // Handle single asset PDF opening - FIXED
             Livewire.on('open-asset-pdf', (event) => {
-                // Extract ID correctly from the event object
                 const id = event.id ?? event;
                 if (!id || isNaN(id)) {
                     console.error('Invalid asset ID:', id);

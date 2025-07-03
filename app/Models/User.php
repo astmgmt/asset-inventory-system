@@ -50,18 +50,13 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-
-    /**
-     * Custom profile photo update method
-     */
+   
     public function updateProfilePhoto(UploadedFile $photo)
     {
-        // Generate custom filename: originalname_userid.extension
         $originalName = pathinfo($photo->getClientOriginalName(), PATHINFO_FILENAME);
         $extension = $photo->extension();
         $filename = $this->sanitizeFilename($originalName) . '_' . $this->id . '.' . $extension;
         
-        // Store with custom name
         $path = $photo->storeAs(
             'profile-photos',
             $filename,
@@ -73,18 +68,10 @@ class User extends Authenticatable
         ])->save();
     }
 
-    /**
-     * Sanitize filename for safe storage
-     */
     protected function sanitizeFilename(string $filename): string
     {
-        // Remove special characters except dashes and underscores
-        $safe = preg_replace('/[^a-zA-Z0-9_-]/', '_', $filename);
-        
-        // Replace multiple underscores with single
-        $safe = preg_replace('/_{2,}/', '_', $safe);
-        
-        // Trim to 100 characters max
+        $safe = preg_replace('/[^a-zA-Z0-9_-]/', '_', $filename);        
+        $safe = preg_replace('/_{2,}/', '_', $safe);        
         return substr($safe, 0, 100);
     }
 
@@ -129,10 +116,8 @@ class User extends Authenticatable
         return $this->hasMany(AssetBorrowTransaction::class, 'approved_by_user_id');
     }
 
-    // app/Models/User.php
     public function histories()
     {
         return $this->hasMany(UserHistory::class);
     }
-
 }

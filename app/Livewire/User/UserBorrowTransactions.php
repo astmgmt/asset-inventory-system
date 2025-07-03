@@ -66,24 +66,19 @@ class UserBorrowTransactions extends Component
                 return;
             }
             
-            // Release reserved quantities
             DB::transaction(function () {
                 foreach ($this->transactionToCancel->borrowItems as $item) {
                     $asset = Asset::find($item->asset_id);
                     if ($asset) {
-                        // Release the reserved quantity
                         $asset->decrement('reserved_quantity', $item->quantity);
                     }
                 }
                 
-                // Delete the transaction
                 $this->transactionToCancel->delete();
             });
             
-            // Capture transaction code for message
             $borrowCode = $this->transactionToCancel->borrow_code;
             
-            // Reset modals and selection
             if ($this->selectedTransaction && $this->selectedTransaction->id === $this->transactionToCancel->id) {
                 $this->selectedTransaction = null;
                 $this->showDetailsModal = false;

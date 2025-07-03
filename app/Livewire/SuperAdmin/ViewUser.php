@@ -15,7 +15,6 @@ class ViewUser extends Component
     {
         $this->user = User::with('role')->findOrFail($id);
         
-        // Format user details for display
         $this->userDetails = [
             'name' => $this->user->name,
             'username' => $this->user->username,

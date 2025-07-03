@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Return Receipt - {{ $returnCode }}</title>
-<!-- Import Inter font -->
+
 <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
 <style>
     body, p, h1, h2, h3, div, table, th, td {

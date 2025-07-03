@@ -1,6 +1,5 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" wire:poll.60s>
 
-    <!-- Pie Chart Card -->
     <div class="box-container p-3 rounded-md">
         <div class="box-header">
             <h2 class="box-title">My Transaction Overview</h2>
@@ -11,15 +10,12 @@
             x-init="init()"
             x-on:chartDataUpdated.window="updateData($event.detail)">
 
-            <!-- Always show canvas -->
             <canvas id="userTransactionChart" height="250"></canvas>
 
         </div>
     </div>
 
-    <!-- Right Column -->
     <div class="grid grid-cols-1 gap-6">
-        <!-- Nested 3 Cards -->
         <div class="flex flex-col gap-4">
             <!-- Borrowed -->
             <div class="box-container box-lightblue-bg p-4 text-center rounded-lg shadow">
@@ -178,7 +174,6 @@ function userTransactionChart(initialData) {
         init() {
             this.renderChart();
 
-            // Re-render on dark/light theme change
             window.addEventListener('theme-changed', () => {
                 if (this.chart) {
                     this.chart.destroy();
@@ -192,7 +187,7 @@ function userTransactionChart(initialData) {
             if (!ctx) return;
 
             const isDarkMode = document.documentElement.classList.contains('dark');
-            const textColor = isDarkMode ? '#e2e8f0' : '#1a202c'; // light-gray or dark text
+            const textColor = isDarkMode ? '#e2e8f0' : '#1a202c'; 
             const tooltipBg = isDarkMode ? '#2d3748' : '#ffffff';
 
             const isEmpty = this.data.borrowed === 0 && this.data.returned === 0;

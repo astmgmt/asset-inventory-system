@@ -102,34 +102,29 @@
                                     $totalCount = $borrowItems->count();
                                 @endphp
 
-                                {{-- 1. Show "Return Again" if rejected --}}
                                 @if ($transaction->status === 'ReturnRejected')
                                     <button wire:click="openReturnModal({{ $transaction->id }})"
                                             class="return-btn bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md">
                                         <i class="fas fa-redo mr-1"></i> Return Again
                                     </button>
 
-                                {{-- 2. All items are pending approval, show "Pending" --}}
                                 @elseif ($borrowedCount === 0 && $pendingReturnCount > 0)
                                     <button class="btn-disabled bg-gray-300 text-gray-500 py-1 px-3 rounded-md cursor-not-allowed">
                                         <i class="fas fa-clock mr-1"></i> Pending
                                     </button>
 
-                                {{-- 3. Partial return (items pending approval + items still borrowed) --}}
                                 @elseif ($pendingReturnCount > 0 && $borrowedCount > 0)
                                     <button wire:click="openReturnModal({{ $transaction->id }})"
                                             class="return-btn bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded-md">
                                         <i class="fas fa-undo mr-1"></i> Return Others
                                     </button>
 
-                                {{-- 4. Partial return (some items already returned) --}}
                                 @elseif ($borrowedCount > 0 && $returnedCount > 0)
                                     <button wire:click="openReturnModal({{ $transaction->id }})"
                                             class="return-btn bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded-md">
                                         <i class="fas fa-undo mr-1"></i> Return Others
                                     </button>
 
-                                {{-- 5. All items still borrowed, normal return --}}
                                 @elseif ($borrowedCount === $totalCount)
                                     <button wire:click="openReturnModal({{ $transaction->id }})"
                                             class="return-btn bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded-md">

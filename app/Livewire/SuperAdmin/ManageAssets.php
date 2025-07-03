@@ -87,7 +87,6 @@ class ManageAssets extends Component
         $this->resetPage();
     }
 
-    // Live search handlers
     public function updatedModelInput()
     {
         $this->showModelDropdown = !empty($this->modelInput);
@@ -220,7 +219,7 @@ class ManageAssets extends Component
     {
         $this->viewAsset = Asset::with(['category', 'condition', 'location', 'vendor'])
             ->findOrFail($id)
-            ->fresh(); // This will reload the latest data from database            
+            ->fresh();             
         $this->showViewModal = true;
     }
 
@@ -255,11 +254,9 @@ class ManageAssets extends Component
 
         $this->conditions = AssetCondition::all(); 
         
-        // Reset condition to "New"
         $newCondition = AssetCondition::where('condition_name', 'New')->first();
         $this->condition_id = $newCondition->id ?? null;
         
-        // Set default warranty expiration to 1 year from now
         $this->warranty_expiration = now()->addYear()->format('Y-m-d');
     }
 
@@ -267,7 +264,6 @@ class ManageAssets extends Component
     {
         $date = now()->format('mdY');
         
-        // Get last used number if not provided
         if ($lastNum === null) {
             $lastAsset = Asset::where('asset_code', 'like', "AST-{$date}-%")
                 ->orderBy('asset_code', 'desc')
@@ -288,7 +284,6 @@ class ManageAssets extends Component
     
     public function createAsset()
     {
-        // Ensure model number is set from input
         $this->model_number = $this->modelInput;
         
         $this->validate([
@@ -303,12 +298,10 @@ class ManageAssets extends Component
             'warranty_expiration' => 'required|date',
         ]);
 
-        // Arrays to store inserted asset data
         $insertedIds = [];
         $assetsData = [];
         
         DB::transaction(function () use (&$insertedIds, &$assetsData) {
-            // Get the last asset to determine starting points
             $lastAsset = Asset::orderBy('id', 'desc')->first();
             $lastId = $lastAsset ? $lastAsset->id : 0;
             $lastAssetCode = Asset::where('asset_code', 'like', 'AST-%')
@@ -321,15 +314,12 @@ class ManageAssets extends Component
             $currentDate = now()->format('mdY');
             $assetCodes = [];
             
-            // Create assets with unique codes
             for ($i = 0; $i < $this->quantity; $i++) {
-                // Generate asset code
                 $newNum = $lastNum + 1;
                 $formattedNum = str_pad($newNum, 8, '0', STR_PAD_LEFT);
                 $assetCode = "AST-{$currentDate}-{$formattedNum}";
                 $lastNum = $newNum;
                 
-                // Set serial number only for first asset when quantity > 1
                 $serialNumber = ($i === 0) ? $this->serial_number : null;
 
                 $assets[] = [
@@ -337,7 +327,7 @@ class ManageAssets extends Component
                     'serial_number' => $serialNumber,
                     'name' => $this->name,
                     'description' => $this->description,
-                    'quantity' => 1, // Each asset has quantity 1
+                    'quantity' => 1, 
                     'model_number' => $this->model_number,
                     'category_id' => $this->category_id,
                     'condition_id' => $this->condition_id,
@@ -351,10 +341,8 @@ class ManageAssets extends Component
                 $assetCodes[] = $assetCode;
             }
 
-            // Insert all assets at once
             Asset::insert($assets);
             
-            // Get inserted assets with relationships
             $insertedAssets = Asset::with(['category', 'condition', 'location', 'vendor'])
                 ->whereIn('asset_code', $assetCodes)
                 ->orderBy('id')
@@ -371,9 +359,7 @@ class ManageAssets extends Component
         $this->closeModals();
         $this->dispatch('clear-message');
 
-        // Handle PDF based on quantity
         if ($this->quantity > 1) {
-            // Generate and download batch PDF
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.asset-batch', [
                 'assets' => $assetsData
             ])->setPaper([0, 0, 266.4, 288], 'portrait');
@@ -385,7 +371,6 @@ class ManageAssets extends Component
                 'asset_batch_'.now()->format('Ymd_His').'.pdf'
             );
         } else {
-            // For single asset, pass ID to JavaScript correctly
             $this->dispatch('open-asset-pdf', id: $insertedIds[0]);
         }
     }

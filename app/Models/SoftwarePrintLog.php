@@ -18,7 +18,7 @@ class SoftwarePrintLog extends Model
     ];
 
     protected $casts = [
-        'software_snapshot_data' => 'array', // This automatically decodes JSON
+        'software_snapshot_data' => 'array', 
         'date_from' => 'date',
         'date_to' => 'date',
     ];

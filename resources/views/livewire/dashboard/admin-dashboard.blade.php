@@ -187,7 +187,6 @@
             init() {
                 this.renderChart();
 
-                // Listen to theme toggle from AlpineJS
                 window.addEventListener('theme-changed', () => {
                     if (this.chart) {
                         this.chart.destroy();
@@ -280,7 +279,6 @@
             init() {
                 this.renderChart();
 
-                // Listen to theme toggle from AlpineJS
                 window.addEventListener('theme-changed', () => {
                     if (this.chart) {
                         this.chart.destroy();
@@ -366,11 +364,10 @@
         };
     }
 
-    // Optional: polling data refresh
     document.addEventListener('livewire:load', () => {
         setInterval(() => {
             Livewire.emit('pollChartData');
-        }, 60000); // every 60 seconds
+        }, 60000); 
     });
 </script>
 

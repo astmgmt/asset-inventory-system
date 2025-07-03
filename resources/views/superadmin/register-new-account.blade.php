@@ -97,14 +97,12 @@
             </div>
 
             <div class="pt-4 flex justify-end space-x-3">
-                {{-- Cancel Button (as a link) --}}
                 <a href="{{ route('dashboard.superadmin') }}"
                 class="inline-flex items-center px-6 py-3 bg-gray-200 text-gray-800 text-sm font-medium rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition"
                 >
                     <i class="fas fa-arrow-left mr-2"></i> Cancel
                 </a>
 
-                {{-- Create Account Button --}}
                 <x-button
                     type="submit"
                     class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white"

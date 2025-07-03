@@ -101,13 +101,11 @@ class ApproveBorrowerRequests extends Component
                 $assetIds = $transaction->borrowItems->pluck('asset_id')->toArray();
                 $assets = Asset::whereIn('id', $assetIds)->lockForUpdate()->get()->keyBy('id');
                 
-                // Get "Borrowed" condition ID
                 $borrowedCondition = AssetCondition::where('condition_name', 'Borrowed')->first();
                 if (!$borrowedCondition) {
                     throw new \Exception("Borrowed condition not found!");
                 }
 
-                // Add condition checks
                 $disallowedConditions = ['Defective', 'Disposed'];
                 foreach ($transaction->borrowItems as $item) {
                     $asset = $assets[$item->asset_id] ?? Asset::find($item->asset_id);
@@ -116,7 +114,6 @@ class ApproveBorrowerRequests extends Component
                         throw new \Exception("Asset not found for ID: {$item->asset_id}");
                     }
                     
-                    // Check if asset can be borrowed
                     if ($asset->is_disposed) {
                         throw new \Exception("Asset {$asset->name} is disposed and cannot be borrowed.");
                     }
@@ -135,17 +132,14 @@ class ApproveBorrowerRequests extends Component
                     }
                 }
 
-                // Track updated assets
                 $updatedAssets = [];
 
                 foreach ($transaction->borrowItems as $item) {
                     $asset = $assets[$item->asset_id];
                     
-                    // Update quantities
                     $asset->quantity -= $item->quantity;
                     $asset->reserved_quantity -= $item->quantity;
                     
-                    // Update condition if not already updated
                     if (!in_array($asset->id, $updatedAssets)) {
                         $asset->condition_id = $borrowedCondition->id;
                         $updatedAssets[] = $asset->id;
@@ -154,7 +148,6 @@ class ApproveBorrowerRequests extends Component
                     $asset->save();
                 }
 
-                // Update transaction status
                 $transaction->update([
                     'status' => 'Borrowed',
                     'approved_by_user_id' => $user->id,
@@ -164,7 +157,6 @@ class ApproveBorrowerRequests extends Component
                     'remarks' => $this->approveRemarks
                 ]);
 
-                // Create history record
                 UserHistory::create([
                     'user_id' => $transaction->user_id,
                     'borrow_code' => $transaction->borrow_code,
@@ -174,20 +166,16 @@ class ApproveBorrowerRequests extends Component
                 ]);
             });
             
-            // Send email notification to borrower
             $this->sendApprovalEmail($transaction);
             
-            // Reset state
             $this->reset([
                 'showApproveModal', 
                 'selectedTransaction', 
                 'approveRemarks'
             ]);
 
-            // Show success message
             $this->successMessage = "Borrow request approved successfully!";
             
-            // Open PDF using stored borrow code
             $this->dispatch('openPdf', $borrowCode);
 
         } catch (\Exception $e) {
@@ -195,7 +183,6 @@ class ApproveBorrowerRequests extends Component
             $this->errorMessage = "Failed to approve request: " . $e->getMessage();
             Log::error("Approve error: " . $e->getMessage());
             
-            // Automatically reject request if quantity is insufficient
             try {
                 if ($this->selectedTransaction) {
                     foreach ($this->selectedTransaction->borrowItems as $item) {
@@ -210,7 +197,6 @@ class ApproveBorrowerRequests extends Component
                         'remarks' => 'Auto-rejected: ' . $e->getMessage()
                     ]);
                     
-                    // Create history record for auto-rejection
                     UserHistory::create([
                         'user_id' => $this->selectedTransaction->user_id,
                         'borrow_code' => $this->selectedTransaction->borrow_code,
@@ -240,7 +226,6 @@ class ApproveBorrowerRequests extends Component
         try {
             $transaction = $this->selectedTransaction;
             
-            // Release reserved quantities
             foreach ($transaction->borrowItems as $item) {
                 $asset = Asset::find($item->asset_id);
                 if ($asset) {
@@ -248,16 +233,13 @@ class ApproveBorrowerRequests extends Component
                 }
             }
 
-            // Update transaction status
             $transaction->update([
                 'status' => 'BorrowRejected',
                 'remarks' => $this->denyRemarks
             ]);
 
-            // Capture remarks before reset
             $denialRemarks = $this->denyRemarks;
             
-            // Create history record
             UserHistory::create([
                 'user_id' => $transaction->user_id,
                 'borrow_code' => $transaction->borrow_code,
@@ -266,13 +248,10 @@ class ApproveBorrowerRequests extends Component
                 'action_date' => now()
             ]);
             
-            // Send email with captured remarks
             $this->sendDenialEmail($transaction, $denialRemarks);
             
-            // Show success message
             $this->successMessage = "Borrow request denied!";
             
-            // Reset state
             $this->reset([
                 'showDenyModal', 
                 'selectedTransaction', 
@@ -330,7 +309,6 @@ class ApproveBorrowerRequests extends Component
             $emailService = new SendEmail();
             $borrower = $transaction->user;
 
-            // Prepare asset details for email
             $assetDetails = $transaction->borrowItems->map(function ($item) {
                 return [
                     'asset_code' => $item->asset->asset_code ?? 'N/A',

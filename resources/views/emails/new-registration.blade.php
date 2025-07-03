@@ -4,8 +4,7 @@
     <meta charset="UTF-8" />
     <title>New User Registration: {{ $user->name }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
-    <style>
-        /* Same styling as security-alert email */
+    <style>       
         body { font-family: 'Inter', 'Segoe UI', sans-serif; line-height: 1.6; color: #4b5563; background-color: #f9fafb; margin: 0; padding: 20px 0; }
         .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 30px; border: 1px solid #e5e7eb; }
         .logo { width: 42px; height: auto; }

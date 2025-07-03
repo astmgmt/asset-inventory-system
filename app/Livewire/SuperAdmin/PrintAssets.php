@@ -114,10 +114,8 @@ class PrintAssets extends Component
             'asset_snapshot_data' => $snapshot,
         ]);
 
-        // Attach assets to pivot table
         $printLog->assets()->attach($assets->pluck('id'));
 
-        // Generate PDF
         $pdf = Pdf::loadView('pdf.asset-print', [
             'assets' => $assets,
             'printLog' => $printLog,
@@ -125,7 +123,6 @@ class PrintAssets extends Component
             'dateTo' => $this->filterOption == 'by_date' ? $this->dateTo : null,
         ])->setPaper('a4', 'landscape');
 
-        // Set success message (will show after download)
         $this->successMessage = 'PDF generated successfully!';
 
         return response()->streamDownload(
@@ -134,7 +131,6 @@ class PrintAssets extends Component
         );
     }
 
-    // Add this method to clear date validation errors when switching filters
     public function updatedFilterOption($value)
     {
         if ($value === 'select_all') {

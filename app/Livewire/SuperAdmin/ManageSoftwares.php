@@ -14,7 +14,6 @@ class ManageSoftwares extends Component
 
     public $search = '';
     
-    // Software fields
     public $softwareId;
     public $software_name;
     public $description;
@@ -22,16 +21,13 @@ class ManageSoftwares extends Component
     public $expiry_date;
     public $quantity = 1;
     
-    // Modals
     public $showAddModal = false;
     public $showEditModal = false;
     public $showViewModal = false;
     public $showDeleteModal = false;
     
-    // View software
     public $viewSoftware;
     
-    // Messages
     public $successMessage = '';
     public $errorMessage = '';
 
@@ -92,19 +88,17 @@ class ManageSoftwares extends Component
 
     private function generateSoftwareCode()
     {
-        $date = now()->format('Ymd'); // e.g., 20250622
+        $date = now()->format('Ymd'); 
         $prefix = "SFT-{$date}-";
 
-        // Find the last software created today
         $lastSoftware = Software::where('software_code', 'like', $prefix . '%')
             ->orderBy('software_code', 'desc')
             ->first();
 
-        // Extract the last sequence number
         $lastNum = 0;
         if ($lastSoftware) {
             $lastCode = $lastSoftware->software_code;
-            $sequencePart = substr($lastCode, -8); // Get last 8 characters
+            $sequencePart = substr($lastCode, -8); 
             $lastNum = intval($sequencePart);
         }
 

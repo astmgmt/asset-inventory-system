@@ -1,7 +1,6 @@
 <div>  
     <div class="superadmin-container">          
         <h1 class="page-title main-title">Manage Accounts</h1>     
-        <!-- USER TABLE -->
         <div class="user-table-container">
             <!-- Success Message -->
             @if ($successMessage)
@@ -13,7 +12,6 @@
                 </div>
             @endif
 
-            <!-- SEARCH BAR -->
             <div class="relative w-full lg:w-1/3 mb-5">
                 <input                
                     wire:model.live.debounce.300ms="search"
@@ -223,12 +221,10 @@
             });
             
             Livewire.on('userStatusUpdated', (userId) => {
-                // Force Livewire to update the UI
                 @this.get('userStatusMap');
             });
             
             Livewire.on('userDeleted', (userId) => {
-                // Force Livewire to update the UI
                 @this.get('userStatusMap');
             });
         });

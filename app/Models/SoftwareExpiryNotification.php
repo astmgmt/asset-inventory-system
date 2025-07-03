@@ -7,6 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class SoftwareExpiryNotification extends Model
 {
-    /** @use HasFactory<\Database\Factories\SoftwareExpiryNotificationFactory> */
     use HasFactory;
 }

@@ -17,9 +17,7 @@
         @endif
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Left Column -->
             <div class="space-y-6">
-                <!-- Profile Photo -->
                 <div class="flex flex-col items-center">
                     <div class="relative group">
                         @if($temp_profile_photo)
@@ -100,9 +98,7 @@
                 </div>
             </div>
             
-            <!-- Right Column -->
             <div class="space-y-6">
-                <!-- Account Information -->
                 <div class="space-y-4">
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 border-b pb-2">
                         Account Information
@@ -227,7 +223,6 @@
 
                 </div>
                 
-                <!-- Actions -->
                 <div class="pt-6 flex flex-col sm:flex-row justify-end gap-4">
                     <a href="{{ route('superadmin.manage') }}"
                         class="px-6 py-3 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-colors text-center flex items-center justify-center gap-2">

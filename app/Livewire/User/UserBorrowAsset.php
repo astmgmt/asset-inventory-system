@@ -213,7 +213,6 @@ class UserBorrowAsset extends Component
                         );
                     }
 
-                    // RESERVE THE ASSET
                     $asset->increment('reserved_quantity', $item['quantity']);
 
                     AssetBorrowItem::create([

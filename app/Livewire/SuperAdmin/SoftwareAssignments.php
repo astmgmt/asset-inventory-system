@@ -40,10 +40,10 @@ class SoftwareAssignments extends Component
     public function render()
     {
         $software = Software::query()
-            ->where('expiry_status', '!=', 'expired') // Show all except expired
-            ->where('show_status', true) // Only show_status = 1
-            ->whereRaw('(quantity - reserved_quantity) > 0') // Available licenses
-            ->whereNotIn('id', array_keys($this->selectedSoftware)) // Hide items in cart
+            ->where('expiry_status', '!=', 'expired') 
+            ->where('show_status', true) 
+            ->whereRaw('(quantity - reserved_quantity) > 0') 
+            ->whereNotIn('id', array_keys($this->selectedSoftware)) 
             ->when($this->search, function ($query) {
                 $query->where(function($q) {
                     $q->where('software_name', 'like', '%'.$this->search.'%')
@@ -232,7 +232,6 @@ class SoftwareAssignments extends Component
             $this->showCartModal = false;
             $this->clearCart();
 
-            // Generate and return PDF for download
             $batch->load([
                 'assignmentItems.software', 
                 'user', 
@@ -277,7 +276,6 @@ class SoftwareAssignments extends Component
         
         $assignmentNo = $batch->assignment_no;
 
-        // Generate email body
         $body = View::make('emails.assign-softwares', [
             'assignmentNo' => $assignmentNo,
             'userName' => $user->name,
@@ -285,7 +283,6 @@ class SoftwareAssignments extends Component
             'assignmentDate' => $batch->date_assigned
         ])->render();
 
-        // Generate PDF
         $batch->load([
             'assignmentItems.software', 
             'user', 
@@ -298,7 +295,6 @@ class SoftwareAssignments extends Component
         $pdf = Pdf::loadView('pdf.software-assignment', compact('batch', 'approver', 'approvalDate'));
         $pdfContent = $pdf->output();
         
-        // Send email
         $emailService = new SendEmail();
         $emailService->send(
             $user->email,

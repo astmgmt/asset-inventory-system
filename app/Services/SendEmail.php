@@ -26,7 +26,6 @@ class SendEmail
                     }
                 });
             } else {
-                // Content is a Blade view with data: ['view.name', [...data]]
                 if (!is_array($content) || count($content) !== 2) {
                     throw new InvalidArgumentException('View content must be an array: [view_name, data_array]');
                 }

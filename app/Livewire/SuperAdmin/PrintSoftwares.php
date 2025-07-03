@@ -91,7 +91,6 @@ class PrintSoftwares extends Component
             return;
         }
 
-        // Prepare snapshot data
         $snapshot = $softwares->map(function ($software) {
             return [
                 'software_code' => $software->software_code,
@@ -104,7 +103,6 @@ class PrintSoftwares extends Component
             ];
         })->toArray();
 
-        // Create print log
         $printLog = SoftwarePrintLog::create([
             'print_code' => $this->generatePrintCode(),
             'date_from' => $this->filterOption == 'by_date' ? $this->dateFrom : null,
@@ -113,10 +111,8 @@ class PrintSoftwares extends Component
             'software_snapshot_data' => json_encode($snapshot),
         ]);
 
-        // Attach software to pivot table
         $printLog->software()->attach($softwares->pluck('id'));
 
-        // Generate PDF
         $pdf = Pdf::loadView('pdf.software-print', [
             'softwares' => $snapshot,
             'printLog' => $printLog,
@@ -124,7 +120,6 @@ class PrintSoftwares extends Component
             'dateTo' => $this->filterOption == 'by_date' ? $this->dateTo : null,
         ])->setPaper('a4', 'landscape');
 
-        // Set success message
         $this->successMessage = 'PDF generated successfully!';
 
         return response()->streamDownload(
@@ -133,7 +128,6 @@ class PrintSoftwares extends Component
         );
     }
 
-    // Add this method to clear validation
     public function updatedFilterOption($value)
     {
         if ($value === 'select_all') {
@@ -145,10 +139,8 @@ class PrintSoftwares extends Component
     {
         $printLog = SoftwarePrintLog::findOrFail($printLogId);
 
-        // Decode the JSON snapshot data
         $snapshot = json_decode($printLog->software_snapshot_data, true);
         
-        // Ensure we have an array
         if (!is_array($snapshot)) {
             $snapshot = [];
         }

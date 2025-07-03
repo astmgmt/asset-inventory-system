@@ -81,7 +81,6 @@
         </div>
     </div>
 
-    <!-- View Batch Modal -->
     @if($selectedBatch)
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" x-data x-on:keydown.escape.window="close">
             <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-4xl p-6 relative max-h-[90vh] overflow-y-auto" x-on:click.away="close">
@@ -133,7 +132,6 @@
                     </div>
                 </div>
 
-                {{-- Assigned Software Table --}}
                 <h3 class="text-lg font-semibold text-gray-700 mb-3">Assigned Software</h3>
                 <div class="overflow-x-auto mb-6">
                     <table class="user-table w-full text-sm text-left border border-gray-200 rounded">

@@ -12,14 +12,12 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Left Column - User Information -->
             <div class="space-y-6">
                 <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-6">
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 border-b pb-3 mb-4">
                         Account Information
                     </h3>
                     
-                    <!-- User Details Grid -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <!-- Name -->
                         <div class="col-span-2">
@@ -83,7 +81,6 @@
                 </div>
             </div>
             
-            <!-- Right Column - Profile Photo and Stats -->
             <div class="space-y-6 flex flex-col h-full">
                 <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-6">
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 border-b pb-3 mb-4">
@@ -103,32 +100,7 @@
                             @endif
                         </div>
                     </div>
-                </div>
-                
-                <!-- Account Stats
-                <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-6 flex-1 flex flex-col justify-between">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 border-b pb-3 mb-4">
-                        Account Statistics
-                    </h3>
-                    
-                    <div class="grid gap-4">
-                        <div class="text-center p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
-                            <p class="text-2xl font-bold text-blue-700 dark:text-blue-200">12</p>
-                            <p class="text-sm text-blue-600 dark:text-blue-300">Borrowed</p>
-                        </div>
-                        
-                        <div class="text-center p-4 bg-green-50 dark:bg-green-900 rounded-lg">
-                            <p class="text-2xl font-bold text-green-700 dark:text-green-200">47</p>
-                            <p class="text-sm text-green-600 dark:text-green-300">Returned</p>
-                        </div>
-                        
-                        <div class="text-center p-4 bg-yellow-50 dark:bg-yellow-900 rounded-lg">
-                            <p class="text-2xl font-bold text-yellow-700 dark:text-yellow-200">8</p>
-                            <p class="text-sm text-yellow-600 dark:text-yellow-300">Penalty</p>
-                        </div>                       
-                    </div>
-                </div>
-                -->
+                </div>              
             </div>
         </div>
     </div>

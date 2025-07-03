@@ -235,7 +235,6 @@ class AssetAssignments extends Component
                     ]);
                 }
                 
-                // Load transaction with relationships for history
                 $transaction->load([
                     'borrowItems.asset', 
                     'user', 
@@ -243,12 +242,11 @@ class AssetAssignments extends Component
                     'requestedBy'
                 ]);
                 
-                // Create user history record with full transaction data
                 UserHistory::create([
                     'user_id' => $user->id,
                     'borrow_code' => $borrowCode,
                     'status' => 'Borrow Approved',
-                    'borrow_data' => $transaction->toArray(), // Full transaction data
+                    'borrow_data' => $transaction->toArray(), 
                     'action_date' => now(),
                 ]);
             });
@@ -259,7 +257,6 @@ class AssetAssignments extends Component
             $this->successMessage = 'Assets assigned successfully!';
             $this->showCartModal = false;
 
-            // Generate PDF for download
             $transaction->load([
                 'borrowItems.asset', 
                 'user', 
@@ -304,7 +301,6 @@ class AssetAssignments extends Component
         
         $borrowCode = $transaction->borrow_code;
 
-        // Generate email body using Blade template
         $body = View::make('emails.assign-assets', [
             'borrowCode' => $borrowCode,
             'userName' => $user->name,
@@ -312,7 +308,6 @@ class AssetAssignments extends Component
             'approvalDate' => $transaction->approved_at
         ])->render();
 
-        // Generate PDF
         $transaction->load([
             'borrowItems.asset', 
             'user', 
@@ -326,20 +321,17 @@ class AssetAssignments extends Component
         $pdf = Pdf::loadView('pdf.borrow-accountability', compact('transaction', 'approver', 'approvalDate'));
         $pdfContent = $pdf->output();
         
-        // Send email
         $emailService = new SendEmail();
         $emailService->send(
             $user->email,
             "Asset Assignment #{$borrowCode}", 
             $body,
-            [], // cc
+            [], 
             $pdfContent,
             "Borrower-Accountability-{$borrowCode}.pdf",
-            true // isHtml
+            true 
         );
-    }
-
-    
+    }    
 
     private function generateBorrowCode()
     {

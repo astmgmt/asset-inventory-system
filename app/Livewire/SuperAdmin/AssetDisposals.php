@@ -72,7 +72,6 @@ class AssetDisposals extends Component
         $this->selectedAsset = Asset::with(['category', 'condition', 'location', 'vendor'])
             ->find($assetId);
         
-        // Check if asset exists and hasn't been disposed
         if (!$this->selectedAsset) {
             $this->errorMessage = 'Asset not found';
             return;
@@ -114,7 +113,6 @@ class AssetDisposals extends Component
             }
 
             DB::transaction(function () use ($asset) {
-                // Create disposal record
                 $disposal = AssetDisposal::create([
                     'asset_id' => $asset->id,
                     'disposed_by' => Auth::id(),
@@ -127,19 +125,16 @@ class AssetDisposals extends Component
                     'approved_at' => now(),
                 ]);
 
-                // Get or create "Disposed" condition
                 $disposedCondition = \App\Models\AssetCondition::firstOrCreate(
                     ['condition_name' => 'Disposed'],
                     ['condition_name' => 'Disposed']
                 );
 
-                // Update asset condition and disposal status
                 $asset->update([
                     'is_disposed' => true,
-                    'condition_id' => $disposedCondition->id // Update condition
+                    'condition_id' => $disposedCondition->id 
                 ]);
 
-                // Send email notification
                 $this->sendDisposalEmail($disposal, $asset);
             });
 
@@ -158,12 +153,10 @@ class AssetDisposals extends Component
     {
         $user = Auth::user();
         
-        // Get super admins and admins
         $admins = User::whereHas('role', function($q) {
             $q->whereIn('name', ['Super Admin', 'Admin']);
         })->get();
         
-        // Generate email body directly using view
         $emailContent = view('emails.asset-disposal', [
             'disposalId' => $disposal->id,
             'assetCode' => $asset->asset_code,
@@ -177,11 +170,10 @@ class AssetDisposals extends Component
             'notes' => $this->notes
         ])->render();
         
-        // Send email to each admin individually
         $emailService = new SendEmail();
         foreach ($admins as $admin) {
             $emailService->send(
-                $admin->email,  // Single email address
+                $admin->email,  
                 "Asset Disposal: {$asset->asset_code} - {$asset->name}",
                 $emailContent,
                 [],

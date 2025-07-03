@@ -1,7 +1,6 @@
 <div class="superadmin-container">
     <h1 class="page-title main-title">Asset Disposal Management</h1>
     
-    <!-- Real-time polling -->
     <div wire:poll.10s>
         <!-- Success Message -->
         @if ($successMessage)
@@ -142,9 +141,6 @@
                             </div>
                         </div>
 
-
-
-                        <!-- Full spacing for form elements -->
                         <div class="mt-4 border-t border-gray-200 pt-4">
                             <div class="mt-4">
                                 <label for="disposalMethod" class="block text-sm font-medium mb-1">Disposal Method *</label>

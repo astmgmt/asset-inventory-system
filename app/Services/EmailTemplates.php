@@ -29,7 +29,7 @@ class EmailTemplates
         }
 
         $remarksText = $remarks ?: 'No remarks provided';        
-        $appName = "Asset Management"; //config('app.name');
+        $appName = "Asset Management"; 
 
         $logoUrl = asset('images/logo.png');
 
@@ -114,8 +114,6 @@ class EmailTemplates
         HTML;
     }
 
-
-    // Add this method to your existing EmailTemplates service
     public static function assetAssignment($borrowCode, $userName, $assignedAssets, $approvalDate)
     {
         return '<!DOCTYPE html>

@@ -66,13 +66,11 @@ class UserReturnTransactions extends Component
     {
         $transaction = AssetBorrowTransaction::findOrFail($transactionId);
 
-        // Get only non-returned items
         $filteredBorrowItems = AssetBorrowItem::where('borrow_transaction_id', $transaction->id)
             ->whereIn('status', ['Borrowed'])
             ->with('asset')
             ->get();
 
-        // Attach filtered items
         $transaction->setRelation('borrowItems', $filteredBorrowItems);
 
         $this->selectedTransaction = $transaction;
@@ -116,8 +114,8 @@ class UserReturnTransactions extends Component
                 $returnCode = $this->generateUniqueReturnCode();
                 
                 $selectedBorrowItems = AssetBorrowItem::whereIn('id', $this->selectedItems)
-                    ->where('borrow_transaction_id', $transaction->id) // Security check
-                    ->where('status', 'Borrowed') // Prevent double-processing
+                    ->where('borrow_transaction_id', $transaction->id) 
+                    ->where('status', 'Borrowed') 
                     ->with('asset')
                     ->get();
                 
@@ -276,10 +274,7 @@ class UserReturnTransactions extends Component
             Log::error("Return request email failed: " . $e->getMessage());
         }
     }
-
-
-
-
+    
     public function clearMessages()
     {
         $this->reset(['successMessage', 'errorMessage']);
