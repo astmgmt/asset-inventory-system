@@ -68,18 +68,22 @@
                         ← Back to Login
                     </a>
 
-                    <button type="submit"
-                            wire:loading.attr="disabled"
-                            class="w-full sm:w-auto text-base px-6 py-2 text-center rounded-md bg-indigo-600 text-white hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition inline-flex items-center justify-center">
-                        <span wire:loading.remove>Send Message</span>
-                        <span wire:loading>
-                            <div class="flex justify-center items-center x-2">                                
-                                Sending...
-                                <svg class="animate-spin h-5 w-5 text-white text-center" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>     
-                            </div>                       
+                    <button 
+                        type="submit"
+                        wire:loading.attr="disabled"
+                        wire:loading.class="opacity-50 cursor-not-allowed"
+                        class="w-full sm:w-auto text-base px-6 py-2 text-center rounded-md bg-indigo-600 text-white hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition inline-flex items-center justify-center gap-2"
+                    >
+                        <span wire:loading.class.add="hidden">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Message
+                        </span>
+                        <span wire:loading.class.remove="hidden" class="hidden flex items-center gap-2">
+                            <svg class="animate-spin h-5 w-5 text-white text-center" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Sending...
                         </span>
                     </button>
                 </div>

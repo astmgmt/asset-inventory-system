@@ -169,6 +169,8 @@
                             <i class="fas fa-history"></i> History
                         </a>
                     </div>
+                    
+                    <a href="{{ route('contact.admin') }}"><i class="fas fa-headset"></i> Contact Admin</a>
 
                 @endif
             @endauth

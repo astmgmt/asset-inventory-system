@@ -32,6 +32,7 @@ use App\Livewire\User\UserBorrowAsset;
 use App\Livewire\User\UserBorrowTransactions; 
 use App\Livewire\User\UserReturnTransactions; 
 use App\Livewire\User\UserHistoryTransactions;
+use App\Livewire\User\ContactAdmins;
 
 use App\Http\Controllers\SuperAdmin\AssetAssignmentPdfController; 
 use App\Http\Controllers\SuperAdmin\SoftwareAssignmentPDFController;
@@ -269,6 +270,10 @@ Route::middleware([
 
     Route::get('/user/history', UserHistoryTransactions::class)
         ->name('user.history')
+        ->middleware('role:User');
+
+    Route::get('/user/contact-admin', ContactAdmins::class)
+        ->name('contact.admin')
         ->middleware('role:User');
 
     

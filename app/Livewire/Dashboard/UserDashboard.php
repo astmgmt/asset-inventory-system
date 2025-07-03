@@ -24,17 +24,14 @@ class UserDashboard extends Component
     {
         $userId = Auth::id();
 
-        // Only count approved borrow requests
         $this->borrowedCount = UserHistory::where('user_id', $userId)
             ->where('status', 'Borrow Approved')
             ->count();
 
-        // Only count approved return requests
         $this->returnedCount = UserHistory::where('user_id', $userId)
             ->where('status', 'Return Approved')
             ->count();
 
-        // Show ALL activities (both approved and rejected) in recent logs
         $this->recentLogs = UserHistory::where('user_id', $userId)
             ->whereIn('status', [
                 'Borrow Approved', 

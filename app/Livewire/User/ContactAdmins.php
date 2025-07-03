@@ -1,21 +1,18 @@
 <?php
 
-namespace App\Livewire\Contact;
-
+namespace App\Livewire\User;
 use Livewire\Component;
 use App\Models\User;
 use App\Services\SendEmail;
 use Illuminate\Support\Facades\Log;
 
-class ContactUs extends Component
+#[Layout('components.layouts.app')]
+class ContactAdmins extends Component
 {
     public $subject = '';
     public $message = '';
 
-    public $success = false;
     public $successMessage = '';
-
-    public $error = false;
     public $errorMessage = '';
 
     protected $rules = [
@@ -72,28 +69,23 @@ class ContactUs extends Component
                 throw new \Exception("Failed to send email to {$primaryRecipient}");
             }
 
-            session()->flash('successMessage', 'Your message has been sent successfully!');
-            return redirect()->route('contact');
+            $this->successMessage = 'Your message has been sent successfully!';
+            $this->reset(['subject', 'message']);
 
         } catch (\Throwable $e) {
             Log::error("Contact form submission failed: " . $e->getMessage());
-            $this->error = true;
             $this->errorMessage = 'Failed to send your message. Please try again later.';
         }
     }
 
-
     private function resetMessages()
     {
-        $this->success = false;
         $this->successMessage = '';
-        $this->error = false;
         $this->errorMessage = '';
     }
 
     public function render()
     {
-        return view('livewire.contact.contact-us')
-            ->layout('components.layouts.guest');
+        return view('livewire.user.contact-admins');            
     }
 }

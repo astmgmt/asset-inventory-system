@@ -167,13 +167,20 @@
         <!-- Status Change Confirmation Modal -->
         @if ($confirmingStatusChange)
             <div class="modal-backdrop">
-                <div class="modal">
-                    <h2 class="text-lg font-semibold mb-2">
+                <div class="modal max-w-md">
+                    <h4 class="text-md font-semibold mb-2">
                         Confirm Status Change
-                    </h2>
-                    <p class="mb-4">
-                        {{ $statusMessage }}
-                    </p>
+                    </h4>
+                    
+                    <div class="text-center mx-auto p-6 bg-red-50">
+                        <i class="fas fa-info-circle text-red-700 text-5xl mb-4"></i>
+                        <h4 class="text-md font-semibold mb-3 text-gray-800">Status Update</h4>
+                        <p class="text-gray-700 leading-relaxed">
+                            {{ $statusMessage }}
+                        </p>
+                    </div>
+
+
                     
                     <div class="modal-actions mt-4">
                         <div class="flex items-center space-x-4">
@@ -181,11 +188,11 @@
                                 wire:click="changeUserStatus"
                                 wire:loading.attr="disabled"
                                 wire:loading.class="opacity-50 cursor-not-allowed"
-                                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
+                                class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
                             >
                                 <span wire:loading.class.add="hidden" class="flex items-center">
                                     <i class="fas fa-check mr-2"></i>
-                                    Yes
+                                    Confirm
                                 </span>
                                 <span wire:loading.class.remove="hidden" class="hidden flex items-center">
                                     <i class="fas fa-spinner fa-spin mr-2"></i>
@@ -198,7 +205,7 @@
                                 class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition"
                             >
                                 <i class="fas fa-times mr-2"></i>
-                                No
+                                Cancel
                             </button>
                         </div>
                     </div>
