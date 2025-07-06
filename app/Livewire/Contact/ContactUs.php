@@ -43,6 +43,44 @@ class ContactUs extends Component
                 throw new \Exception('No Super Admin found to receive the message');
             }
 
+            $regularNotificationType = \App\Models\NotificationType::firstOrCreate([
+                'type_name' => 'email_notification'
+            ]);
+            
+            $superAdminNotificationType = \App\Models\NotificationType::firstOrCreate([
+                'type_name' => 'super_admin_email_notification'
+            ]);
+
+            $regularNotification = \App\Models\Notification::create([
+                'type_id' => $regularNotificationType->id,
+                'message' => 'You have a new email message',
+                'email_alert' => true
+            ]);
+
+            $superAdminNotification = \App\Models\Notification::create([
+                'type_id' => $superAdminNotificationType->id,
+                'message' => 'Important: New contact form submission (Super Admin attention required)',
+                'email_alert' => true
+            ]);
+
+            $admins->each(function($user) use ($regularNotification) {
+                $user->notifications()->attach($regularNotification->id, [
+                    'is_read' => false,
+                    'notified_at' => now()
+                ]);
+            });
+
+            $superAdmins->each(function($user) use ($regularNotification, $superAdminNotification) {
+                $user->notifications()->attach($regularNotification->id, [
+                    'is_read' => false,
+                    'notified_at' => now()
+                ]);
+                $user->notifications()->attach($superAdminNotification->id, [
+                    'is_read' => false,
+                    'notified_at' => now()
+                ]);
+            });
+
             $primaryRecipient = $superAdmins->first()->email;
             $ccList = $superAdmins->skip(1)->pluck('email')
                         ->merge($admins->pluck('email'))

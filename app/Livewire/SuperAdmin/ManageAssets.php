@@ -64,15 +64,13 @@ class ManageAssets extends Component
     public function mount()
     {
         $this->categories = AssetCategory::all();
-        $this->conditions = AssetCondition::all(); // Add this line
+        $this->conditions = AssetCondition::all(); 
         $this->locations = AssetLocation::all();
         $this->vendors = Vendor::all();
         
-        // Set default condition to "New"
         $newCondition = AssetCondition::where('condition_name', 'New')->first();
         $this->condition_id = $newCondition->id ?? null;
         
-        // Set default warranty expiration to 1 year from now
         $this->warranty_expiration = now()->addYear()->format('Y-m-d');
     }
 
@@ -151,7 +149,6 @@ class ManageAssets extends Component
             ->toArray();
     }
 
-    // Selection handlers
     public function selectModelNumber($model)
     {
         $this->modelInput = $model;
@@ -265,7 +262,8 @@ class ManageAssets extends Component
         $date = now()->format('mdY');
         
         if ($lastNum === null) {
-            $lastAsset = Asset::where('asset_code', 'like', "AST-{$date}-%")
+            $lastAsset = Asset::withTrashed()
+                ->where('asset_code', 'like', "AST-{$date}-%")
                 ->orderBy('asset_code', 'desc')
                 ->first();
                 
@@ -304,7 +302,8 @@ class ManageAssets extends Component
         DB::transaction(function () use (&$insertedIds, &$assetsData) {
             $lastAsset = Asset::orderBy('id', 'desc')->first();
             $lastId = $lastAsset ? $lastAsset->id : 0;
-            $lastAssetCode = Asset::where('asset_code', 'like', 'AST-%')
+            $lastAssetCode = Asset::withTrashed() 
+                ->where('asset_code', 'like', 'AST-%')
                 ->orderBy('asset_code', 'desc')
                 ->first();
                 

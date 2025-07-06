@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\AssetBorrowTransaction;
 use App\Models\AssetReturnItem;
 use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 
 class AdminNotificationBell extends Component
@@ -13,10 +14,11 @@ class AdminNotificationBell extends Component
     public $borrowCount = 0;
     public $returnCount = 0;
     public $pendingUserCount = 0;
+    public $emailCount = 0;
     public $isSuperAdmin = false;
     public $isAdmin = false;
 
-    protected $listeners = ['refreshCounts' => 'refreshCounts'];
+    protected $listeners = ['refreshCounts' => 'refreshCounts', 'refreshNotifications'];
 
     public function mount()
     {
@@ -38,6 +40,34 @@ class AdminNotificationBell extends Component
         $this->pendingUserCount = $this->isSuperAdmin 
             ? User::where('status', 'Pending')->count()
             : 0;
+            
+        $this->emailCount = auth()->user()->unreadEmailNotifications()->count();
+    }
+
+    public function markEmailNotificationsAsRead()
+    {
+        auth()->user()->unreadEmailNotifications()
+            ->update(['user_notifications.is_read' => true]);
+        $this->emailCount = 0;
+        $this->dispatch('refreshNotifications');
+    }
+
+    public function refreshNotifications()
+    {
+        $this->refreshCounts();
+    }
+
+    public function getEmailProviderUrl($email)
+    {
+        $domain = substr(strrchr($email, "@"), 1);
+        
+        return match($domain) {
+            'gmail.com' => 'https://mail.google.com',
+            'yahoo.com' => 'https://mail.yahoo.com',
+            'outlook.com', 'hotmail.com' => 'https://outlook.live.com',
+            'icloud.com' => 'https://www.icloud.com/mail',
+            default => 'https://' . $domain,
+        };
     }
 
     public function render()

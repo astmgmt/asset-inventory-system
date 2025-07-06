@@ -91,7 +91,8 @@ class ManageSoftwares extends Component
         $date = now()->format('Ymd'); 
         $prefix = "SFT-{$date}-";
 
-        $lastSoftware = Software::where('software_code', 'like', $prefix . '%')
+        $lastSoftware = Software::withTrashed()
+            ->where('software_code', 'like', $prefix . '%')
             ->orderBy('software_code', 'desc')
             ->first();
 

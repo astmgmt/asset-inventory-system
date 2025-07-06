@@ -16,4 +16,16 @@ class Notification extends Model
         'email_alert',
         'sms_alert',
     ];
+
+    public function type()
+    {
+        return $this->belongsTo(NotificationType::class, 'type_id');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_notifications')
+            ->withPivot(['is_read', 'notified_at'])
+            ->withTimestamps();
+    }
 }

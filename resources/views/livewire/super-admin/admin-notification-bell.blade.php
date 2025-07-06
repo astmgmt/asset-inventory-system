@@ -5,7 +5,7 @@
     >
         <i class="fas fa-bell text-lg"></i>
         @php
-            $totalCount = $borrowCount + $returnCount;
+            $totalCount = $borrowCount + $returnCount + $emailCount;
             if ($isSuperAdmin) {
                 $totalCount += $pendingUserCount;
             }
@@ -25,36 +25,69 @@
         style="display: none;"
         x-cloak
     >
-        <a 
-            href="{{ route('approve.requests') }}" 
-            class="flex justify-between items-center px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-        >
-            <span>Borrow Request</span>
-            <span class="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                {{ $borrowCount }}
-            </span>
-        </a>
+        @if($emailCount > 0)
+            <div class="flex flex-col">
+                <a 
+                    href="{{ $this->getEmailProviderUrl(auth()->user()->email) }}" 
+                    target="_blank"
+                    class="flex justify-between items-center px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    @click="
+                        open = false;
+                        $wire.call('markEmailNotificationsAsRead');
+                    "
+                >
+                    <span>New Email Notifications</span>
+                    <span class="bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                        {{ $emailCount }}
+                    </span>
+                </a>
+                <div class="text-xs text-gray-500 px-4 pb-2">
+                    Click to open your email in a new tab
+                </div>
+            </div>
+        @endif
         
-        <a 
-            href="{{ route('approve.return') }}" 
-            class="flex justify-between items-center px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-        >
-            <span>Return Request</span>
-            <span class="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                {{ $returnCount }}
-            </span>
-        </a>
-        
+        @if($borrowCount > 0)
+            <a 
+                href="{{ route('approve.requests') }}" 
+                class="flex justify-between items-center px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+                <span>Borrow Requests</span>
+                <span class="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    {{ $borrowCount }}
+                </span>
+            </a>
+        @endif
+
+        @if($returnCount > 0)
+            <a 
+                href="{{ route('approve.return') }}" 
+                class="flex justify-between items-center px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+                <span>Return Requests</span>
+                <span class="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    {{ $returnCount }}
+                </span>
+            </a>
+        @endif
+
         @if($isSuperAdmin && $pendingUserCount > 0)
-        <a 
-            href="{{ route('superadmin.manage') }}" 
-            class="flex justify-between items-center px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-        >
-            <span>Pending Users</span>
-            <span class="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                {{ $pendingUserCount }}
-            </span>
-        </a>
+            <a 
+                href="{{ route('superadmin.manage') }}" 
+                class="flex justify-between items-center px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+                <span>Pending Users</span>
+                <span class="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    {{ $pendingUserCount }}
+                </span>
+            </a>
+        @endif
+
+        @if(($isSuperAdmin && ($emailCount + $borrowCount + $returnCount + $pendingUserCount) == 0) ||
+            (!$isSuperAdmin && ($emailCount + $borrowCount + $returnCount) == 0))
+            <div class="px-4 py-2 text-gray-500 text-sm text-center">
+                No new notifications
+            </div>
         @endif
     </div>
 </div>

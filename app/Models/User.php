@@ -120,4 +120,28 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserHistory::class);
     }
+
+    public function notifications()
+    {
+        return $this->belongsToMany(\App\Models\Notification::class, 'user_notifications')
+            ->withPivot(['is_read', 'notified_at'])
+            ->withTimestamps();
+    }
+
+    public function unreadEmailNotifications()
+    {
+        return $this->notifications()
+            ->whereHas('type', function($q) {
+                $q->where('type_name', 'email_notification');
+            })
+            ->wherePivot('is_read', false);
+    }
+    public function unreadSuperAdminNotifications()
+    {
+        return $this->notifications()
+            ->whereHas('type', function($q) {
+                $q->where('type_name', 'super_admin_email_notification');
+            })
+            ->wherePivot('is_read', false);
+    }
 }
