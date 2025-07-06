@@ -85,26 +85,28 @@
                         </td>
 
                         <td data-label="Remarks" class="text-center">
-                            @if(in_array($record->status, ['Borrow Denied', 'Return Denied']))
-                                <div class="remarks-container">
-                                    @php                                        
-                                        if ($record->status === 'Borrow Denied') {
-                                            $remarks = $record->borrow_data['remarks'] ?? 
-                                                       $record->remarks ?? 
-                                                       'N/A';
-                                        } else { 
-                                            $remarks = $record->return_data['remarks'] ?? 
-                                                       $record->remarks ?? 
-                                                       'N/A';
-                                        }
-                                    @endphp
-                                    <div class="truncated-remarks" title="{{ $remarks }}">
-                                        {{ \Illuminate\Support\Str::limit($remarks, 25) }}
-                                    </div>
+                            <div class="remarks-container">
+                                @php
+                                    $remarks = 'N/A';
+                                                                        
+                                    if ($record->status === 'Borrow Approved') {
+                                        $remarks = "For Return";
+                                    } 
+                                    elseif ($record->status === 'Return Approved') {
+                                        $remarks = "Successful Return";
+                                    }
+                                    
+                                    elseif ($record->status === 'Borrow Denied') {
+                                        $remarks = $record->borrow_data['remarks'] ?? $record->remarks ?? 'N/A';
+                                    }
+                                    elseif ($record->status === 'Return Denied') {
+                                        $remarks = $record->return_data['remarks'] ?? $record->remarks ?? 'N/A';
+                                    }
+                                @endphp
+                                <div class="truncated-remarks" title="{{ $remarks }}">
+                                    {{ \Illuminate\Support\Str::limit($remarks, 25) }}
                                 </div>
-                            @else
-                                <p class="text-gray-700 text-sm">N/A</p>
-                            @endif
+                            </div>
                         </td>                        
 
                         <td data-label="Date" class="text-center">

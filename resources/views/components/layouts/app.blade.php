@@ -170,7 +170,7 @@
                         </a>
                     </div>
                     
-                    <a href="{{ route('contact.admin') }}"><i class="fas fa-headset"></i> Contact Admin</a>
+                    <a href="{{ route('contact.admin') }}"><i class="fas fa-headset"></i> Contact Support</a>
 
                 @endif
             @endauth

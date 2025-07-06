@@ -347,12 +347,17 @@
                         <button 
                             wire:click="rejectReturn" 
                             wire:loading.attr="disabled"
+                            wire:loading.class="opacity-50 cursor-not-allowed"
                             class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-6 rounded text-sm transition duration-150 ease-in-out"
                         >
-                            <i class="fas fa-times mr-2"></i> 
-                            <span wire:loading.remove>Confirm Rejection</span>
-                            <span wire:loading>Processing...</span>
+                            <span wire:loading.class.add="hidden">
+                                <i class="fas fa-times mr-2"></i> Confirm Rejection
+                            </span>
+                            <span wire:loading.class.remove="hidden" class="hidden flex items-center">
+                                <i class="fas fa-spinner fa-spin mr-2"></i> Processing...
+                            </span>
                         </button>
+
                     </div>
                 </div>
             </div>

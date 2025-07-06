@@ -1,5 +1,5 @@
 <div class="superadmin-container">
-    <h1 class="page-title main-title">Contact Administrators</h1>
+    <h1 class="page-title main-title">Contact Support</h1>
     
     @if ($successMessage)
         <div class="success-message mb-4" 
