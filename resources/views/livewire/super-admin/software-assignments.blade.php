@@ -58,7 +58,7 @@
                     <th>Code</th>
                     <th>Software Name</th>
                     <th>License</th>
-                    <th>Available</th>
+                    <th>Qty</th>
                     <th>Expiry</th>
                     <th>Actions</th>
                 </tr>

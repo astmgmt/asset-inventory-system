@@ -2,11 +2,9 @@
     <div class="login-gradient-bg w-full overflow-y-auto min-h-screen">
 
         <div class="relative z-10 w-full max-w-6xl flex flex-col items-center mt-12 mb-16">
-            <!-- Logo -->
             <div class="logo-container flex justify-center mb-4">
                 <img src="{{ asset('images/company.png') }}" alt="Custom Logo" class="max-h-48 max-w-48 md:max-h-36 md:max-w-36 object-contain" />
             </div>
-
             
             @if (session()->has('successMessage'))
                 <div x-data="{ show: true }"
@@ -28,18 +26,34 @@
                 </div>
             @endif
 
-
-            <!-- Contact Form -->
             <form wire:submit.prevent="submit"
                   class="login-form-glass w-[95%] md:w-[70%] xl:w-[50%] space-y-4 p-6 md:p-6 rounded-xl shadow-lg backdrop-blur-sm bg-white/80 dark:bg-gray-800/60 border border-white/30">
 
-                <!-- Title -->
                 <h2 class="text-xl font-bold text-gray-800 dark:text-white text-center">Contact Us</h2>
                 <p class="text-sm text-gray-600 dark:text-gray-300 text-center mb-2">
                     Have questions or need assistance? Send us a message below.
                 </p>
 
-                <!-- Subject -->
+                <div>
+                    <x-label for="name" value="Your Name" />
+                    <x-input id="name" name="name" type="text"
+                             wire:model="name"
+                             class="block mt-1 w-full text-base py-2"
+                             placeholder="Enter your name"
+                             required />
+                    @error('name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <x-label for="email" value="Your Email" />
+                    <x-input id="email" name="email" type="email"
+                             wire:model="email"
+                             class="block mt-1 w-full text-base py-2"
+                             placeholder="Enter your email"
+                             required />
+                    @error('email') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                </div>
+
                 <div>
                     <x-label for="subject" value="Subject" />
                     <x-input id="subject" name="subject" type="text"
@@ -50,7 +64,6 @@
                     @error('subject') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
 
-                <!-- Message -->
                 <div>
                     <x-label for="message" value="Message" />
                     <textarea id="message" name="message" rows="10"
@@ -61,7 +74,6 @@
                     @error('message') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
 
-                <!-- Buttons -->
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pt-2">
                     <a href="{{ route('login') }}"
                        class="w-full sm:w-auto text-sm px-4 py-2 text-center font-medium rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">

@@ -50,6 +50,7 @@
                     <th>Name</th>
                     <th>License Key</th>
                     <th>Added By</th>
+                    <th>Remarks</th>
                     <th>Expiry Date</th>
                     <th class="actions-column">Actions</th>
                 </tr>
@@ -61,6 +62,7 @@
                         <td data-label="Name" class="text-center">{{ $software->software_name }}</td>
                         <td data-label="License Key" class="text-center">{{ substr($software->license_key, 0, 8) . '...' }}</td>
                         <td data-label="Added By" class="text-center">{{ $software->addedBy?->name ?? 'N/A' }}</td>
+                        <td data-label="Status" class="text-center">{{ $software->assign_status }}</td>
                         <td data-label="Expiry Date" class="text-center">
                             {{ $software->expiry_date->format('M d, Y') }}                            
                         </td>

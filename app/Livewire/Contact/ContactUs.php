@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Log;
 
 class ContactUs extends Component
 {
+    public $name = '';
+    public $email = ''; 
     public $subject = '';
     public $message = '';
 
@@ -19,11 +21,17 @@ class ContactUs extends Component
     public $errorMessage = '';
 
     protected $rules = [
+        'name' => 'required|min:3|max:255', 
+        'email' => 'required|email',
         'subject' => 'required|min:5|max:255',
         'message' => 'required|min:10',
     ];
 
     protected $messages = [
+        'name.required' => 'The name field is required.', 
+        'name.min' => 'The name must be at least 3 characters.', 
+        'email.required' => 'The email field is required.',
+        'email.email' => 'Please enter a valid email address.', 
         'subject.required' => 'The subject field is required.',
         'subject.min' => 'The subject must be at least 5 characters.',
         'message.required' => 'The message field is required.',
@@ -90,6 +98,8 @@ class ContactUs extends Component
             $emailContent = [
                 'emails.contact-admins',
                 [
+                    'senderName' => $this->name, 
+                    'senderEmail' => $this->email, 
                     'subject' => $this->subject,
                     'messageContent' => $this->message
                 ]

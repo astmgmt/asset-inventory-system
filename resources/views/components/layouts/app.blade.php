@@ -103,7 +103,9 @@
                         <a href="{{ route('print.qrcodes') }}"><i class="fas fa-qrcode"></i> QRCodes</a>
                     </div>
 
-                
+                    <!-- Contact User -->
+                    <a href="{{ route('contact.user') }}"><i class="fas fa-envelope"></i> Send Email</a>
+
                 <!-- ADMIN MENUS -->
                 @elseif($user->isAdmin())
                     <!-- Home -->
@@ -144,6 +146,9 @@
                         <a href="{{ route('print.softwares') }}"><i class="fas fa-file-code"></i> Software Master List</a>
                         <a href="{{ route('print.qrcodes') }}"><i class="fas fa-qrcode"></i> QRCodes</a>
                     </div>
+
+                    <!-- Contact User -->
+                    <a href="{{ route('contact.user') }}"><i class="fas fa-envelope"></i> Send Email</a>
                 
                 <!-- USER MENUS -->
                 @else

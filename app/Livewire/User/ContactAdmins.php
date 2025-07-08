@@ -8,6 +8,7 @@ use App\Models\Notification;
 use App\Models\NotificationType;
 use App\Services\SendEmail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 #[Layout('components.layouts.app')]
 class ContactAdmins extends Component
@@ -43,19 +44,16 @@ class ContactAdmins extends Component
                 throw new \Exception('No Super Admin found to receive the message');
             }
 
-            // Create or get notification type
             $notificationType = NotificationType::firstOrCreate([
                 'type_name' => 'email_notification'
             ]);
 
-            // Create notification for all admins
             $notification = Notification::create([
                 'type_id' => $notificationType->id,
                 'message' => 'New contact form: ' . $this->subject,
                 'email_alert' => true
             ]);
 
-            // Attach to all admins (both regular and super)
             $allAdmins = $superAdmins->merge($admins);
             $allAdmins->each(function($user) use ($notification) {
                 $user->notifications()->attach($notification->id, [
@@ -64,16 +62,19 @@ class ContactAdmins extends Component
                 ]);
             });
 
-            // Send email
             $primaryRecipient = $superAdmins->first()->email;
             $ccList = $superAdmins->skip(1)->pluck('email')
                         ->merge($admins->pluck('email'))
                         ->unique()
                         ->toArray();
 
+            $user = Auth::user();
+
             $emailContent = [
                 'emails.contact-admins',
                 [
+                    'senderName' => $user->name,  
+                    'senderEmail' => $user->email, 
                     'subject' => $this->subject,
                     'messageContent' => $this->message
                 ]
@@ -97,7 +98,6 @@ class ContactAdmins extends Component
             $this->successMessage = 'Your message has been sent successfully!';
             $this->reset(['subject', 'message']);
 
-            // Refresh notifications in real-time
             $this->dispatch('refreshNotifications');
 
         } catch (\Throwable $e) {

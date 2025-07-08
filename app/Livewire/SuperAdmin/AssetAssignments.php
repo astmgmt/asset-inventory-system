@@ -199,6 +199,14 @@ class AssetAssignments extends Component
                     'approved_at' => now(),
                 ]);
 
+                // Get the 'Borrowed' condition
+                $borrowedCondition = AssetCondition::where('condition_name', 'Borrowed')->first();
+                if (!$borrowedCondition) {
+                    throw new \Exception("Borrowed condition not found!");
+                }
+
+                $disallowedConditions = ['Defective', 'Disposed'];
+
                 foreach ($this->selectedForBorrow as $assetId) {
                     if (!isset($this->selectedAssets[$assetId])) continue;
 
@@ -216,6 +224,13 @@ class AssetAssignments extends Component
                         throw new \Exception("Asset '{$item['name']}' has been disposed");
                     }
 
+                    // Check for disallowed conditions
+                    if (in_array($asset->condition->condition_name, $disallowedConditions)) {
+                        throw new \Exception(
+                            "Asset '{$item['name']}' is in {$asset->condition->condition_name} condition and cannot be assigned."
+                        );
+                    }
+
                     $available = $asset->quantity - $asset->reserved_quantity;
                     
                     if ($available < $item['quantity']) {
@@ -225,7 +240,10 @@ class AssetAssignments extends Component
                         );
                     }
 
-                    $asset->increment('reserved_quantity', $item['quantity']);
+                    // Update reserved quantity and condition
+                    $asset->reserved_quantity += $item['quantity'];
+                    $asset->condition_id = $borrowedCondition->id;
+                    $asset->save();
 
                     AssetBorrowItem::create([
                         'borrow_transaction_id' => $transaction->id,

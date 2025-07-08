@@ -7,6 +7,8 @@ use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ManageSoftwares extends Component
 {
@@ -51,6 +53,7 @@ class ManageSoftwares extends Component
         $this->description = $software->description;
         $this->license_key = $software->license_key;
         $this->expiry_date = $software->expiry_date->format('Y-m-d');
+        $this->quantity = $software->quantity;
         
         $this->showEditModal = true;
     }
@@ -80,7 +83,7 @@ class ManageSoftwares extends Component
     {
         $this->reset([
             'softwareId', 'software_name', 'description', 'license_key', 
-            'expiry_date'
+            'expiry_date', 'quantity'
         ]);
         $this->resetErrorBag();
         $this->viewSoftware = null;
@@ -119,22 +122,36 @@ class ManageSoftwares extends Component
             'quantity' => 'required|integer|min:1',
         ]);
 
-        Software::create([
-            'software_code' => $this->generateSoftwareCode(),
-            'software_name' => $this->software_name,
-            'description' => $this->description,
-            'license_key' => $this->license_key,
-            'expiry_date' => $this->expiry_date,
-            'added_by' => Auth::id(),
-            'quantity' => $this->quantity,
-            'reserved_quantity' => 0,
-            'expiry_flag' => false,
-            'expiry_status' => 'active',
-        ]);
+        $expiryDate = Carbon::parse($this->expiry_date);
+        $isExpired = $expiryDate->isPast();
+        
+        $assignStatus = $isExpired ? 'Unavailable' : 'Available';
+        //$showStatus = !$isExpired;
+        $expiryStatus = $isExpired ? 'expired' : 'active';
+        $expiryFlag = $isExpired;
 
-        $this->successMessage = 'Software created successfully!';
-        $this->closeModals();
-        $this->dispatch('clear-message');
+        try {
+            Software::create([
+                'software_code' => $this->generateSoftwareCode(),
+                'software_name' => $this->software_name,
+                'description' => $this->description,
+                'license_key' => $this->license_key,
+                'expiry_date' => $this->expiry_date,
+                'added_by' => Auth::id(),
+                'quantity' => $this->quantity,
+                'reserved_quantity' => 0,
+                'expiry_flag' => $expiryFlag,
+                'expiry_status' => $expiryStatus,
+                'assign_status' => $assignStatus,
+                //'show_status' => $showStatus,
+            ]);
+
+            $this->successMessage = 'Software created successfully!';
+            $this->closeModals();
+        } catch (\Exception $e) {
+            Log::error('Software creation failed: ' . $e->getMessage());
+            $this->errorMessage = 'Error creating software. Please check database configuration.';
+        }
     }
 
     public function updateSoftware()
@@ -143,21 +160,37 @@ class ManageSoftwares extends Component
             'software_name' => 'required|string|max:100',
             'description' => 'nullable|string',
             'license_key' => 'required|string|max:100',
-            'expiry_date' => 'required|date',            
+            'expiry_date' => 'required|date',
+            'quantity' => 'required|integer|min:1',
         ]);
 
         $software = Software::findOrFail($this->softwareId);
-        $software->update([
-            'software_name' => $this->software_name,
-            'description' => $this->description,
-            'license_key' => $this->license_key,
-            'expiry_date' => $this->expiry_date,
-            
-        ]);
+        
+        $expiryDate = Carbon::parse($this->expiry_date);
+        $isExpired = $expiryDate->isPast();
+        
+        $assignStatus = $isExpired ? 'Unavailable' : 'Available';
+        $expiryStatus = $isExpired ? 'expired' : 'active';
+        $expiryFlag = $isExpired;
 
-        $this->successMessage = 'Software updated successfully!';
-        $this->closeModals();
-        $this->dispatch('clear-message');
+        try {
+            $software->update([
+                'software_name' => $this->software_name,
+                'description' => $this->description,
+                'license_key' => $this->license_key,
+                'expiry_date' => $this->expiry_date,
+                'quantity' => $this->quantity,
+                'expiry_flag' => $expiryFlag,
+                'expiry_status' => $expiryStatus,
+                'assign_status' => $assignStatus,
+            ]);
+
+            $this->successMessage = 'Software updated successfully!';
+            $this->closeModals();
+        } catch (\Exception $e) {
+            Log::error('Software update failed: ' . $e->getMessage());
+            $this->errorMessage = 'Error updating software. Please check database configuration.';
+        }
     }
 
     public function deleteSoftware()
@@ -167,7 +200,6 @@ class ManageSoftwares extends Component
         
         $this->successMessage = 'Software deleted successfully!';
         $this->closeModals();
-        $this->dispatch('clear-message');
     }
 
     public function clearSearch()

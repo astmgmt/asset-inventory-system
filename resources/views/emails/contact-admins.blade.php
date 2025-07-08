@@ -52,16 +52,21 @@
       color: #374151;
       margin-right: 6px;
     }
+    .sender-info {
+      margin-bottom: 20px;
+      font-size: 15px;
+      color: #1a1a1a;
+      line-height: 1.6;
+    }
     .subject-line {
       margin-bottom: 20px;
       font-size: 15px;
       color: #1a1a1a;
     }
     .message-box {
-      background-color: #f3f4f6;
+      background-color: #f2f2f2;
       border-radius: 6px;
       padding: 15px;
-      border-left: 4px solid #374151; /* dark gray */
       color: #1a1a1a;
       white-space: pre-wrap;
       word-wrap: break-word;
@@ -92,6 +97,11 @@
     <img class="logo" src="https://i.imgur.com/HF3xnxw.png" alt="Company Logo" />
     <div class="company-name">Asset Management System</div>
     <div class="title">Contact Message Notification</div>
+    
+    <div class="sender-info">
+      <div><span class="info-label">Name:</span> {{ $senderName }}</div>
+      <div><span class="info-label">From:</span> {{ $senderEmail }}</div>
+    </div>
     
     <div class="content">
       <div class="subject-line">

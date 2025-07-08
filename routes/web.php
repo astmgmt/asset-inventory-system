@@ -27,6 +27,7 @@ use App\Livewire\SuperAdmin\PrintAssets;
 use App\Livewire\SuperAdmin\PrintSoftwares;
 use App\Livewire\SuperAdmin\PrintQRCodes;
 use App\Livewire\SuperAdmin\TrackAssets;
+use App\Livewire\SuperAdmin\ContactUser;
 
 use App\Livewire\User\UserBorrowAsset; 
 use App\Livewire\User\UserBorrowTransactions; 
@@ -57,8 +58,6 @@ use App\Http\Controllers\User\ReturnController;
 Route::get('/', function () {
     return view('auth.login'); 
 });
-
-
 
 
 // GUEST ROUTES
@@ -146,6 +145,10 @@ Route::middleware([
     Route::get('/software/assignment', SoftwareAssignments::class)
         ->name('software.assignment')
         ->middleware('role:Super Admin,Admin');
+
+    Route::get('/contact/user', ContactUser::class)
+        ->name('contact.user')
+        ->middleware('role:Super Admin,Admin');       
 
     Route::get('/track/software', TrackSoftwares::class)
         ->name('track.software')

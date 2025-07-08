@@ -24,6 +24,7 @@ class Software extends Model
         'expiry_status',
         'last_notified_at',
         'show_status',
+        'assign_status',
     ];
 
     protected $casts = [

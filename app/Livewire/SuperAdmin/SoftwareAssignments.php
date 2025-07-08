@@ -214,7 +214,10 @@ class SoftwareAssignments extends Component
                         );
                     }
 
-                    $software->increment('reserved_quantity', $item['quantity']);
+                    // Update reserved quantity and assign status
+                    $software->reserved_quantity += $item['quantity'];
+                    $software->assign_status = 'Assigned'; // Update assign status here
+                    $software->save();
 
                     SoftwareAssignmentItem::create([
                         'assignment_batch_id' => $batch->id,
