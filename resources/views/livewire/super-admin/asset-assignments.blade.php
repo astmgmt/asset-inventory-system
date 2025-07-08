@@ -105,7 +105,7 @@
                 </div>
                 
                 <div class="modal-body">
-                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md shadow-sm mb-6">
+                    <div class="bg-green-50 p-4 rounded-md shadow-sm mb-6">
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 User Email or Username

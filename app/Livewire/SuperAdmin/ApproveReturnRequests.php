@@ -101,7 +101,10 @@ class ApproveReturnRequests extends Component
                     ? $transaction->approvedByUser->name
                     : 'N/A';
 
-                $availableConditionId = AssetCondition::where('condition_name', 'Available')->firstOrFail()->id;
+                $availableCondition = AssetCondition::where('condition_name', 'Available')->first();
+                if (!$availableCondition) {
+                    throw new \Exception("Available condition not found!");
+                }
 
                 $pendingReturnItems = AssetReturnItem::with('borrowItem.asset')
                     ->whereHas('borrowItem', function ($query) use ($transaction) {
@@ -130,8 +133,14 @@ class ApproveReturnRequests extends Component
                     $asset = $borrowItem->asset;
 
                     $borrowItem->update(['status' => 'Returned']);
-                    $asset->increment('quantity', $borrowItem->quantity);
-                    $asset->update(['condition_id' => $availableConditionId]);
+                    
+                    // FIX: Decrement reserved_quantity instead of incrementing quantity
+                    $asset->decrement('reserved_quantity', $borrowItem->quantity);
+                    
+                    // Only update condition if all reserved quantity is returned
+                    if ($asset->reserved_quantity == 0) {
+                        $asset->update(['condition_id' => $availableCondition->id]);
+                    }
                 }
 
                 $allItemsReturned = $transaction->borrowItems->every(function ($item) {

@@ -82,9 +82,7 @@ class ApproveBorrowerRequests extends Component
         $this->selectedTransaction = AssetBorrowTransaction::findOrFail($transactionId);
         $this->denyRemarks = '';
         $this->showDenyModal = true;
-    }
-
-    
+    }    
 
     public function approveRequest()
     {
@@ -124,27 +122,12 @@ class ApproveBorrowerRequests extends Component
                         );
                     }
                     
-                    if ($asset->quantity < $item->quantity) {
-                        throw new \Exception(
-                            "Insufficient quantity for asset: {$asset->name}. " .
-                            "Available: {$asset->quantity}, Requested: {$item->quantity}"
-                        );
-                    }
                 }
-
-                $updatedAssets = [];
 
                 foreach ($transaction->borrowItems as $item) {
                     $asset = $assets[$item->asset_id];
                     
-                    $asset->quantity -= $item->quantity;
-                    $asset->reserved_quantity -= $item->quantity;
-                    
-                    if (!in_array($asset->id, $updatedAssets)) {
-                        $asset->condition_id = $borrowedCondition->id;
-                        $updatedAssets[] = $asset->id;
-                    }
-                    
+                    $asset->condition_id = $borrowedCondition->id;
                     $asset->save();
                 }
 
@@ -185,9 +168,11 @@ class ApproveBorrowerRequests extends Component
             
             try {
                 if ($this->selectedTransaction) {
+                    // Release any partial reservations
                     foreach ($this->selectedTransaction->borrowItems as $item) {
                         $asset = Asset::find($item->asset_id);
                         if ($asset) {
+                            // Only decrement if it was incremented
                             $asset->decrement('reserved_quantity', $item->quantity);
                         }
                     }
