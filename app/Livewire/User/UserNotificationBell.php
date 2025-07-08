@@ -26,7 +26,7 @@ class UserNotificationBell extends Component
 
     public function refreshNotifications()
     {
-        // Get user history notifications
+        // Get user history notifications with 'type' key added
         $this->userHistoryNotifications = UserHistory::where('user_id', Auth::id())
             ->whereNull('read_at')
             ->where(function ($query) {
@@ -37,6 +37,11 @@ class UserNotificationBell extends Component
             })
             ->orderBy('action_date', 'desc')
             ->get()
+            ->map(function ($item) {
+                $notification = $item->toArray();
+                $notification['type'] = 'history';  // Add type key
+                return $notification;
+            })
             ->toArray();
 
         // Get email notifications
@@ -54,6 +59,7 @@ class UserNotificationBell extends Component
 
         $this->count = count($this->userHistoryNotifications) + count($this->emailNotifications);
     }
+
 
     public function markAsRead($id, $type = 'history')
     {
@@ -92,10 +98,16 @@ class UserNotificationBell extends Component
 
     public function getRoute($notification)
     {
+        // First check if 'type' exists in the notification array
+        if (!isset($notification['type'])) {
+            return '#';  // Safe fallback
+        }
+
         if ($notification['type'] === 'email') {
             return $this->getEmailProviderUrl($this->userEmail);
         }
         
+        // Handle history notifications
         switch($notification['status']) {
             case 'Borrow Approved':
             case 'Return Denied':

@@ -63,7 +63,7 @@
                 href="{{ $this->getRoute($notification) }}" 
                 x-on:click.prevent="
                     open = false;
-                    $wire.markAsRead('{{ $notification['id'] }}').then((id) => {
+                    $wire.markAsRead('{{ $notification['id'] }}', 'history').then((id) => {
                         window.location = '{{ $this->getRoute($notification) }}';
                     });
                 "
