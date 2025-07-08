@@ -28,6 +28,7 @@ use App\Livewire\SuperAdmin\PrintSoftwares;
 use App\Livewire\SuperAdmin\PrintQRCodes;
 use App\Livewire\SuperAdmin\TrackAssets;
 use App\Livewire\SuperAdmin\ContactUser;
+use App\Livewire\SuperAdmin\AdminReturnAssets;
 
 use App\Livewire\User\UserBorrowAsset; 
 use App\Livewire\User\UserBorrowTransactions; 
@@ -179,27 +180,29 @@ Route::middleware([
         ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
         
     Route::get('/asset/disposal', AssetDisposals::class)
-            ->name('asset.disposal')
-            ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
+        ->name('asset.disposal')
+        ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
 
     Route::get('/print/assets', PrintAssets::class)
-            ->name('print.assets')
-            ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
+        ->name('print.assets')
+        ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
 
     Route::get('/print/softwares', PrintSoftwares::class)
-            ->name('print.softwares')
-            ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
+        ->name('print.softwares')
+        ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
 
     Route::get('/print/qrcodes',PrintQRCodes::class)
-            ->name('print.qrcodes')
-            ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
+        ->name('print.qrcodes')
+        ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
 
     Route::get('/track/assets',TrackAssets::class)
-            ->name('track.assets')
-            ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
-            
+        ->name('track.assets')
+        ->middleware('role:Super Admin,Admin'); // ADMIN AND SUPER ADMIN ACCESS ONLY
+    
+    Route::get('/admin/return/assets', AdminReturnAssets::class)
+        ->name('admin.return.assets')
+        ->middleware('role:Super Admin,Admin');
 
-    // GENERATE PRINTABLE QRCODE IN PDF
     // Single asset PDF
     Route::get('assets/{id}/pdf', [AssetPdfController::class, 'generate'])
         ->name('assets.pdf')

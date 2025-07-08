@@ -103,6 +103,9 @@
                         <a href="{{ route('print.qrcodes') }}"><i class="fas fa-qrcode"></i> QRCodes</a>
                     </div>
 
+                    <!-- My Account -->
+                    <a href="{{ route('admin.return.assets') }}"><i class="fas fa-exchange-alt"></i> My Transactions</a>                   
+
                     <!-- Contact User -->
                     <a href="{{ route('contact.user') }}"><i class="fas fa-envelope"></i> Send Email</a>
 
@@ -146,6 +149,9 @@
                         <a href="{{ route('print.softwares') }}"><i class="fas fa-file-code"></i> Software Master List</a>
                         <a href="{{ route('print.qrcodes') }}"><i class="fas fa-qrcode"></i> QRCodes</a>
                     </div>
+
+                    <!-- My Account -->
+                    <a href="{{ route('admin.return.assets') }}"><i class="fas fa-exchange-alt"></i> My Transactions</a>                   
 
                     <!-- Contact User -->
                     <a href="{{ route('contact.user') }}"><i class="fas fa-envelope"></i> Send Email</a>
