@@ -152,8 +152,7 @@ Route::middleware([
 
     Route::get('/track/software', TrackSoftwares::class)
         ->name('track.software')
-        ->middleware('role:Super Admin,Admin');       
-        
+        ->middleware('role:Super Admin,Admin');               
 
     Route::get('/software/assignment/pdf/{id}', [SoftwareAssignmentPDFController::class, 'generatePDF'])
         ->name('software.assignment.pdf')
