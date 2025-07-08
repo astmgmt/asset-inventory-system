@@ -30,14 +30,41 @@
         x-cloak
         wire:loading.class="opacity-50"
     >
-        
-        @forelse($notifications as $notification)
+        <!-- Email Notifications -->
+        @foreach($emailNotifications as $notification)
             <a 
-                href="{{ $this->getRoute($notification['status']) }}" 
+                href="{{ $this->getRoute($notification) }}" 
+                target="_blank"
+                x-on:click.prevent="
+                    open = false;
+                    $wire.markAsRead('{{ $notification['id'] }}', 'email').then(() => {
+                        window.open('{{ $this->getEmailProviderUrl($userEmail) }}', '_blank');
+                    });
+                "
+                class="block px-4 py-3 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700"
+            >
+                <div class="flex justify-between">
+                    <span class="font-semibold">
+                        New Email Notification
+                    </span>
+                    <span class="text-xs text-gray-500">
+                        {{ \Carbon\Carbon::parse($notification['created_at'])->diffForHumans() }}
+                    </span>
+                </div>
+                <p class="text-sm mt-1 truncate">
+                    {{ $notification['message'] }}
+                </p>
+            </a>
+        @endforeach
+        
+        <!-- User History Notifications -->
+        @foreach($userHistoryNotifications as $notification)
+            <a 
+                href="{{ $this->getRoute($notification) }}" 
                 x-on:click.prevent="
                     open = false;
                     $wire.markAsRead('{{ $notification['id'] }}').then((id) => {
-                        window.location = '{{ $this->getRoute($notification['status']) }}';
+                        window.location = '{{ $this->getRoute($notification) }}';
                     });
                 "
                 class="block px-4 py-3 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700"
@@ -70,12 +97,13 @@
                     @endif
                 </p>
             </a>
-        @empty
+        @endforeach
+
+        @if($count === 0)
             <div class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">
                 No new notifications
             </div>
-        @endforelse
-
+        @endif
 
         @if($count > 0)
             <button 

@@ -41,13 +41,26 @@ class AdminNotificationBell extends Component
             ? User::where('status', 'Pending')->count()
             : 0;
             
-        $this->emailCount = auth()->user()->unreadEmailNotifications()->count();
+        $user = auth()->user();
+        $this->emailCount = $user->unreadEmailNotifications()->count();
+        
+        if ($this->isSuperAdmin) {
+            $this->emailCount += $user->unreadSuperAdminNotifications()->count();
+        }
     }
 
     public function markEmailNotificationsAsRead()
     {
-        auth()->user()->unreadEmailNotifications()
+        $user = auth()->user();
+        
+        $user->unreadEmailNotifications()
             ->update(['user_notifications.is_read' => true]);
+        
+        if ($this->isSuperAdmin) {
+            $user->unreadSuperAdminNotifications()
+                ->update(['user_notifications.is_read' => true]);
+        }
+        
         $this->emailCount = 0;
         $this->dispatch('refreshNotifications');
     }

@@ -7,6 +7,9 @@ use App\Models\User;
 use App\Services\SendEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Models\Notification;
+use App\Models\NotificationType;
+use Illuminate\Support\Str;
 
 class ContactUser extends Component
 {
@@ -80,7 +83,6 @@ class ContactUser extends Component
 
         try {
             $sender = Auth::user();
-            
             $emailContent = [
                 'emails.contact-user',
                 [
@@ -94,7 +96,14 @@ class ContactUser extends Component
             $emailService = new SendEmail();
             $failedRecipients = [];
             
+            $notificationTypes = [
+                'admin' => NotificationType::firstWhere('type_name', 'email_notification'),
+                'super_admin' => NotificationType::firstWhere('type_name', 'super_admin_email_notification'),
+                'user' => NotificationType::firstWhere('type_name', 'user_email_notification'),
+            ];
+            
             foreach ($this->recipients as $recipientEmail) {
+                $user = User::where('email', $recipientEmail)->first();
                 $sent = $emailService->send(
                     $recipientEmail,
                     $this->subject,
@@ -108,6 +117,25 @@ class ContactUser extends Component
                 if (!$sent) {
                     $failedRecipients[] = $recipientEmail;
                     Log::error("Failed to send email to: {$recipientEmail}");
+                } elseif ($user) {
+                    // Determine notification type based on recipient role
+                    $type = $user->isSuperAdmin() 
+                        ? $notificationTypes['super_admin'] 
+                        : ($user->isAdmin() 
+                            ? $notificationTypes['admin'] 
+                            : $notificationTypes['user']);
+                    
+                    if ($type) {
+                        $notification = Notification::create([
+                            'type_id' => $type->id,
+                            'message' => "New message: " . Str::limit($this->subject, 50),
+                        ]);
+
+                        $user->notifications()->attach($notification->id, [
+                            'is_read' => false,
+                            'notified_at' => now()
+                        ]);
+                    }
                 }
             }
 

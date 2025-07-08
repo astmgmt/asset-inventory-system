@@ -42,7 +42,11 @@
                     </span>
                 </a>
                 <div class="text-xs text-gray-500 px-4 pb-2">
-                    Click to open your email in a new tab
+                    @if($isSuperAdmin)
+                        View admin emails
+                    @else
+                        View emails in your inbox
+                    @endif
                 </div>
             </div>
         @endif

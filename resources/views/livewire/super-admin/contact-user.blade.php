@@ -1,6 +1,6 @@
 <div>
     <div class="mb-6">
-        <h5 class="text-xl font-bold text-gray-800 mb-2">Contact Users</h5>
+        <h5 class="text-lg font-bold text-gray-800 mb-2">Contact Users</h5>
         <p class="text-gray-600 mb-4">Send email to users or administrators</p>
     </div>
 
@@ -130,7 +130,7 @@
             </div>
 
             <!-- Submit Button -->
-            <div class="flex justify-end mt-8">
+            <div class="flex justify-end mt-4">
                 <button 
                     type="submit" 
                     wire:loading.attr="disabled" wire:target="submit"

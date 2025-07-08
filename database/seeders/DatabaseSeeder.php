@@ -17,13 +17,14 @@ class DatabaseSeeder extends Seeder
         ]);
         
         $notificationTypes = [
+            'user_email_notification' => 'User email notifications',
             'email_notification' => 'Regular email notifications for all admins',
             'super_admin_email_notification' => 'Special notifications only for Super Admins',
             'borrow_request' => 'Asset borrow requests',
             'return_request' => 'Asset return requests',
-            'user_approval' => 'Pending user approvals'
+            'user_approval' => 'Pending user approvals',            
         ];
-        
+       
         foreach ($notificationTypes as $type => $description) {
             NotificationType::firstOrCreate([
                 'type_name' => $type

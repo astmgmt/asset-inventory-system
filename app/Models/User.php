@@ -12,6 +12,7 @@ use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Role;
 use App\Models\Software;
+use App\Models\Notification;
 
 class User extends Authenticatable
 {
@@ -123,7 +124,7 @@ class User extends Authenticatable
 
     public function notifications()
     {
-        return $this->belongsToMany(\App\Models\Notification::class, 'user_notifications')
+        return $this->belongsToMany(Notification::class, 'user_notifications')
             ->withPivot(['is_read', 'notified_at'])
             ->withTimestamps();
     }
@@ -143,5 +144,13 @@ class User extends Authenticatable
                 $q->where('type_name', 'super_admin_email_notification');
             })
             ->wherePivot('is_read', false);
+    }
+    public function unreadUserEmailNotifications()
+    {
+        return $this->notifications()
+            ->wherePivot('is_read', false)
+            ->whereHas('type', function($q) {
+                $q->where('type_name', 'user_email_notification');
+            });
     }
 }
