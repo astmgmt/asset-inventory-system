@@ -337,13 +337,14 @@
 
                 <button 
                     wire:click="deleteHistory" 
-                    wire:loading.attr="disabled"
+                    wire:loading.attr="disabled" wire:target="deleteHistory"
                     class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-6 rounded text-sm transition duration-150 ease-in-out"
                 >
                     <i class="fas fa-trash-alt mr-2"></i> 
-                    <span wire:loading.remove>Delete Record</span>
-                    <span wire:loading>Deleting...</span>
+                    <span wire:loading.remove wire:target="deleteHistory">Delete Record</span>
+                    <span wire:loading wire:target="deleteHistory">Deleting...</span>
                 </button>
+
             </div>
         </div>
     </div>

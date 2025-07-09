@@ -28,12 +28,15 @@ class SoftwareAssignments extends Component
     public $userIdentifier = '';
     public $isProcessing = false;
     public $generatedAssignmentNo = null;
+    public $userSearchResults = [];
 
     public function updatedShowCartModal($value)
     {
         if ($value) {
             $this->selectedForAssignment = array_keys($this->selectedSoftware);
             $this->errorMessage = '';
+        } else {
+            $this->userSearchResults = [];
         }
     }
 
@@ -85,6 +88,31 @@ class SoftwareAssignments extends Component
         }
     }
 
+    public function updatedUserIdentifier($value)
+    {
+        if (strlen($value) < 2) {
+            $this->userSearchResults = [];
+            return;
+        }
+
+        $this->userSearchResults = User::query()
+            ->where('email', 'like', '%'.$value.'%')
+            ->orWhere('name', 'like', '%'.$value.'%')
+            ->limit(5)
+            ->get()
+            ->toArray();
+    }
+
+    public function selectUser($userId)
+    {
+        $user = User::find($userId);
+        if ($user) {
+            $this->userIdentifier = $user->email;
+            $this->userSearchResults = [];
+        }
+    }
+
+
     public function updateCartQuantity($softwareId, $newQuantity)
     {
         $newQuantity = (int)$newQuantity;
@@ -124,6 +152,12 @@ class SoftwareAssignments extends Component
         $this->selectedForAssignment = [];
         $this->userIdentifier = '';
         $this->generatedAssignmentNo = null;
+    }
+
+    public function clearUserSearch()
+    {
+        $this->userIdentifier = '';
+        $this->userSearchResults = [];
     }
 
     public function clearSearch()

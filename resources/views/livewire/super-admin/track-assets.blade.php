@@ -24,10 +24,10 @@
             <thead>
                 <tr>
                     <th>Asset Code</th>
-                    <th>Asset Name</th>
+                    <th>Brand</th>
                     <th>Model</th>
                     <th>Description</th>
-                    <th>Serial</th>
+                    <th>Serial #</th>
                     <th>Condition</th>
                     <th>Expiry Date</th>
                     <th>Actions</th>
@@ -61,7 +61,7 @@
                         <td data-label="Expiry Date">
                             {{ $asset->warranty_expiration->format('M d, Y') }}
                             @if($asset->expiry_status !== 'active')
-                                <span class="badge badge-warning ml-2">
+                                <span class="bg-yellow-100 text-yellow-700 px-2 py-1 text-xs font-semibold rounded-full shadow-sm ml-2">
                                     {{ str_replace('_', ' ', $asset->expiry_status) }}
                                 </span>
                             @endif

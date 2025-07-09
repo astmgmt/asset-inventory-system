@@ -182,9 +182,16 @@
                     </button>
                     <button 
                         wire:click="cancelRequest" 
+                        wire:loading.attr="disabled" wire:target="cancelRequest"
+                        wire:loading.class="opacity-50 cursor-not-allowed" wire:target="cancelRequest"
                         class="btn btn-danger ml-4"
                     >
-                        Yes, Cancel Request
+                        <span wire:loading.class.add="hidden" wire:target="cancelRequest">
+                            Yes, Cancel Request
+                        </span>
+                        <span wire:loading.class.remove="hidden" wire:target="cancelRequest" class="hidden flex items-center">
+                            <i class="fas fa-spinner fa-spin mr-2"></i> Processing...
+                        </span>
                     </button>
                 </div>
             </div>

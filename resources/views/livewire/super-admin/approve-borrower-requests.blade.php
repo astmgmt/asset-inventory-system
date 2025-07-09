@@ -248,17 +248,18 @@
 
                 <button 
                     wire:click="approveRequest" 
-                    wire:loading.attr="disabled"
-                    wire:loading.class="opacity-50 cursor-not-allowed"
+                    wire:loading.attr="disabled" wire:target="approveRequest"
+                    wire:loading.class="opacity-50 cursor-not-allowed" wire:target="approveRequest"
                     class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-medium py-1.5 px-4 rounded text-sm transition duration-150 ease-in-out"
                 >
-                    <span wire:loading.class.add="hidden">
+                    <span wire:loading.class.add="hidden" wire:target="approveRequest">
                         <i class="fas fa-check mr-2"></i> Confirm
                     </span>
-                    <span wire:loading.class.remove="hidden" class="hidden flex items-center">
+                    <span wire:loading.class.remove="hidden" wire:target="approveRequest" class="hidden flex items-center">
                         <i class="fas fa-spinner fa-spin mr-2"></i> Processing...
                     </span>
                 </button>
+
             </div>
         </div>
     </div>
@@ -324,11 +325,18 @@
 
                 <button 
                     wire:click="denyRequest" 
-                    :disabled="!$wire.denyRemarks"
-                    class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-4 rounded text-sm transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                    wire:loading.attr="disabled" wire:target="denyRequest"
+                    wire:loading.class="opacity-50 cursor-not-allowed" wire:target="denyRequest"
+                    class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-4 rounded text-sm transition duration-150 ease-in-out"
                 >
-                    <i class="fas fa-ban mr-2"></i> Reject
+                    <span wire:loading.class.add="hidden" wire:target="denyRequest">
+                        <i class="fas fa-ban mr-2"></i> Reject
+                    </span>
+                    <span wire:loading.class.remove="hidden" wire:target="denyRequest" class="hidden flex items-center">
+                        <i class="fas fa-spinner fa-spin mr-2"></i> Processing...
+                    </span>
                 </button>
+
             </div>
 
         </div>

@@ -60,15 +60,32 @@
                                     {{ $transaction->borrow_code }}
                                 </button>
                             </td>
+
                             <td data-label="Status" class="text-center">
-                                @if($transaction->status === 'Borrowed')
-                                    <span class="status-badge borrowed">Borrowed</span>
-                                @elseif($transaction->status === 'PendingReturnApproval')
-                                    <span class="status-badge pending">Pending</span>
-                                @elseif($transaction->status === 'ReturnRejected')
-                                    <span class="status-badge rejected">Rejected</span>
-                                @endif
+                                @php
+                                    $status = $transaction->status;
+
+                                    $statusClass = match($status) {
+                                        'Borrowed' => 'bg-indigo-100 text-indigo-800',
+                                        'PendingReturnApproval' => 'bg-yellow-100 text-yellow-800',
+                                        'ReturnRejected' => 'bg-red-100 text-red-800',
+                                        default => 'bg-gray-100 text-gray-800',
+                                    };
+
+                                    // Display label override for some statuses
+                                    $displayStatus = match($status) {
+                                        'PendingReturnApproval' => 'Pending',
+                                        'ReturnRejected' => 'Rejected',
+                                        default => $status,
+                                    };
+                                @endphp
+
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold w-[100px] justify-center {{ $statusClass }}">
+                                    {{ $displayStatus }}
+                                </span>
                             </td>
+
+
                             <td data-label="Borrowed At" class="text-center">
                                 {{ $transaction->borrowed_at?->format('M d, Y') ?? '-' }}
                             </td>

@@ -56,7 +56,7 @@
             <thead>
                 <tr>
                     <th>Code</th>
-                    <th>Name</th>
+                    <th>Brand</th>
                     <th>Model</th>
                     <th>Available</th>
                     <th>Condition</th>
@@ -137,7 +137,18 @@
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     x-on:focus="showSuggestions = true"
                                     x-on:blur="setTimeout(() => showSuggestions = false, 200)"
-                                />                                
+                                />
+                                
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <button 
+                                        x-show="$wire.userIdentifier" 
+                                        wire:click="clearUserSearch"
+                                        type="button"
+                                        class="text-gray-400 hover:text-gray-600 focus:outline-none"
+                                    >
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
                                 
                                 <div x-show="showSuggestions && $wire.userSearchResults.length > 0" 
                                     x-transition:enter="transition ease-out duration-200"
@@ -156,6 +167,7 @@
                                     </ul>
                                 </div>
                                 
+                                <!-- No results message -->
                                 <div x-show="showSuggestions && $wire.userIdentifier.length >= 2 && $wire.userSearchResults.length === 0" 
                                     class="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-300 px-4 py-2 text-gray-500">
                                     No matching users found
@@ -249,24 +261,22 @@
 
                     <button 
                         wire:click="assign" 
-                        wire:loading.attr="disabled"
-                        wire:loading.class="opacity-50 cursor-not-allowed"
+                        wire:loading.attr="disabled" wire:target="assign"
+                        wire:loading.class="opacity-50 cursor-not-allowed" wire:target="assign"
                         class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition"
                         type="button"
                     >
-                        <span wire:loading.class.add="hidden" class="flex items-center">
+                        <span wire:loading.class.add="hidden" wire:target="assign" class="flex items-center">
                             <i class="fas fa-paper-plane mr-2"></i>
                             Assign Assets
                         </span>
-                        <span wire:loading.class.remove="hidden" class="hidden flex items-center">
+                        <span wire:loading.class.remove="hidden" wire:target="assign" class="hidden flex items-center">
                             <i class="fas fa-spinner fa-spin mr-2"></i>
                             Processing...
                         </span>
                     </button>
 
-
                 </div>
-
             </div>
         </div>
     @endif

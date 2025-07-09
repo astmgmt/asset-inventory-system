@@ -152,6 +152,12 @@ class AssetAssignments extends Component
         }
     }
 
+    public function clearUserSearch()
+    {
+        $this->userIdentifier = '';
+        $this->userSearchResults = [];
+    }
+
     public function clearCart()
     {
         $this->selectedAssets = [];

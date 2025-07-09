@@ -113,8 +113,8 @@
 
                     <div class="asset-details p-4 rounded-lg border">
                         <h3 class="text-sm font-medium mb-1">Status</h3>
-                        <span class="inline-block px-3 py-1 text-xs font-semibold rounded bg-yellow-100 text-yellow-800
-                            {{ strtolower($selectedBatch->status) === 'active' ? 'bg-green-500' : 'bg-gray-400' }}">
+                        <span class="inline-block px-3 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800
+                            {{ strtolower($selectedBatch->status) === 'active' ? 'bg-green-500' : 'bg-blue-100' }}">
                             {{ $selectedBatch->status }}
                         </span>
                     </div>
@@ -138,10 +138,10 @@
                         <thead class="bg-gray-100 text-gray-700 font-semibold">
                             <tr>
                                 <th class="px-4 py-2 border">Software Code</th>
-                                <th class="px-4 py-2 border">Software Name</th>
+                                <th class="px-4 py-2 border">Software</th>
                                 <th class="px-4 py-2 border">License Key</th>
-                                <th class="px-4 py-2 border text-center">Quantity</th>
-                                <th class="px-4 py-2 border text-center">Status</th>
+                                <th class="px-4 py-2 border text-center">Qty</th>
+                                <th class="px-4 py-2 border text-center">Expiration</th>                                
                             </tr>
                         </thead>
                         <tbody>
@@ -151,12 +151,10 @@
                                     <td class="px-4 py-2 border">{{ $item->software->software_name ?? 'N/A (Deleted)' }}</td>
                                     <td class="px-4 py-2 border">{{ $item->software->license_key ?? 'N/A' }}</td>
                                     <td class="px-4 py-2 border text-center">{{ $item->quantity }}</td>
-                                    <td class="px-4 py-2 border text-center">
-                                        <span class="inline-block px-2 py-1 text-xs font-medium rounded
-                                            {{ strtolower($item->status) === 'active' ? 'bg-green-400 text-white' : 'bg-gray-300 text-gray-700' }}">
-                                            {{ $item->status }}
-                                        </span>
+                                    <td class="px-4 py-2 border">
+                                        {{ $item->software->expiry_date ? \Carbon\Carbon::parse($item->software->expiry_date)->format('F d, Y') : 'N/A' }}
                                     </td>
+                                    
                                 </tr>
                             @endforeach
                         </tbody>
