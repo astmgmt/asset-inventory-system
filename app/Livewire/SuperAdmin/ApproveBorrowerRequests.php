@@ -168,11 +168,9 @@ class ApproveBorrowerRequests extends Component
             
             try {
                 if ($this->selectedTransaction) {
-                    // Release any partial reservations
                     foreach ($this->selectedTransaction->borrowItems as $item) {
                         $asset = Asset::find($item->asset_id);
                         if ($asset) {
-                            // Only decrement if it was incremented
                             $asset->decrement('reserved_quantity', $item->quantity);
                         }
                     }

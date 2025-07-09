@@ -147,9 +147,9 @@
                         <tbody>
                             @foreach($selectedBatch->assignmentItems as $item)
                                 <tr>
-                                    <td class="px-4 py-2 border">{{ $item->software->software_code }}</td>
-                                    <td class="px-4 py-2 border">{{ $item->software->software_name }}</td>
-                                    <td class="px-4 py-2 border">{{ $item->software->license_key }}</td>
+                                    <td class="px-4 py-2 border">{{ $item->software->software_code ?? 'N/A (Deleted)' }}</td>
+                                    <td class="px-4 py-2 border">{{ $item->software->software_name ?? 'N/A (Deleted)' }}</td>
+                                    <td class="px-4 py-2 border">{{ $item->software->license_key ?? 'N/A' }}</td>
                                     <td class="px-4 py-2 border text-center">{{ $item->quantity }}</td>
                                     <td class="px-4 py-2 border text-center">
                                         <span class="inline-block px-2 py-1 text-xs font-medium rounded

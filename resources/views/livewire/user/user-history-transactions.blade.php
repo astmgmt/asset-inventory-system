@@ -53,16 +53,17 @@
             <tbody>
                 @forelse($history as $record)
 
-                    @if(Str::startsWith($record->return_code ?? '', 'HIDDEN'))
-                        @continue
-                    @endif
+                    @php
+                        if (Str::startsWith($record->return_code ?? '', 'HIDDEN')) {
+                            $record->return_code = 'N/A';
+                        }
+                    @endphp
                     
                     <tr>
                         <td data-label="Borrow Code" class="text-center">
                             {{ $record->borrow_code ?? 'N/A' }}
                         </td>
-                        <td data-label="Return Code" class="text-center">
-                            
+                        <td data-label="Return Code" class="text-center">                            
                             @if($record->status === 'Return Denied')
                                 N/A
                             @else

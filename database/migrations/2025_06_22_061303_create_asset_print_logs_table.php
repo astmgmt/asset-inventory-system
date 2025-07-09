@@ -15,7 +15,7 @@ return new class extends Migration
             $table->date('date_from')->nullable();
             $table->date('date_to')->nullable();
             $table->unsignedBigInteger('user_id');
-            $table->json('asset_snapshot_data'); // stores array of asset details
+            $table->json('asset_snapshot_data'); 
             $table->timestamps();
         });
     }

@@ -74,7 +74,6 @@ class PrintQRCodes extends Component
         string $locationName,
         ?string $description
     ): string {
-        // Create a structured data format
         $qrData = implode("\n", [
             "Asset Code: $assetCode",
             "Name: $name",

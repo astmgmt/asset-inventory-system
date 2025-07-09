@@ -49,7 +49,18 @@
             </thead>
             <tbody>
                 @forelse($history as $record)
-                    @if(Str::startsWith($record->return_code ?? '', 'HIDDEN'))
+                    @php                        
+                        $showRecord = match(true) {
+                            ($record->return_code === null && $record->status === "Borrow Approved") => true,
+                            ($record->return_code !== null && $record->status === "Borrow Approved") => false,
+                            ($record->return_code === null && $record->status === "Borrow Denied") => true,
+                            ($record->return_code !== null && $record->status === "Return Approved") => true,
+                            ($record->return_code === null && $record->status === "Return Denied") => true,
+                            default => true 
+                        };
+                    @endphp
+
+                    @if(!$showRecord)
                         @continue
                     @endif
                     
@@ -74,7 +85,7 @@
                                 {{ $record->status }}
                             </span>
                         </td>
-                        
+
                         <td data-label="Remarks" class="text-center">
                             <div class="remarks-container">
                                 @php

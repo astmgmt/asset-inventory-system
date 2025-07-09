@@ -94,7 +94,17 @@
                                 <button wire:click="openEditModal({{ $asset->id }})" class="text-yellow-500 hover:text-yellow-600 p-1" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button wire:click="confirmDelete({{ $asset->id }})" class="text-red-600 hover:text-red-800 p-1" title="Delete">
+
+                                @php
+                                    $isBorrowed = $conditionName === 'borrowed';
+                                @endphp
+
+                                <button 
+                                    @if($isBorrowed) disabled @endif
+                                    @if(!$isBorrowed) wire:click="confirmDelete({{ $asset->id }})" @endif
+                                    class="{{ $isBorrowed ? 'text-gray-400 cursor-not-allowed' : 'text-red-600 hover:text-red-800' }} p-1"
+                                    title="{{ $isBorrowed ? 'Cannot delete borrowed asset' : 'Delete' }}"
+                                >
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>

@@ -124,16 +124,43 @@
                 
                 <div class="modal-body">
                     <div class="bg-green-50 p-4 rounded-md shadow-sm mb-6">
-                        <div class="mb-4">
+                        
+                        <div class="mb-4" x-data="{ showSuggestions: false }">
                             <label class="block text-sm font-medium text-gray-700 mb-1">
-                                User Email or Username
+                                User or Administrator Name
                             </label>
-                            <input 
-                                type="text" 
-                                wire:model="userIdentifier"
-                                placeholder="Enter user's email or username"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            >
+                            <div class="relative">
+                                <input 
+                                    type="text" 
+                                    wire:model.live.debounce.300ms="userIdentifier"
+                                    placeholder="Enter user's email or username"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    x-on:focus="showSuggestions = true"
+                                    x-on:blur="setTimeout(() => showSuggestions = false, 200)"
+                                />                                
+                                
+                                <div x-show="showSuggestions && $wire.userSearchResults.length > 0" 
+                                    x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    class="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-300 max-h-60 overflow-auto">
+                                    <ul>
+                                        @foreach($userSearchResults as $user)
+                                            <li wire:click="selectUser({{ $user['id'] }})" 
+                                                @click="showSuggestions = false"
+                                                class="px-4 py-2 hover:bg-blue-100 cursor-pointer">
+                                                <div class="font-medium">{{ $user['name'] }}</div>
+                                                <div class="text-sm text-gray-600">{{ $user['email'] }}</div>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                                
+                                <div x-show="showSuggestions && $wire.userIdentifier.length >= 2 && $wire.userSearchResults.length === 0" 
+                                    class="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-300 px-4 py-2 text-gray-500">
+                                    No matching users found
+                                </div>
+                            </div>
                         </div>
 
                         @if(count($selectedAssets))

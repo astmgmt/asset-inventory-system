@@ -96,7 +96,6 @@ class ApproveReturnRequests extends Component
 
         try {
             DB::transaction(function () use (&$pendingReturnItems, $returnReceivedBy, $returnCode, $transaction) {
-                // Get the borrow approver's name
                 $borrowApprovedBy = $transaction->approvedByUser
                     ? $transaction->approvedByUser->name
                     : 'N/A';
@@ -117,7 +116,6 @@ class ApproveReturnRequests extends Component
                     throw new \Exception('No pending return requests found for approval.');
                 }
 
-                // Update return items status
                 foreach ($pendingReturnItems as $returnItem) {
                     $returnItem->update([
                         'return_code' => $returnCode,
@@ -127,17 +125,14 @@ class ApproveReturnRequests extends Component
                     ]);
                 }
 
-                // Process each returned item
                 foreach ($pendingReturnItems as $returnItem) {
                     $borrowItem = $returnItem->borrowItem;
                     $asset = $borrowItem->asset;
 
                     $borrowItem->update(['status' => 'Returned']);
                     
-                    // FIX: Decrement reserved_quantity instead of incrementing quantity
                     $asset->decrement('reserved_quantity', $borrowItem->quantity);
                     
-                    // Only update condition if all reserved quantity is returned
                     if ($asset->reserved_quantity == 0) {
                         $asset->update(['condition_id' => $availableCondition->id]);
                     }
@@ -235,7 +230,7 @@ class ApproveReturnRequests extends Component
                 }
 
                 $transaction->update([
-                    'return_remarks' => $rejectRemarks, // This populates the field
+                    'return_remarks' => $rejectRemarks, 
                     'status' => 'ReturnRejected',
                 ]);
 

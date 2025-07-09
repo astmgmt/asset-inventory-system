@@ -12,8 +12,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
-            $table->string('activity_name'); // login, logout, borrow, return
-            $table->string('status')->nullable(); // active, inactive
+            $table->string('activity_name'); 
+            $table->string('status')->nullable(); 
             $table->text('description')->nullable();
             $table->text('remarks')->nullable(); 
 

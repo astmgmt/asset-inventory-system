@@ -37,9 +37,7 @@ class AppServiceProvider extends ServiceProvider
 
     }
 
-    /**
-     * Bootstrap any application services.
-     */
+    
     public function boot(): void
     {
         //ADDED FOR CUSTOM LAYOUT DESIGN OF ROLE DASHBOARDS

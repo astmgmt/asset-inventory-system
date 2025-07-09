@@ -126,7 +126,6 @@ class ManageSoftwares extends Component
         $isExpired = $expiryDate->isPast();
         
         $assignStatus = $isExpired ? 'Unavailable' : 'Available';
-        //$showStatus = !$isExpired;
         $expiryStatus = $isExpired ? 'expired' : 'active';
         $expiryFlag = $isExpired;
 
@@ -143,7 +142,6 @@ class ManageSoftwares extends Component
                 'expiry_flag' => $expiryFlag,
                 'expiry_status' => $expiryStatus,
                 'assign_status' => $assignStatus,
-                //'show_status' => $showStatus,
             ]);
 
             $this->successMessage = 'Software created successfully!';
@@ -171,7 +169,8 @@ class ManageSoftwares extends Component
         
         $assignStatus = $isExpired ? 'Unavailable' : 'Available';
         $expiryStatus = $isExpired ? 'expired' : 'active';
-        $expiryFlag = $isExpired;
+        $expiryFlag = $isExpired ? 1 : 0; 
+        $showStatus = $isExpired ? 0 : 1; 
 
         try {
             $software->update([
@@ -183,6 +182,7 @@ class ManageSoftwares extends Component
                 'expiry_flag' => $expiryFlag,
                 'expiry_status' => $expiryStatus,
                 'assign_status' => $assignStatus,
+                'show_status' => $showStatus, 
             ]);
 
             $this->successMessage = 'Software updated successfully!';

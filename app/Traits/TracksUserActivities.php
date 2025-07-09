@@ -60,10 +60,10 @@ trait TracksUserActivities
                     $email,
                     'Security Alert: ' . $activity->activity_name,
                     $content,
-                    [], // CC
-                    null, // Attachment content
-                    null, // Attachment name
-                    false // Not raw HTML (using view)
+                    [], 
+                    null, 
+                    null, 
+                    false 
                 );
             }
             

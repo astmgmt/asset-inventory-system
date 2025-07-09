@@ -26,7 +26,6 @@ class UserNotificationBell extends Component
 
     public function refreshNotifications()
     {
-        // Get user history notifications with 'type' key added
         $this->userHistoryNotifications = UserHistory::where('user_id', Auth::id())
             ->whereNull('read_at')
             ->where(function ($query) {
@@ -39,12 +38,11 @@ class UserNotificationBell extends Component
             ->get()
             ->map(function ($item) {
                 $notification = $item->toArray();
-                $notification['type'] = 'history';  // Add type key
+                $notification['type'] = 'history';  
                 return $notification;
             })
             ->toArray();
 
-        // Get email notifications
         $this->emailNotifications = Auth::user()->unreadUserEmailNotifications()
             ->get()
             ->map(function ($notification) {
@@ -71,7 +69,6 @@ class UserNotificationBell extends Component
                 $notification->update(['read_at' => now()]);
             }
         } else {
-            // Mark email notification as read
             Auth::user()->notifications()->updateExistingPivot($id, ['is_read' => true]);
         }
         
@@ -84,12 +81,10 @@ class UserNotificationBell extends Component
     {
         $this->isMarkingRead = true;
         
-        // Mark all user history notifications
         UserHistory::where('user_id', Auth::id())
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
             
-        // Mark all email notifications as read
         Auth::user()->unreadUserEmailNotifications()->update(['user_notifications.is_read' => true]);
             
         $this->refreshNotifications();
@@ -98,16 +93,14 @@ class UserNotificationBell extends Component
 
     public function getRoute($notification)
     {
-        // First check if 'type' exists in the notification array
         if (!isset($notification['type'])) {
-            return '#';  // Safe fallback
+            return '#';  
         }
 
         if ($notification['type'] === 'email') {
             return $this->getEmailProviderUrl($this->userEmail);
         }
         
-        // Handle history notifications
         switch($notification['status']) {
             case 'Borrow Approved':
             case 'Return Denied':

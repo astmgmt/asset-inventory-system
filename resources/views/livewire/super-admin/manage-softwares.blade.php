@@ -62,7 +62,22 @@
                         <td data-label="Name" class="text-center">{{ $software->software_name }}</td>
                         <td data-label="License Key" class="text-center">{{ substr($software->license_key, 0, 8) . '...' }}</td>
                         <td data-label="Added By" class="text-center">{{ $software->addedBy?->name ?? 'N/A' }}</td>
-                        <td data-label="Status" class="text-center">{{ $software->assign_status }}</td>
+                        
+                        <td data-label="Status" class="text-center">
+                            @php
+                                $status = $software->assign_status;
+                                $statusClass = match($status) {
+                                    'Available' => 'bg-green-100 text-green-800',
+                                    'Unavailable' => 'bg-red-100 text-red-800',
+                                    'Assigned' => 'bg-yellow-100 text-yellow-800',
+                                    default => 'bg-gray-100 text-gray-800',
+                                };
+                            @endphp
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold w-[100px] justify-center {{ $statusClass }}">
+                                {{ $status }}
+                            </span>
+                        </td>
+
                         <td data-label="Expiry Date" class="text-center">
                             {{ $software->expiry_date->format('M d, Y') }}                            
                         </td>
@@ -74,9 +89,20 @@
                                 <button wire:click="openEditModal({{ $software->id }})" class="text-yellow-500 hover:text-yellow-600 p-1" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button wire:click="confirmDelete({{ $software->id }})" class="text-red-600 hover:text-red-800 p-1" title="Delete">
+
+                                @php
+                                    $isAssigned = $status === 'Assigned';
+                                @endphp
+
+                                <button 
+                                    @if($isAssigned) disabled @endif
+                                    @if(!$isAssigned) wire:click="confirmDelete({{ $software->id }})" @endif
+                                    class="{{ $isAssigned ? 'text-gray-400 cursor-not-allowed' : 'text-red-600 hover:text-red-800' }} p-1"
+                                    title="{{ $isAssigned ? 'Cannot delete assigned software' : 'Delete' }}"
+                                >
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
+
                             </div>
                         </td>
                     </tr>

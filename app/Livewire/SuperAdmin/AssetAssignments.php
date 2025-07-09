@@ -30,12 +30,15 @@ class AssetAssignments extends Component
     public $userIdentifier = '';
     public $isProcessing = false;
     public $generatedBorrowCode = null;
+    public $userSearchResults = [];
 
     public function updatedShowCartModal($value)
     {
         if ($value) {
             $this->selectedForBorrow = array_keys($this->selectedAssets);
             $this->errorMessage = '';
+        } else {
+            $this->userSearchResults = [];
         }
     }
 
@@ -86,6 +89,30 @@ class AssetAssignments extends Component
                 'quantity' => 1,
                 'max_quantity' => $asset->available_quantity,
             ];
+        }
+    }
+
+    public function updatedUserIdentifier($value)
+    {
+        if (strlen($value) < 2) {
+            $this->userSearchResults = [];
+            return;
+        }
+
+        $this->userSearchResults = User::query()
+            ->where('email', 'like', '%'.$value.'%')
+            ->orWhere('name', 'like', '%'.$value.'%')
+            ->limit(5)
+            ->get()
+            ->toArray();
+    }
+
+    public function selectUser($userId)
+    {
+        $user = User::find($userId);
+        if ($user) {
+            $this->userIdentifier = $user->email;
+            $this->userSearchResults = [];
         }
     }
 
@@ -198,8 +225,7 @@ class AssetAssignments extends Component
                     'borrowed_at' => now(),
                     'approved_at' => now(),
                 ]);
-
-                // Get the 'Borrowed' condition
+                
                 $borrowedCondition = AssetCondition::where('condition_name', 'Borrowed')->first();
                 if (!$borrowedCondition) {
                     throw new \Exception("Borrowed condition not found!");
@@ -223,8 +249,7 @@ class AssetAssignments extends Component
                     if ($asset->is_disposed) {
                         throw new \Exception("Asset '{$item['name']}' has been disposed");
                     }
-
-                    // Check for disallowed conditions
+                    
                     if (in_array($asset->condition->condition_name, $disallowedConditions)) {
                         throw new \Exception(
                             "Asset '{$item['name']}' is in {$asset->condition->condition_name} condition and cannot be assigned."
@@ -239,8 +264,7 @@ class AssetAssignments extends Component
                             "Available: {$available}, Requested: {$item['quantity']}"
                         );
                     }
-
-                    // Update reserved quantity and condition
+                    
                     $asset->reserved_quantity += $item['quantity'];
                     $asset->condition_id = $borrowedCondition->id;
                     $asset->save();

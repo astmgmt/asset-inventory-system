@@ -59,17 +59,32 @@
                         <td data-label="Asset Code" class="text-center">{{ $asset->asset_code }}</td>
                         <td data-label="Asset Name" class="text-center">{{ $asset->name }}</td>
                         <td data-label="Condition" class="text-center">
-                            <span class="status-badge {{ strtolower($asset->condition->condition_name) }}">
-                                {{ $asset->condition->condition_name }}
+                            @php
+                                $conditionName = strtolower($asset->condition->condition_name);
+                                $conditionClass = match($conditionName) {
+                                    'new' => 'bg-blue-100 text-blue-800',        
+                                    'borrowed' => 'bg-indigo-100 text-indigo-800', 
+                                    'available' => 'bg-green-100 text-green-800',  
+                                    'defective' => 'bg-red-100 text-red-800',        
+                                    'disposed' => 'bg-yellow-100 text-yellow-800', 
+                                    default => 'bg-gray-100 text-gray-800',
+                                };
+
+                                $displayCondition = ucfirst($conditionName);
+                            @endphp
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold w-[80px] justify-center {{ $conditionClass }}">
+                                {{ $displayCondition }}
                             </span>
                         </td>
+
                         <td data-label="Category" class="text-center">{{ $asset->category->category_name }}</td>
                         <td data-label="Location" class="text-center">{{ $asset->location->location_name }}</td>
-                        <td data-label="Actions" class="text-center">
+                        <td data-label="Actions" class="flex justify-center">
                             <button 
                                 wire:click="disposeAsset({{ $asset->id }})"
-                                class="view-btn bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-md transition"
+                                class="bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-2 rounded-md transition flex items-center gap-1"
                             >
+                                <i class="fas fa-dumpster text-xs"></i>
                                 Dispose
                             </button>
                         </td>

@@ -24,7 +24,7 @@ class UserBorrowTransactions extends Component
     public function render()
     {
         $transactions = AssetBorrowTransaction::where('user_id', Auth::id())
-            ->where('status', 'PendingBorrowApproval') // Only pending requests
+            ->where('status', 'PendingBorrowApproval') 
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('borrow_code', 'like', '%'.$this->search.'%')

@@ -10,11 +10,11 @@ return new class extends Migration
     {
         Schema::create('asset_qrcode_logs', function (Blueprint $table) {
             $table->id();
-            $table->string('print_code')->unique(); // Format: QRC-YYYYMMDD-000001
+            $table->string('print_code')->unique(); 
             $table->date('date_from')->nullable();
             $table->date('date_to')->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->json('asset_snapshot_data'); // Snapshot of printed assets for tracking
+            $table->json('asset_snapshot_data'); 
             $table->timestamps();
         });
     }   

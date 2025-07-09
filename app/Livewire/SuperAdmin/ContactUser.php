@@ -118,7 +118,6 @@ class ContactUser extends Component
                     $failedRecipients[] = $recipientEmail;
                     Log::error("Failed to send email to: {$recipientEmail}");
                 } elseif ($user) {
-                    // Determine notification type based on recipient role
                     $type = $user->isSuperAdmin() 
                         ? $notificationTypes['super_admin'] 
                         : ($user->isAdmin() 

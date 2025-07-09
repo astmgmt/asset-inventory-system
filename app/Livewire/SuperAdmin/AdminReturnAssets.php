@@ -123,14 +123,11 @@ class AdminReturnAssets extends Component
                     throw new \Exception("No valid assets found for return");
                 }
 
-                // Get Available condition
                 $availableCondition = AssetCondition::where('condition_name', 'Available')->first();
                 
-                // Prepare return data for history
                 $returnItemsData = [];
                 
                 foreach ($selectedBorrowItems as $borrowItem) {
-                    // Create return record
                     AssetReturnItem::create([
                         'return_code' => $returnCode,
                         'borrow_item_id' => $borrowItem->id,
@@ -141,23 +138,18 @@ class AdminReturnAssets extends Component
                         'approval_status' => 'Approved',
                     ]);
                     
-                    // Update borrow item status
                     $borrowItem->update(['status' => 'Returned']);
                     
-                    // Update asset reserved_quantity and condition
                     if ($borrowItem->asset) {
                         $asset = $borrowItem->asset;
                         
-                        // Decrement reserved quantity
                         $asset->decrement('reserved_quantity', $borrowItem->quantity);
                         
-                        // Update condition if asset is fully returned
                         if ($asset->reserved_quantity == 0 && $availableCondition) {
                             $asset->update(['condition_id' => $availableCondition->id]);
                         }
                     }
                     
-                    // Collect data for user history
                     $returnItemsData[] = [
                         'asset_code' => $borrowItem->asset->asset_code,
                         'asset_name' => $borrowItem->asset->name,
@@ -168,7 +160,6 @@ class AdminReturnAssets extends Component
                     ];
                 }
                 
-                // Update transaction status
                 $remainingItems = AssetBorrowItem::where('borrow_transaction_id', $transaction->id)
                     ->where('status', 'Borrowed')
                     ->count();
@@ -181,12 +172,11 @@ class AdminReturnAssets extends Component
                     $historyStatus = 'Returned';
                 }
                 
-                // Create user history record
                 UserHistory::create([
                     'user_id' => Auth::id(),
                     'borrow_code' => $transaction->borrow_code,
                     'return_code' => $returnCode,
-                    'status' => 'Return Approved', // Matches enum values
+                    'status' => 'Return Approved', 
                     'return_data' => [
                         'items' => $returnItemsData,
                         'remarks' => $this->returnRemarks,
@@ -198,7 +188,6 @@ class AdminReturnAssets extends Component
                     'action_date' => now()
                 ]);
                 
-                // Send email receipt
                 $this->sendReturnReceipt($transaction->borrow_code, $returnCode, $selectedBorrowItems);
                 
                 $this->successMessage = "Assets returned successfully!";
@@ -260,7 +249,6 @@ class AdminReturnAssets extends Component
                 ];
             }
             
-            // Get all admins and super admins
             $admins = User::whereHas('role', function($q) {
                     $q->whereIn('name', ['Admin', 'Super Admin']);
                 })

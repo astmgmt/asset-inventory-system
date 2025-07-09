@@ -213,10 +213,9 @@ class SoftwareAssignments extends Component
                             "Available: {$available}, Requested: {$item['quantity']}"
                         );
                     }
-
-                    // Update reserved quantity and assign status
+                    
                     $software->reserved_quantity += $item['quantity'];
-                    $software->assign_status = 'Assigned'; // Update assign status here
+                    $software->assign_status = 'Assigned'; 
                     $software->save();
 
                     SoftwareAssignmentItem::create([

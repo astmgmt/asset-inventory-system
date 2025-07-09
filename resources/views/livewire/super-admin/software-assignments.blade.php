@@ -205,12 +205,19 @@
                         type="button"
                         wire:click="assign" 
                         wire:loading.attr="disabled"
+                        wire:loading.class="opacity-50 cursor-not-allowed"
                         class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition"
                     >
-                        <i class="fas fa-paper-plane mr-2"></i>
-                        <span wire:loading.remove>Assign Software</span>
-                        <span wire:loading>Processing...</span>
+                        <span wire:loading.class.add="hidden" class="flex items-center">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Assign Software
+                        </span>
+                        <span wire:loading.class.remove="hidden" class="hidden flex items-center">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>
+                            Processing...
+                        </span>
                     </button>
+
                 </div>
             </div>
         </div>
