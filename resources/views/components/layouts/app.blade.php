@@ -105,12 +105,12 @@
 
                     <!-- My Transactions -->
                     <button @click="open === 5 ? open = null : open = 5" class="nav-link-button" type="button">
-                        <i class="fas fa-print"></i> My Transactions
+                        <i class="fas fa-exchange-alt"></i> Transactions
                         <i class="fas" :class="open === 5 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
                     </button>
                     <div x-show="open === 5" x-collapse class="nav-submenu">
-                        <a href="{{ route('admin.return.assets') }}"><i class="fas fa-file-alt"></i> Assets</a>
-                        <a href="{{ route('admin.history.assets') }}"><i class="fas fa-file-code"></i> History</a>                        
+                        <a href="{{ route('admin.return.assets') }}"><i class="fas fa-boxes"></i> My Assets</a>
+                        <a href="{{ route('admin.history.assets') }}"><i class="fas fa-history"></i> History</a>
                     </div>                   
 
                     <!-- Contact User -->
@@ -157,8 +157,15 @@
                         <a href="{{ route('print.qrcodes') }}"><i class="fas fa-qrcode"></i> QRCodes</a>
                     </div>
 
-                    <!-- My Account -->
-                    <a href="{{ route('admin.return.assets') }}"><i class="fas fa-exchange-alt"></i> My Transactions</a>                   
+                    <!-- My Transactions -->
+                    <button @click="open === 5 ? open = null : open = 5" class="nav-link-button" type="button">
+                        <i class="fas fa-exchange-alt"></i> Transactions
+                        <i class="fas" :class="open === 5 ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left:auto;"></i>
+                    </button>
+                    <div x-show="open === 5" x-collapse class="nav-submenu">
+                        <a href="{{ route('admin.return.assets') }}"><i class="fas fa-boxes"></i> My Assets</a>
+                        <a href="{{ route('admin.history.assets') }}"><i class="fas fa-history"></i> History</a>
+                    </div>                
 
                     <!-- Contact User -->
                     <a href="{{ route('contact.user') }}"><i class="fas fa-envelope"></i> Send Email</a>
@@ -256,7 +263,6 @@
             </div>
         </header>
 
-
         <div class="content">
             <div class="content-card">
                 {{ $slot }}
@@ -266,8 +272,7 @@
         <footer class="footer">
             <p>&copy; {{ date('Y') }} Asset Management Inventory System. All rights reserved.</p>
         </footer>
-    </main>
-    
+    </main>    
    
     @livewireScripts
 </body>

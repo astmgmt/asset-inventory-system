@@ -1,7 +1,6 @@
 <div class="superadmin-container" wire:poll.10s>
-    <h1 class="page-title main-title">Transaction History</h1>
+    <h1 class="page-title main-title">Admin Transaction History</h1>
 
-    <!-- Success/Error Messages -->
     @if ($successMessage)
         <div class="success-message mb-4" 
              x-data="{ show: true }" 
@@ -20,7 +19,6 @@
         </div>
     @endif
 
-    <!-- Search Bar -->
     <div class="search-bar mb-6 w-full md:w-1/3 relative">
         <input 
             type="text" 
@@ -37,7 +35,6 @@
         @endif
     </div>
 
-    <!-- History Table -->
     <div class="overflow-x-auto">
         <table class="user-table">
             <thead>
@@ -52,7 +49,6 @@
             </thead>
             <tbody>
                 @forelse($history as $record)
-
                     @if(Str::startsWith($record->return_code ?? '', 'HIDDEN'))
                         @continue
                     @endif
@@ -62,13 +58,8 @@
                             {{ $record->borrow_code ?? 'N/A' }}
                         </td>
                         <td data-label="Return Code" class="text-center">
-                            
-                            @if($record->status === 'Return Denied')
-                                N/A
-                            @else
-                                {{ $record->return_code ?? 'N/A' }}
-                            @endif
-                        </td>
+                            {{ $record->status === 'Return Denied' ? 'N/A' : ($record->return_code ?? 'N/A') }}                        </td>
+
                         <td data-label="Status" class="text-center">
                             @php
                                 $statusClass = match($record->status) {
@@ -83,19 +74,17 @@
                                 {{ $record->status }}
                             </span>
                         </td>
-
+                        
                         <td data-label="Remarks" class="text-center">
                             <div class="remarks-container">
                                 @php
                                     $remarks = 'N/A';
-                                                                        
                                     if ($record->status === 'Borrow Approved') {
                                         $remarks = "For Return";
                                     } 
                                     elseif ($record->status === 'Return Approved') {
                                         $remarks = "Successful Return";
                                     }
-                                    
                                     elseif ($record->status === 'Borrow Denied') {
                                         $remarks = $record->borrow_data['remarks'] ?? $record->remarks ?? 'N/A';
                                     }
@@ -107,9 +96,7 @@
                                     {{ \Illuminate\Support\Str::limit($remarks, 25) }}
                                 </div>
                             </div>
-                        </td>               
-                                 
-
+                        </td>
                         <td data-label="Date" class="text-center">
                             {{ $record->action_date->format('M d, Y') }}
                         </td>
@@ -149,24 +136,22 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="no-software-row">No transaction history found.</td>
+                        <td colspan="6" class="no-software-row">No transaction history found.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
         
-        <!-- Pagination -->
         <div class="mt-4 pagination-container">
             {{ $history->links() }}
         </div>
     </div>
 
-    <!-- Details Modal -->
     @if($showDetailsModal && $selectedHistory)
         <div class="modal-backdrop" x-data="{ show: @entangle('showDetailsModal') }" x-show="show">
             <div class="modal max-w-6xl" x-on:click.away="$wire.showDetailsModal = false">
                 <div class="modal-header">
-                    <h2 class="modal-title">Transaction Details</h2>
+                    <h2 class="modal-title">Admin Transaction Details</h2>
                     <div class="flex items-center">                            
                         <button wire:click="$set('showDetailsModal', false)" class="modal-close">&times;</button>
                     </div>
@@ -176,7 +161,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         @php
                             $borrowItems = $selectedHistory->borrow_data['borrow_items'] ?? [];
-                            $returnItems = $selectedHistory->return_data['return_items'] ?? [];
+                            $returnItems = $selectedHistory->return_data['items'] ?? [];
 
                             $borrowAssetCodes = collect($borrowItems)
                                 ->map(fn ($item) => strtoupper(trim($item['asset']['asset_code'] ?? '')))
@@ -186,7 +171,7 @@
                                 ->all();
 
                             $returnAssetCodes = collect($returnItems)
-                                ->map(fn ($item) => strtoupper(trim($item['borrow_item']['asset']['asset_code'] ?? '')))
+                                ->map(fn ($item) => strtoupper(trim($item['asset_code'] ?? ''))) 
                                 ->filter()
                                 ->unique()
                                 ->values()
@@ -195,7 +180,6 @@
                             $matchedAssetCodes = array_intersect($borrowAssetCodes, $returnAssetCodes);
                         @endphp
 
-                        <!-- Borrow Details -->
                         <div class="borrow-details">
                             <h3 class="text-lg font-semibold mb-3">Borrow Details</h3>
                             @if(count($borrowItems))
@@ -218,7 +202,7 @@
                                                     $code = strtoupper(trim($asset['asset_code'] ?? ''));
                                                     $isMatched = in_array($code, $matchedAssetCodes);
                                                 @endphp
-                                                <tr class="{{ $isMatched ? 'text-match font-semibold' : '' }}">
+                                                <tr class="{{ $isMatched ? 'returned-item' : '' }}">
                                                     <td>{{ $code ?: 'N/A' }}</td>
                                                     <td>{{ $asset['name'] ?? 'N/A' }}</td>
                                                     <td>{{ $asset['model_number'] ?? 'N/A' }}</td>
@@ -243,58 +227,51 @@
                             @endif
                         </div>
 
-                        <!-- Return Details -->
                         <div class="return-details">
                             <h3 class="text-lg font-semibold mb-3">Return Details</h3>
                             @if(count($returnItems))
-                                <div class="overflow-x-auto">
-                                    <table class="details-table text-xs">
-                                        <thead class="thead-center">
-                                            <tr>
-                                                <th class="text-center">Asset Code</th>
-                                                <th class="text-center">Brand</th>
-                                                <th class="text-center">Model</th>
-                                                <th class="text-center">Qty</th>
-                                                <th class="text-center">Date</th>
-                                                <th class="text-center">Status</th>
+                            <div class="overflow-x-auto">
+                                <table class="details-table text-xs">
+                                    <thead class="thead-center">
+                                        <tr>
+                                            <th class="text-center">Asset Code</th>
+                                            <th class="text-center">Brand</th>
+                                            <th class="text-center">Model</th>
+                                            <th class="text-center">Serial</th>
+                                            <th class="text-center">Qty</th>
+                                            <th class="text-center">Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($returnItems as $item)
+                                            @php
+                                                $code = strtoupper(trim($item['asset_code'] ?? ''));
+                                                $isMatched = in_array($code, $matchedAssetCodes);
+                                            @endphp
+                                            <tr class="{{ $isMatched ? 'returned-item' : '' }}">
+                                                <td>{{ $code ?: 'N/A' }}</td>
+                                                <td>{{ $item['asset_name'] ?? 'N/A' }}</td>
+                                                <td>{{ $item['model'] ?? 'N/A' }}</td>
+                                                <td>{{ $item['serial'] ?? 'N/A' }}</td>
+                                                <td>{{ $item['quantity'] ?? 'N/A' }}</td>
+                                                <td>
+                                                    @if(isset($item['returned_at']))
+                                                        {{ \Carbon\Carbon::parse($item['returned_at'])->format('M d, Y H:i') }}
+                                                    @else
+                                                        N/A
+                                                    @endif
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($returnItems as $item)
-                                                @php
-                                                    $borrowItem = $item['borrow_item'] ?? [];
-                                                    $asset = $borrowItem['asset'] ?? [];
-                                                    $code = strtoupper(trim($asset['asset_code'] ?? ''));
-                                                    $isMatched = in_array($code, $matchedAssetCodes);
-                                                @endphp
-                                                <tr class="{{ $isMatched ? 'text-match font-semibold' : '' }}">
-                                                    <td>{{ $code ?: 'N/A' }}</td>
-                                                    <td>{{ $asset['name'] ?? 'N/A' }}</td>
-                                                    <td>{{ $asset['model_number'] ?? 'N/A' }}</td>
-                                                    <td>{{ $borrowItem['quantity'] ?? 'N/A' }}</td>
-                                                    <td>
-                                                        @if(isset($item['created_at']))
-                                                            {{ \Carbon\Carbon::parse($item['created_at'])->format('M d, Y') }}
-                                                        @else
-                                                            N/A
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        <span class="status-badge {{ strtolower($item['status'] ?? '') }}">
-                                                            {{ $item['status'] ?? 'N/A' }}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @else
-                                <div class="text-center py-8 text-gray-500">
-                                    <i class="fas fa-undo text-4xl mb-3"></i>
-                                    <p>Not Yet Returned</p>
-                                </div>
-                            @endif
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-undo text-4xl mb-3"></i>
+                                <p>Not Yet Returned</p>
+                            </div>
+                        @endif
                         </div>
                     </div>
                 </div>
@@ -308,7 +285,6 @@
         </div>
     @endif
 
-    <!-- Delete Confirmation Modal -->
     <div class="modal-backdrop" style="z-index: 1000;" x-data="{ show: @entangle('showDeleteModal') }" x-show="show">
         <div class="modal modal-delete" x-on:click.away="$wire.showDeleteModal = false">
             <div class="modal-header">
@@ -385,10 +361,10 @@
             max-height: 400px;
             overflow-y: auto;
         }
-        .text-match {
-            color: #28a745 !important; /* Bootstrap green */
-            font-weight: 600;
+        .returned-item {
             background-color: #e6f4ea !important;
+            color: #28a745 !important;
+            font-weight: 600;
         }
 
         .remarks-container {

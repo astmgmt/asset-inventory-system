@@ -29,6 +29,7 @@ use App\Livewire\SuperAdmin\PrintQRCodes;
 use App\Livewire\SuperAdmin\TrackAssets;
 use App\Livewire\SuperAdmin\ContactUser;
 use App\Livewire\SuperAdmin\AdminReturnAssets;
+use App\Livewire\SuperAdmin\AdminHistoryAssets;
 
 use App\Livewire\User\UserBorrowAsset; 
 use App\Livewire\User\UserBorrowTransactions; 
@@ -201,6 +202,10 @@ Route::middleware([
     
     Route::get('/admin/return/assets', AdminReturnAssets::class)
         ->name('admin.return.assets')
+        ->middleware('role:Super Admin,Admin');
+
+    Route::get('/admin/history/assets', AdminHistoryAssets::class)
+        ->name('admin.history.assets')
         ->middleware('role:Super Admin,Admin');
 
     // Single asset PDF

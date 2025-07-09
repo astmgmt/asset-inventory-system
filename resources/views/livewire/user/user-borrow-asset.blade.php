@@ -76,7 +76,25 @@
                         <td data-label="Available Qty" class="text-center">
                             {{ $asset->available_quantity }} 
                         </td>
-                        <td data-label="Condition" class="text-center">{{ $asset->condition_name }}</td>
+
+                        <td data-label="Condition" class="text-center">
+                            @php
+                                $conditionName = strtolower($asset->condition_name); 
+                                $conditionClass = match($conditionName) {
+                                    'new' => 'bg-blue-100 text-blue-800',        
+                                    'borrowed' => 'bg-indigo-100 text-indigo-800', 
+                                    'available' => 'bg-green-100 text-green-800',  
+                                    'defective' => 'bg-red-100 text-red-800',        
+                                    'disposed' => 'bg-yellow-100 text-yellow-800', 
+                                    default => 'bg-gray-100 text-gray-800',
+                                };
+                                $displayCondition = ucfirst($conditionName);
+                            @endphp
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold {{ $conditionClass }} w-[80px] justify-center">
+                                {{ $displayCondition }}
+                            </span>
+                        </td>
+
                         <td data-label="Actions" class="text-center">
                             <button 
                                 wire:click="addToCart({{ $asset->id }})" 

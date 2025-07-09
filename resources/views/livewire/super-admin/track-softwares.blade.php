@@ -45,7 +45,7 @@
                             {{ $batch->date_assigned->format('M d, Y h:i A') }}
                         </td>
                         <td data-label="Status" class="text-center">
-                            <span class="status-badge {{ strtolower($batch->status) }} px-2 py-1 rounded-full text-xs">
+                            <span class="status-badge {{ strtolower($batch->status) }} px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">
                                 {{ $batch->status }}
                             </span>
                         </td>
@@ -96,24 +96,24 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div class="asset-details p-4 rounded-lg border">
                         <h3 class="text-sm font-medium mb-1">Assigned To</h3>
-                        <p class="font-semibold">{{ $selectedBatch->user->name }}</p>
-                        <p class="text-sm">{{ $selectedBatch->user->email }}</p>
+                        <p class="font-semibold text-blue-600">{{ $selectedBatch->user->name }}</p>
+                        <p class="text-sm text-blue-600">{{ $selectedBatch->user->email }}</p>
                     </div>
 
                     <div class="asset-details p-4 rounded-lg border">
                         <h3 class="text-sm font-medium mb-1">Assigned By</h3>
-                        <p class="font-semibold">{{ $selectedBatch->assignedByUser->name }}</p>
-                        <p class="text-sm">{{ $selectedBatch->assignedByUser->email }}</p>
+                        <p class="font-semibold text-blue-600">{{ $selectedBatch->assignedByUser->name }}</p>
+                        <p class="text-sm text-blue-600">{{ $selectedBatch->assignedByUser->email }}</p>
                     </div>
 
                     <div class="asset-details p-4 rounded-lg border">
                         <h3 class="text-sm font-medium mb-1">Date Assigned</h3>
-                        <p>{{ $selectedBatch->date_assigned->format('M d, Y h:i A') }}</p>
+                        <p class="text-blue-600">{{ $selectedBatch->date_assigned->format('M d, Y h:i A') }}</p>
                     </div>
 
                     <div class="asset-details p-4 rounded-lg border">
                         <h3 class="text-sm font-medium mb-1">Status</h3>
-                        <span class="inline-block px-3 py-1 text-xs font-semibold text-white rounded 
+                        <span class="inline-block px-3 py-1 text-xs font-semibold rounded bg-yellow-100 text-yellow-800
                             {{ strtolower($selectedBatch->status) === 'active' ? 'bg-green-500' : 'bg-gray-400' }}">
                             {{ $selectedBatch->status }}
                         </span>
@@ -122,12 +122,12 @@
                     <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="asset-details p-4 rounded-lg border">
                             <h3 class="text-sm font-medium mb-1">Purpose</h3>
-                            <p>{{ $selectedBatch->purpose }}</p>
+                            <p class="text-blue-600">{{ $selectedBatch->purpose }}</p>
                         </div>
 
                         <div class="asset-details p-4 rounded-lg border">
                             <h3 class="text-sm font-medium mb-1">Remarks</h3>
-                            <p>{{ $selectedBatch->remarks ?? 'N/A' }}</p>
+                            <p class="text-blue-600">{{ $selectedBatch->remarks ?? 'N/A' }}</p>
                         </div>
                     </div>
                 </div>
@@ -152,7 +152,7 @@
                                     <td class="px-4 py-2 border">{{ $item->software->license_key }}</td>
                                     <td class="px-4 py-2 border text-center">{{ $item->quantity }}</td>
                                     <td class="px-4 py-2 border text-center">
-                                        <span class="inline-block px-2 py-1 text-xs font-medium rounded 
+                                        <span class="inline-block px-2 py-1 text-xs font-medium rounded
                                             {{ strtolower($item->status) === 'active' ? 'bg-green-400 text-white' : 'bg-gray-300 text-gray-700' }}">
                                             {{ $item->status }}
                                         </span>
