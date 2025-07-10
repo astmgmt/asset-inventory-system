@@ -140,11 +140,14 @@ class ApproveBorrowerRequests extends Component
                     'remarks' => $this->approveRemarks
                 ]);
 
+                $borrowData = $transaction->load('borrowItems.asset')->toArray();
+                $borrowData['remarks_from_admin'] = $this->approveRemarks;
+
                 UserHistory::create([
                     'user_id' => $transaction->user_id,
                     'borrow_code' => $transaction->borrow_code,
                     'status' => 'Borrow Approved',
-                    'borrow_data' => $transaction->load('borrowItems.asset')->toArray(),
+                    'borrow_data' => $borrowData,
                     'action_date' => now()
                 ]);
             });

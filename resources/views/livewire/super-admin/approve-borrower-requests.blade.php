@@ -155,7 +155,8 @@
                         <thead>
                             <tr>
                                 <th>Asset Code</th>
-                                <th>Asset Name</th>
+                                <th>Brand</th>
+                                <th>Model</th>
                                 <th>Quantity</th>
                                 <th>Purpose</th>
                             </tr>
@@ -168,6 +169,9 @@
                                     </td>
                                     <td data-label="Asset Name" class="text-center">
                                         {{ $item->asset->name }}
+                                    </td>
+                                    <td data-label="Model" class="text-center">
+                                        {{ $item->asset->model_number ?: 'N/A' }}
                                     </td>
                                     <td data-label="Quantity" class="text-center">
                                         {{ $item->quantity }}

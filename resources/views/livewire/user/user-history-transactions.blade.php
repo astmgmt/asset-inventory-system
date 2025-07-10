@@ -89,12 +89,12 @@
                             <div class="remarks-container">
                                 @php
                                     $remarks = 'N/A';
-                                                                        
+                                                                                                                    
                                     if ($record->status === 'Borrow Approved') {
-                                        $remarks = "For Return";
+                                        $remarks = $record->borrow_data['remarks_from_admin'] ?? "For Return";
                                     } 
                                     elseif ($record->status === 'Return Approved') {
-                                        $remarks = "Successful Return";
+                                        $remarks = $record->return_data['remarks_from_admin'] ?? "Successful Return";
                                     }
                                     
                                     elseif ($record->status === 'Borrow Denied') {
@@ -108,7 +108,7 @@
                                     {{ \Illuminate\Support\Str::limit($remarks, 25) }}
                                 </div>
                             </div>
-                        </td>               
+                        </td>              
                                  
 
                         <td data-label="Date" class="text-center">

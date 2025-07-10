@@ -45,8 +45,8 @@
                     <tr>
                         <th>Borrow Code</th>
                         <th>Status</th>
-                        <th>Borrowed At</th>
-                        <th>Return Requested</th>
+                        <th>Borrowed Date</th>
+                        <th>Requested Date</th>
                         <th>Remarks</th>
                         <th>Actions</th>
                     </tr>
@@ -98,10 +98,10 @@
                             </td>
 
                             <td data-label="Remarks" class="text-center">
-                                @if($transaction->return_remarks)
+                                @if($transaction->remarks)
                                     <div class="remarks-container">
-                                        <div class="truncated-remarks" title="{{ $transaction->return_remarks }}">
-                                            {{ \Illuminate\Support\Str::limit($transaction->return_remarks, 25) }}
+                                        <div class="truncated-remarks" title="{{ $transaction->remarks }}">
+                                            {{ \Illuminate\Support\Str::limit($transaction->remarks, 25) }}
                                         </div>
                                     </div>
                                 @else
@@ -260,7 +260,8 @@
                                         >
                                     </th>
                                     <th>Asset Code</th>
-                                    <th>Asset Name</th>
+                                    <th>Brand</th>
+                                    <th>Model</th>
                                     <th>Quantity</th>
                                     <th>Purpose</th>
                                 </tr>
@@ -280,6 +281,9 @@
                                         </td>
                                         <td data-label="Asset Name" class="text-center">
                                             {{ $item->asset->name }}
+                                        </td>
+                                        <td data-label="Asset Name" class="text-center">
+                                            {{ $item->asset->model_number }}
                                         </td>
                                         <td data-label="Quantity" class="text-center">
                                             {{ $item->quantity }}

@@ -158,7 +158,7 @@
                                             >
                                         </td>
                                         <td data-label="Asset" class="text-center">
-                                            {{ $asset['name'] }} ({{ $asset['code'] }})
+                                            {{ $asset['name']}} {{$asset['model_number']}} ({{ $asset['code'] }})
                                         </td>
 
                                         <td data-label="Quantity" class="text-center">

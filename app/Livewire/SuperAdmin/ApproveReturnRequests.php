@@ -166,7 +166,8 @@ class ApproveReturnRequests extends Component
                     'return_items' => $returnItemsData,
                     'return_received_by' => $returnReceivedBy,
                     'approved_by' => $borrowApprovedBy,
-                    'return_date' => now()->format('Y-m-d H:i:s')
+                    'return_date' => now()->format('Y-m-d H:i:s'),
+                    'remarks_from_admin' => $this->approveRemarks
                 ];
 
                 UserHistory::create([
