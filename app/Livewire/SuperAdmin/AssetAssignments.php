@@ -31,6 +31,7 @@ class AssetAssignments extends Component
     public $isProcessing = false;
     public $generatedBorrowCode = null;
     public $userSearchResults = [];
+    public $approveRemarks = '';
 
     public function updatedShowCartModal($value)
     {
@@ -231,6 +232,7 @@ class AssetAssignments extends Component
                     'status' => 'Borrowed',
                     'borrowed_at' => now(),
                     'approved_at' => now(),
+                    'remarks' => $this->approveRemarks, 
                 ]);
                 
                 $borrowedCondition = AssetCondition::where('condition_name', 'Borrowed')->first();
@@ -284,18 +286,20 @@ class AssetAssignments extends Component
                     ]);
                 }
                 
-                $transaction->load([
+                $transactionData = $transaction->load([
                     'borrowItems.asset', 
                     'user', 
                     'userDepartment',
                     'requestedBy'
-                ]);
+                ])->toArray();
+                
+                $transactionData['remarks_from_admin'] = $this->approveRemarks;
                 
                 UserHistory::create([
                     'user_id' => $user->id,
                     'borrow_code' => $borrowCode,
                     'status' => 'Borrow Approved',
-                    'borrow_data' => $transaction->toArray(), 
+                    'borrow_data' => $transactionData, 
                     'action_date' => now(),
                 ]);
             });

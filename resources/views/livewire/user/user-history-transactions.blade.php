@@ -403,7 +403,7 @@
             overflow-y: auto;
         }
         .text-match {
-            color: #28a745 !important; /* Bootstrap green */
+            color: #28a745 !important; /
             font-weight: 600;
             background-color: #e6f4ea !important;
         }
@@ -417,7 +417,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            cursor: help;
+            cursor: pointer;
         }
         
         @media (max-width: 768px) {

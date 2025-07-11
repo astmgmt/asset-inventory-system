@@ -230,6 +230,18 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            <div class="mt-3 text-left">
+                                <label for="approve-remarks" class="block text-xs font-medium text-gray-700 mb-1">
+                                    Remarks <span class="text-gray-400">(Optional)</span>
+                                </label>
+                                <textarea 
+                                    id="approve-remarks" 
+                                    wire:model="approveRemarks" 
+                                    rows="3" 
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm leading-tight resize-none"
+                                    placeholder="Add any remarks for the user..."
+                                ></textarea>
+                            </div>
                         @else
                             <p class="text-center py-4 text-blue-900 font-medium">Your cart is empty</p>
                         @endif

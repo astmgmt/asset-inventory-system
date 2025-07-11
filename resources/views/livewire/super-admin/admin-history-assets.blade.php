@@ -93,11 +93,10 @@
                                                                                                                     
                                     if ($record->status === 'Borrow Approved') {
                                         $remarks = $record->borrow_data['remarks_from_admin'] ?? "For Return";
-                                    } 
+                                    }  
                                     elseif ($record->status === 'Return Approved') {
                                         $remarks = $record->return_data['remarks_from_admin'] ?? "Successful Return";
-                                    }
-                                    
+                                    }                                    
                                     elseif ($record->status === 'Borrow Denied') {
                                         $remarks = $record->borrow_data['remarks'] ?? $record->remarks ?? 'N/A';
                                     }
@@ -403,7 +402,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            cursor: help;
+            cursor: pointer;
         }
         
         @media (max-width: 768px) {
