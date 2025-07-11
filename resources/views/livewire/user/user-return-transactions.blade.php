@@ -98,16 +98,24 @@
                             </td>
 
                             <td data-label="Remarks" class="text-center">
-                                @if($transaction->remarks)
+                                @php
+                                    $status = $transaction->status;
+                                    $displayRemarks = in_array($status, ['PartiallyReturned', 'Borrowed']) 
+                                                    ? $transaction->remarks 
+                                                    : ($status === 'ReturnRejected' ? $transaction->return_remarks : null);
+                                @endphp
+
+                                @if($displayRemarks)
                                     <div class="remarks-container">
-                                        <div class="truncated-remarks" title="{{ $transaction->remarks }}">
-                                            {{ \Illuminate\Support\Str::limit($transaction->remarks, 25) }}
+                                        <div class="truncated-remarks" title="{{ $displayRemarks }}">
+                                            {{ \Illuminate\Support\Str::limit($displayRemarks, 25) }}
                                         </div>
                                     </div>
                                 @else
                                     N/A
                                 @endif
-                            </td>                           
+                            </td>
+                           
 
                             <td data-label="Actions" class="text-center">
                                 @php

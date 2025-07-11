@@ -170,7 +170,8 @@ class AdminHistoryAssets extends Component
                     ->setTimezone($timezone)
                     ->format('M d, Y H:i') 
                 : 'N/A',
-            'remarks' => $history->remarks ?? 'N/A',
+            'remarks' => $borrowApprovalRecord->borrow_data['remarks'] ?? null,
+            'return_remarks' => $history->return_data['remarks_from_admin'] ?? null,
             'borrowItems' => $borrowApprovalRecord ? ($borrowApprovalRecord->borrow_data['borrow_items'] ?? []) : [],
             'returnItems' => $history->return_data['return_items'] ?? [],
         ];

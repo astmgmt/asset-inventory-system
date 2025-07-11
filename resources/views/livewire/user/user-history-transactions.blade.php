@@ -238,7 +238,7 @@
                                                     <td>{{ $item['purpose'] ?? 'N/A' }}</td>
                                                     <td>
                                                         @if(isset($item['created_at']))
-                                                            {{ \Carbon\Carbon::parse($item['created_at'])->format('M d, Y') }}
+                                                            {{ \Carbon\Carbon::parse($item['created_at'])->format('M d, Y H:i A') }}
                                                         @else
                                                             N/A
                                                         @endif
@@ -268,7 +268,7 @@
                                                 <th class="text-center">Model</th>
                                                 <th class="text-center">Qty</th>
                                                 <th class="text-center">Date</th>
-                                                <th class="text-center">Status</th>
+                                                {{-- <th class="text-center">Status</th> --}}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -286,16 +286,16 @@
                                                     <td>{{ $borrowItem['quantity'] ?? 'N/A' }}</td>
                                                     <td>
                                                         @if(isset($item['created_at']))
-                                                            {{ \Carbon\Carbon::parse($item['created_at'])->format('M d, Y') }}
+                                                            {{ \Carbon\Carbon::parse($item['created_at'])->format('M d, Y H:i A') }}
                                                         @else
                                                             N/A
                                                         @endif
                                                     </td>
-                                                    <td>
+                                                    {{-- <td>
                                                         <span class="status-badge {{ strtolower($item['status'] ?? '') }}">
                                                             {{ $item['status'] ?? 'N/A' }}
                                                         </span>
-                                                    </td>
+                                                    </td> --}}
                                                 </tr>
                                             @endforeach
                                         </tbody>

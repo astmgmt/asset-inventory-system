@@ -235,7 +235,7 @@
                                                     <td>{{ $item['purpose'] ?? 'N/A' }}</td>
                                                     <td>
                                                         @if(isset($item['created_at']))
-                                                            {{ \Carbon\Carbon::parse($item['created_at'])->format('M d, Y') }}
+                                                            {{ \Carbon\Carbon::parse($item['created_at'])->format('M d, Y H:i A') }}
                                                         @else
                                                             N/A
                                                         @endif
@@ -281,7 +281,7 @@
                                                 <td>{{ $item['quantity'] ?? 'N/A' }}</td>
                                                 <td>
                                                     @if(isset($item['returned_at']))
-                                                        {{ \Carbon\Carbon::parse($item['returned_at'])->format('M d, Y H:i') }}
+                                                        {{ \Carbon\Carbon::parse($item['returned_at'])->format('M d, Y H:i A') }}
                                                     @else
                                                         N/A
                                                     @endif

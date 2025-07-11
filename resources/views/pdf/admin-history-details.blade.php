@@ -154,7 +154,13 @@
             </tr>
             <tr>
                 <td class="label">Remarks:</td>
-                <td colspan="3">{{ $transaction->remarks }}</td>
+                <td colspan="3">
+                    @php
+                        $remarks = $transaction->return_remarks ?: $transaction->remarks;
+                    @endphp
+
+                    {{ $remarks ?: 'N/A' }}
+                </td>
             </tr>
         </table>
     </div>

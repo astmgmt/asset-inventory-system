@@ -70,10 +70,10 @@
                                 {{ $transaction->borrowed_at?->format('M d, Y') ?? '-' }}
                             </td>
                             <td data-label="Remarks" class="text-center">
-                                @if($transaction->return_remarks)
+                                @if($transaction->remarks)
                                     <div class="remarks-container">
-                                        <div class="truncated-remarks" title="{{ $transaction->return_remarks }}">
-                                            {{ \Illuminate\Support\Str::limit($transaction->return_remarks, 25) }}
+                                        <div class="truncated-remarks" title="{{ $transaction->remarks }}">
+                                            {{ \Illuminate\Support\Str::limit($transaction->remarks, 25) }}
                                         </div>
                                     </div>
                                 @else

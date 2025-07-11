@@ -91,7 +91,7 @@
                                 <button 
                                     wire:click="openViewModal({{ $asset->id }})" 
                                     class="w-11 h-11 flex items-center justify-center text-blue-600 hover:text-blue-800 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 rounded-full transition"
-                                    title="View"
+                                    title="View and Print QRCode"
                                     aria-label="View"
                                 >
                                     <i class="fas fa-eye text-sm" aria-hidden="true"></i>
@@ -607,7 +607,7 @@
                                         ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
                                         : 'bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500' }}"
                         @if($isPrintDisabled) onclick="return false;" @endif>
-                            <i class="fas fa-print mr-2"></i> Print
+                            <i class="fas fa-print mr-2"></i> Print QRCode
                         </a>
 
                         <!-- Close Button -->
