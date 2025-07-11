@@ -83,28 +83,43 @@
                         </td>
                         <td data-label="Actions" class="text-center">
                             <div class="flex justify-center gap-3">
-                                <button wire:click="openViewModal({{ $software->id }})" class="text-blue-600 hover:text-blue-800 p-1" title="View">
-                                    <i class="fas fa-eye"></i>
+                                <!-- View Button -->
+                                <button 
+                                    wire:click="openViewModal({{ $software->id }})" 
+                                    class="w-11 h-11 flex items-center justify-center text-blue-600 hover:text-blue-800 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 rounded-full transition"
+                                    title="View"
+                                    aria-label="View"
+                                >
+                                    <i class="fas fa-eye text-sm" aria-hidden="true"></i>
                                 </button>
-                                <button wire:click="openEditModal({{ $software->id }})" class="text-yellow-500 hover:text-yellow-600 p-1" title="Edit">
-                                    <i class="fas fa-edit"></i>
+
+                                <!-- Edit Button -->
+                                <button 
+                                    wire:click="openEditModal({{ $software->id }})" 
+                                    class="w-11 h-11 flex items-center justify-center text-yellow-500 hover:text-yellow-600 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-300 rounded-full transition"
+                                    title="Edit"
+                                    aria-label="Edit"
+                                >
+                                    <i class="fas fa-edit text-sm" aria-hidden="true"></i>
                                 </button>
 
                                 @php
                                     $isAssigned = $status === 'Assigned';
                                 @endphp
 
+                                <!-- Delete Button -->
                                 <button 
                                     @if($isAssigned) disabled @endif
                                     @if(!$isAssigned) wire:click="confirmDelete({{ $software->id }})" @endif
-                                    class="{{ $isAssigned ? 'text-gray-400 cursor-not-allowed' : 'text-red-600 hover:text-red-800' }} p-1"
+                                    class="w-11 h-11 flex items-center justify-center {{ $isAssigned ? 'text-gray-400 cursor-not-allowed' : 'text-red-600 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-300' }} rounded-full transition"
                                     title="{{ $isAssigned ? 'Cannot delete assigned software' : 'Delete' }}"
+                                    aria-label="{{ $isAssigned ? 'Cannot delete assigned software' : 'Delete' }}"
                                 >
-                                    <i class="fas fa-trash-alt"></i>
+                                    <i class="fas fa-trash-alt text-sm" aria-hidden="true"></i>
                                 </button>
-
                             </div>
                         </td>
+
                     </tr>
                 @empty
                     <tr>

@@ -88,11 +88,22 @@
                         </td>
                         <td data-label="Actions" class="text-center">
                             <div class="flex justify-center gap-3">
-                                <button wire:click="openViewModal({{ $asset->id }})" class="text-blue-600 hover:text-blue-800 p-1" title="View">
-                                    <i class="fas fa-eye"></i>
+                                <button 
+                                    wire:click="openViewModal({{ $asset->id }})" 
+                                    class="w-11 h-11 flex items-center justify-center text-blue-600 hover:text-blue-800 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 rounded-full transition"
+                                    title="View"
+                                    aria-label="View"
+                                >
+                                    <i class="fas fa-eye text-sm" aria-hidden="true"></i>
                                 </button>
-                                <button wire:click="openEditModal({{ $asset->id }})" class="text-yellow-500 hover:text-yellow-600 p-1" title="Edit">
-                                    <i class="fas fa-edit"></i>
+
+                                <button 
+                                    wire:click="openEditModal({{ $asset->id }})" 
+                                    class="w-11 h-11 flex items-center justify-center text-yellow-500 hover:text-yellow-600 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-300 rounded-full transition"
+                                    title="Edit"
+                                    aria-label="Edit"
+                                >
+                                    <i class="fas fa-edit text-sm" aria-hidden="true"></i>
                                 </button>
 
                                 @php
@@ -102,14 +113,14 @@
                                 <button 
                                     @if($isBorrowed) disabled @endif
                                     @if(!$isBorrowed) wire:click="confirmDelete({{ $asset->id }})" @endif
-                                    class="{{ $isBorrowed ? 'text-gray-400 cursor-not-allowed' : 'text-red-600 hover:text-red-800' }} p-1"
+                                    class="w-11 h-11 flex items-center justify-center {{ $isBorrowed ? 'text-gray-400 cursor-not-allowed' : 'text-red-600 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-300' }} rounded-full transition"
                                     title="{{ $isBorrowed ? 'Cannot delete borrowed asset' : 'Delete' }}"
+                                    aria-label="{{ $isBorrowed ? 'Cannot delete borrowed asset' : 'Delete' }}"
                                 >
-                                    <i class="fas fa-trash-alt"></i>
+                                    <i class="fas fa-trash-alt text-sm" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </td>
-
                     </tr>
                 @empty
                     <tr>
@@ -118,7 +129,6 @@
                 @endforelse
             </tbody>
         </table>
-
 
         <!-- Add Asset Modal -->
         @if ($showAddModal)
@@ -283,7 +293,7 @@
                                     type="date" 
                                     wire:model="warranty_expiration" 
                                     class="form-input"
-                                    min="{{ now()->format('Y-m-d') }}"
+                                    {{-- min="{{ now()->format('Y-m-d') }}" --}}
                                 >
                                 @error('warranty_expiration') <span class="error">{{ $message }}</span> @enderror
                             </div>                         

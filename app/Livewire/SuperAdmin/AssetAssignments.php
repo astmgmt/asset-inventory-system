@@ -85,6 +85,7 @@ class AssetAssignments extends Component
             $this->selectedAssets[$assetId] = [
                 'id' => $asset->id,
                 'name' => $asset->name,
+                'model' => $asset->model_number,
                 'code' => $asset->asset_code,
                 'quantity' => 1,
                 'max_quantity' => $asset->available_quantity,

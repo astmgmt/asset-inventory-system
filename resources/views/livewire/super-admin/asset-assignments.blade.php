@@ -204,7 +204,7 @@
                                                 >
                                             </td>
                                             <td data-label="Asset" class="text-left px-2 py-1">
-                                                {{ $asset['name'] }} ({{ $asset['code'] }})
+                                                {{ $asset['name'] }} {{ $asset['model'] }} ({{ $asset['code'] }})
                                             </td>
                                             <td data-label="Quantity" class="text-center px-2 py-1">
                                                 <input 

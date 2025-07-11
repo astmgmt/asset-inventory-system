@@ -183,7 +183,8 @@ class AdminReturnAssets extends Component
                         'returned_by' => Auth::user()->name,
                         'department' => Auth::user()->department->name ?? 'N/A',
                         'returned_at' => now()->format('Y-m-d H:i:s'),
-                        'transaction_status' => $remainingItems > 0 ? 'PartiallyReturned' : 'Returned'
+                        'transaction_status' => $remainingItems > 0 ? 'PartiallyReturned' : 'Returned',
+                        'remarks_from_admin' => $this->returnRemarks
                     ],
                     'action_date' => now()
                 ]);

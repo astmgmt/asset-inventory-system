@@ -108,42 +108,53 @@
                                     {{ \Illuminate\Support\Str::limit($remarks, 25) }}
                                 </div>
                             </div>
-                        </td>              
-                                 
+                        </td>                                               
 
                         <td data-label="Date" class="text-center">
                             {{ $record->action_date->format('M d, Y') }}
                         </td>
                         <td data-label="Actions" class="text-center">
-                            <div class="flex justify-center space-x-2">
+                            <div class="flex justify-center gap-3">
+                                <!-- View Button -->
                                 <button 
                                     wire:click="showDetails({{ $record->id }})"
-                                    class="view-btn bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-md transition mb-1"
+                                    class="w-11 h-11 flex items-center justify-center text-blue-600 hover:text-blue-800 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 rounded-full transition"
+                                    title="View"
+                                    aria-label="View"
                                 >
-                                    <i class="fas fa-eye"></i> View
+                                    <i class="fas fa-eye text-sm" aria-hidden="true"></i>
                                 </button>
 
                                 @if($this->canPrint($record->status) && $record->status !== 'Return Denied')
+                                    <!-- Print Button (active) -->
                                     <button 
-                                        wire:click="generateHistoryPdf({{ $record->id }})" 
-                                        class="bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded-md transition mb-1"
+                                        wire:click="generateHistoryPdf({{ $record->id }})"
+                                        class="w-11 h-11 flex items-center justify-center text-green-600 hover:text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-300 rounded-full transition"
+                                        title="Print"
+                                        aria-label="Print"
                                     >
-                                        <i class="fas fa-print"></i> Print
+                                        <i class="fas fa-print text-sm" aria-hidden="true"></i>
                                     </button>
                                 @else
+                                    <!-- Print Button (disabled) -->
                                     <button 
-                                        class="bg-gray-300 text-gray-500 py-1 px-2 rounded-md cursor-not-allowed mb-1" 
+                                        class="w-11 h-11 flex items-center justify-center text-gray-400 bg-gray-100 cursor-not-allowed rounded-full transition"
+                                        title="Cannot print this record"
+                                        aria-label="Cannot print this record"
                                         disabled
                                     >
-                                        <i class="fas fa-print"></i> Print
+                                        <i class="fas fa-print text-sm" aria-hidden="true"></i>
                                     </button>
                                 @endif
 
+                                <!-- Delete Button -->
                                 <button 
                                     wire:click="confirmDelete({{ $record->id }})"
-                                    class="delete-btn bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded-md transition mb-1"
+                                    class="w-11 h-11 flex items-center justify-center text-red-600 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-300 rounded-full transition"
+                                    title="Delete"
+                                    aria-label="Delete"
                                 >
-                                    <i class="fas fa-trash-alt"></i> Delete
+                                    <i class="fas fa-trash-alt text-sm" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </td>

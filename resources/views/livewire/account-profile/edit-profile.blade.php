@@ -236,15 +236,15 @@
                 <!-- Actions -->
                 <div class="pt-6 flex flex-col sm:flex-row justify-end gap-4">
                     <a href="{{ route('dashboard.superadmin') }}"
-                    class="inline-flex items-center px-6 py-3 rounded-lg bg-gray-200 text-gray-800 text-sm font-medium hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition"
+                    class="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-gray-300 text-gray-800 text-sm font-medium hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition min-w-[120px]"
                     >
-                        <i class="fas fa-arrow-left mr-2"></i> Cancel
+                        <i class="fa-solid fa-xmark mr-2 text-sm"></i> Close
                     </a>
 
                     <button type="submit"
-                        class="inline-flex items-center px-6 py-3 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 transition"
+                        class="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 transition min-w-[120px]"
                     >
-                        <i class="fas fa-save mr-2"></i> Update
+                        <i class="fas fa-save mr-2 text-sm"></i> Update
                     </button>
                 </div>
 

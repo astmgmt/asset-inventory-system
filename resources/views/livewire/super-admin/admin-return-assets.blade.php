@@ -154,7 +154,7 @@
                             <thead>
                                 <tr>
                                     <th>Asset Code</th>
-                                    <th>Name</th>
+                                    <th>Asset</th>
                                     <th>Quantity</th>
                                     <th>Purpose</th>
                                 </tr>
@@ -166,7 +166,7 @@
                                             {{ $item->asset->asset_code }}
                                         </td>
                                         <td data-label="Asset Name" class="text-center">
-                                            {{ $item->asset->name }}
+                                            {{ $item->asset->name }} {{ $item->asset->model_number }}
                                         </td>
                                         <td data-label="Quantity" class="text-center">
                                             {{ $item->quantity }}
@@ -209,7 +209,7 @@
                                         >
                                     </th>
                                     <th>Asset Code</th>
-                                    <th>Asset Name</th>
+                                    <th>Asset</th>
                                     <th>Quantity</th>
                                     <th>Purpose</th>
                                 </tr>
@@ -228,7 +228,7 @@
                                             {{ $item->asset->asset_code }}
                                         </td>
                                         <td data-label="Asset Name" class="text-center">
-                                            {{ $item->asset->name }}
+                                            {{ $item->asset->name }} {{ $item->asset->model_number }}
                                         </td>
                                         <td data-label="Quantity" class="text-center">
                                             {{ $item->quantity }}

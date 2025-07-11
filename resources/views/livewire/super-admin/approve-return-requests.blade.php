@@ -143,16 +143,18 @@
                             <table class="min-w-full text-sm text-left text-gray-700">
                                 <thead class="bg-gray-100 text-xs uppercase text-gray-600">
                                     <tr>
-                                        <th class="px-4 py-2">Asset Code</th>
-                                        <th class="px-4 py-2">Asset Name</th>
+                                        <th class="px-4 py-2 text-center">Asset Code</th>
+                                        <th class="px-4 py-2 text-center">Brand</th>
+                                        <th class="px-4 py-2 text-center">Model</th>
                                         <th class="px-4 py-2 text-center">Quantity</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white">
                                     @foreach($approveBorrowItems as $item)
-                                        <tr class="border-t">
+                                        <tr class="border-t text-center">
                                             <td class="px-4 py-2">{{ $item->asset->asset_code }}</td>
                                             <td class="px-4 py-2">{{ $item->asset->name }}</td>
+                                            <td class="px-4 py-2">{{ $item->asset->model_number }}</td>
                                             <td class="px-4 py-2 text-center">{{ $item->quantity }}</td>
                                         </tr>
                                     @endforeach
@@ -260,8 +262,9 @@
                             <table class="min-w-full text-sm text-left text-gray-700">
                                 <thead class="bg-gray-100 text-xs uppercase text-gray-600">
                                     <tr>
-                                        <th class="px-4 py-2">Asset Code</th>
-                                        <th class="px-4 py-2">Asset Name</th>
+                                        <th class="px-4 py-2 text-center">Asset Code</th>
+                                        <th class="px-4 py-2 text-center">Brand</th>
+                                        <th class="px-4 py-2 text-center">Model</th>
                                         <th class="px-4 py-2 text-center">Quantity</th>
                                     </tr>
                                 </thead>
@@ -270,6 +273,7 @@
                                         <tr class="border-t">
                                             <td class="px-4 py-2 text-center">{{ $item->asset->asset_code }}</td>
                                             <td class="px-4 py-2 text-center">{{ $item->asset->name }}</td>
+                                            <td class="px-4 py-2 text-center">{{ $item->asset->model_number }}</td>
                                             <td class="px-4 py-2 text-center">{{ $item->quantity }}</td>
                                         </tr>
                                     @endforeach
