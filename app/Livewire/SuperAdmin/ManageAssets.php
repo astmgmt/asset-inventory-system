@@ -357,21 +357,7 @@ class ManageAssets extends Component
             
         $this->closeModals();
         $this->dispatch('clear-message');
-
-        // if ($this->quantity > 1) {
-        //     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.asset-batch', [
-        //         'assets' => $assetsData
-        //     ])->setPaper([0, 0, 266.4, 288], 'portrait');
-            
-        //     return response()->streamDownload(
-        //         function () use ($pdf) {
-        //             echo $pdf->stream();
-        //         },
-        //         'asset_batch_'.now()->format('Ymd_His').'.pdf'
-        //     );
-        // } else {
-        //     $this->dispatch('open-asset-pdf', id: $insertedIds[0]);
-        // }
+        
     }
 
     public function updateAsset()
