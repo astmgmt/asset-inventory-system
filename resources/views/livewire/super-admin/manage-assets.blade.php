@@ -543,7 +543,7 @@
                                     type="date" 
                                     wire:model="warranty_expiration" 
                                     class="form-input"
-                                    min="{{ now()->format('Y-m-d') }}"
+                                    {{-- min="{{ now()->format('Y-m-d') }}" --}}
                                 >
                                 @error('warranty_expiration') <span class="error">{{ $message }}</span> @enderror
                             </div>
@@ -643,10 +643,12 @@
                             <!-- Warranty Expiration -->
                             <div class="asset-details p-4 rounded-md shadow-sm">
                                 <label class="block text-sm font-semibold text-gray-500 dark:text-gray-300 mb-1">Warranty Expiration</label>
-                                <p class="text-lg">{{ $viewAsset->warranty_expiration->format('M d, Y') }}</p>
-                                @if ($viewAsset->expiry_status === 'expired' && $viewAsset->show_status === 0)
-                                    <p class="text-red-500 font-medium">Expired</p>
-                                @endif
+                                <p class="text-lg {{ $viewAsset->warranty_expiration->isPast() ? 'text-red-600' : '' }}">
+                                    {{ $viewAsset->warranty_expiration->format('M d, Y') }}
+                                    @if ($viewAsset->warranty_expiration->isPast())
+                                        <span class="text-red-600 font-medium">(Expired)</span>
+                                    @endif
+                                </p>
                             </div>
 
                             <!-- Status -->

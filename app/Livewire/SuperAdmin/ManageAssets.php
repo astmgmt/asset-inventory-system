@@ -384,6 +384,14 @@ class ManageAssets extends Component
         $asset = Asset::findOrFail($this->assetId);
         $newCondition = AssetCondition::find($this->condition_id);
         $isDisposed = $newCondition->condition_name === 'Disposed';
+        
+        $warrantyExpired = Carbon::parse($this->warranty_expiration)->isPast();
+        $expiredCondition = AssetCondition::where('condition_name', 'Expired')->first();
+        
+        if ($warrantyExpired && $newCondition->condition_name !== 'Expired' && $expiredCondition) {
+            $this->condition_id = $expiredCondition->id;
+            $newCondition = $expiredCondition;
+        }
 
         $asset->update([
             'name' => $this->name,
@@ -396,6 +404,8 @@ class ManageAssets extends Component
             'vendor_id' => $this->vendor_id,
             'warranty_expiration' => $this->warranty_expiration,
             'is_disposed' => $isDisposed,
+            'expiry_status' => $warrantyExpired ? 'expired' : 'active',
+            'show_status' => $warrantyExpired ? $asset->show_status : 1,
         ]);
 
         $this->successMessage = 'Asset updated successfully!';

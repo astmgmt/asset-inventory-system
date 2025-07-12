@@ -36,7 +36,7 @@
                                                     <input 
                                                         type="text" 
                                                         wire:model="serialNumbers.{{ $index }}"
-                                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                        class="block w-full bg-gray-50 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                         placeholder="Enter serial number"
                                                     >
                                                     @error("serialNumbers.{$index}") 
@@ -64,12 +64,14 @@
                             wire:click="saveSerials" 
                             class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring focus:ring-blue-300 disabled:opacity-25 transition"
                             wire:loading.attr="disabled"
+                            wire:target="saveSerials"
                         >
-                            <span wire:loading.remove>Save and Close</span>
-                            <span wire:loading>
+                            <span wire:loading.remove wire:target="saveSerials">Save and Close</span>
+                            <span wire:loading wire:target="saveSerials">
                                 <i class="fas fa-spinner fa-spin mr-1"></i> Saving...
                             </span>
                         </button>
+
                         <button 
                             wire:click="closeModal" 
                             class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition"
