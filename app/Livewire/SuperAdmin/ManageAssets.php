@@ -193,22 +193,29 @@ class ManageAssets extends Component
     public function openEditModal($id)
     {
         $asset = Asset::findOrFail($id);
-        
+    
         $this->assetId = $asset->id;
         $this->name = $asset->name;
         $this->description = $asset->description;
         $this->quantity = $asset->quantity;
         $this->model_number = $asset->model_number;
         $this->modelInput = $asset->model_number;
-        $this->category_id = $asset->category_id;
-        $this->condition_id = $asset->condition_id;
-        $this->location_id = $asset->location_id;
-        $this->vendor_id = $asset->vendor_id;
-        $this->warranty_expiration = $asset->warranty_expiration->format('Y-m-d');
         $this->serial_number = $asset->serial_number;
-
+        
+        $this->category_id = $asset->category_id;
+        $this->categorySearch = $asset->category->category_name ?? '';
+        
+        $this->condition_id = $asset->condition_id;
         $this->originalConditionId = $asset->condition_id;
         
+        $this->location_id = $asset->location_id;
+        $this->locationSearch = $asset->location->location_name ?? '';
+        
+        $this->vendor_id = $asset->vendor_id;
+        $this->vendorSearch = $asset->vendor->vendor_name ?? '';
+        
+        $this->warranty_expiration = $asset->warranty_expiration->format('Y-m-d');
+
         $this->showEditModal = true;
     }    
 
@@ -431,7 +438,7 @@ class ManageAssets extends Component
                       });
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(10, ['*'], 'assetsPage');
 
         return view('livewire.super-admin.manage-assets', [
             'assets' => $assets,

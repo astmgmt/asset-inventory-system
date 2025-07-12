@@ -32,14 +32,23 @@
                 @else
                     <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 pointer-events-none"></i>
                 @endif
-            </div>
-            
+            </div>            
+
             <!-- Add Button -->
             <div class="flex justify-end mb-4">
                 <button wire:click="openAddModal" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md shadow-sm inline-flex items-center transition-colors duration-200">
                     <i class="fas fa-plus mr-2"></i> Add New Asset
                 </button>
+                
+                @php
+                    $nullSerialsCount = \App\Models\Asset::whereNull('serial_number')->count();
+                @endphp
+                
+                @if($nullSerialsCount >= 2)
+                    <livewire:super-admin.add-serial-numbers />
+                @endif
             </div>
+
         </div>
 
         <table class="user-table">           
@@ -129,6 +138,11 @@
                 @endforelse
             </tbody>
         </table>
+
+        <!-- Pagination Links -->
+        <div class="mt-4">
+            {{ $assets->links(data: ['pageName' => 'assetsPage']) }}
+        </div>
 
         <!-- Add Asset Modal -->
         @if ($showAddModal)
@@ -357,9 +371,7 @@
                                 <label>Brand *</label>
                                 <input type="text" wire:model="name" class="form-input">
                                 @error('name') <span class="error">{{ $message }}</span> @enderror
-                            </div>
-                            
-                            <!-- REMOVED QUANTITY HERE -->
+                            </div>                            
                             
                             <div class="form-group">
                                 <label>Model *</label>
@@ -367,7 +379,6 @@
                                 @error('model_number') <span class="error">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- Add Serial Number field -->
                             <div class="form-group">
                                 <label>Serial Number</label>
                                 <input 
@@ -383,12 +394,34 @@
                             
                             <div class="form-group">
                                 <label>Category *</label>
-                                <select wire:model="category_id" class="form-input">
-                                    <option value="">Select Category</option>
-                                    @foreach($categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                                    @endforeach
-                                </select>
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        wire:model.live="categorySearch"
+                                        placeholder="Search or add category"
+                                        class="form-input"
+                                    />
+                                    @if($showCategoryDropdown)
+                                        <div class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                                            @foreach($categorySuggestions as $category)
+                                                <div 
+                                                    wire:click="selectCategory('{{ $category }}')"
+                                                    class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                >
+                                                    {{ $category }}
+                                                </div>
+                                            @endforeach
+                                            @if(!in_array($categorySearch, $categorySuggestions) && !empty($categorySearch))
+                                                <div 
+                                                    wire:click="selectCategory('{{ $categorySearch }}')"
+                                                    class="px-4 py-2 text-blue-500 hover:bg-blue-100 cursor-pointer"
+                                                >
+                                                    Add "{{ $categorySearch }}"
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
                                 @error('category_id') <span class="error">{{ $message }}</span> @enderror
                             </div>
                             
@@ -440,23 +473,67 @@
                             
                             <div class="form-group">
                                 <label>Location *</label>
-                                <select wire:model="location_id" class="form-input">
-                                    <option value="">Select Location</option>
-                                    @foreach($locations as $location)
-                                        <option value="{{ $location->id }}">{{ $location->location_name }}</option>
-                                    @endforeach
-                                </select>
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        wire:model.live="locationSearch"
+                                        placeholder="Search or add location"
+                                        class="form-input"
+                                    />
+                                    @if($showLocationDropdown)
+                                        <div class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                                            @foreach($locationSuggestions as $location)
+                                                <div 
+                                                    wire:click="selectLocation('{{ $location }}')"
+                                                    class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                >
+                                                    {{ $location }}
+                                                </div>
+                                            @endforeach
+                                            @if(!in_array($locationSearch, $locationSuggestions) && !empty($locationSearch))
+                                                <div 
+                                                    wire:click="selectLocation('{{ $locationSearch }}')"
+                                                    class="px-4 py-2 text-blue-500 hover:bg-blue-100 cursor-pointer"
+                                                >
+                                                    Add "{{ $locationSearch }}"
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
                                 @error('location_id') <span class="error">{{ $message }}</span> @enderror
                             </div>
                             
                             <div class="form-group">
                                 <label>Vendor/Supplier *</label>
-                                <select wire:model="vendor_id" class="form-input">
-                                    <option value="">Select Vendor</option>
-                                    @foreach($vendors as $vendor)
-                                        <option value="{{ $vendor->id }}">{{ $vendor->vendor_name }}</option>
-                                    @endforeach
-                                </select>
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        wire:model.live="vendorSearch"
+                                        placeholder="Search or add vendor"
+                                        class="form-input"
+                                    />
+                                    @if($showVendorDropdown)
+                                        <div class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                                            @foreach($vendorSuggestions as $vendor)
+                                                <div 
+                                                    wire:click="selectVendor('{{ $vendor }}')"
+                                                    class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                >
+                                                    {{ $vendor }}
+                                                </div>
+                                            @endforeach
+                                            @if(!in_array($vendorSearch, $vendorSuggestions) && !empty($vendorSearch))
+                                                <div 
+                                                    wire:click="selectVendor('{{ $vendorSearch }}')"
+                                                    class="px-4 py-2 text-blue-500 hover:bg-blue-100 cursor-pointer"
+                                                >
+                                                    Add "{{ $vendorSearch }}"
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
                                 @error('vendor_id') <span class="error">{{ $message }}</span> @enderror
                             </div>
                             
