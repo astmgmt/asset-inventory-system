@@ -1,5 +1,5 @@
 <div>
-    @if($nullSerialsCount >= 2)
+    @if($nullSerialsCount >= 1)
         <button wire:click="openModal" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-sm inline-flex items-center transition-colors duration-200 ml-2">
             <i class="fas fa-list mr-2"></i> Add Missing Serial Numbers ({{ $nullSerialsCount }})
         </button>
@@ -17,14 +17,19 @@
                     <div class="mb-4">
                         <div class="overflow-x-auto">
                             @error('databaseDuplicate')
-                                <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
-                                    <p>{{ $message }}</p>
+                                <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+                                    <p class="text-red-700">{{ $message }}</p>
                                 </div>
                             @enderror
 
                             @error('generalError')
-                                <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
-                                    <p>{{ $message }}</p>
+                                <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+                                    <p class="text-red-700">{{ $message }}</p>
+                                </div>
+                            @enderror
+                            @error('emptyFields')
+                                <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+                                    <p class="text-red-700">{{ $message }}</p>
                                 </div>
                             @enderror
                             
@@ -48,7 +53,7 @@
                                                     <input 
                                                         type="text" 
                                                         wire:model="serialNumbers.{{ $index }}"
-                                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm
+                                                        class="block w-full rounded-md bg-gray-50 text-gray-700 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm
                                                             @error("serialNumbers.{$index}") border-red-500 focus:border-red-500 focus:ring-red-500 @enderror
                                                             @if($fieldErrors[$index] ?? false) border-red-500 focus:border-red-500 focus:ring-red-500 @endif"
                                                         placeholder="Enter serial number"

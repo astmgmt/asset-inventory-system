@@ -44,7 +44,7 @@
                     $nullSerialsCount = \App\Models\Asset::whereNull('serial_number')->count();
                 @endphp
                 
-                @if($nullSerialsCount >= 2)
+                @if($nullSerialsCount >= 1)
                     <livewire:super-admin.add-serial-numbers />
                 @endif
             </div>

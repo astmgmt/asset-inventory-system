@@ -23,16 +23,16 @@ class AddSerialNumbers extends Component
 
     protected $listeners = ['checkDuplicates' => 'checkForDuplicates'];
 
-    public function mount()
-    {
-        $this->updateCounts();
-    }
-
-    protected function updateCounts()
+    public function refreshCount()
     {
         $this->nullSerialsCount = Asset::whereNull('serial_number')->count();
         $this->totalPages = max(1, ceil($this->nullSerialsCount / $this->perPage));
     }
+
+    public function mount()
+    {
+        $this->refreshCount(); 
+    }    
 
     public function loadAssets()
     {
@@ -50,7 +50,7 @@ class AddSerialNumbers extends Component
     public function openModal()
     {
         $this->currentPage = 1;
-        $this->updateCounts();
+        $this->refreshCount();
         $this->loadAssets();
         $this->showModal = true;
         $this->showContinueModal = false;
@@ -58,13 +58,17 @@ class AddSerialNumbers extends Component
 
     public function saveSerials()
     {
+        if (empty(array_filter($this->serialNumbers))) {
+            $this->addError('emptyFields', 'Please fill up at least one serial number or click Cancel to close.');
+            return;
+        }
+
         $this->validate([
             'serialNumbers.*' => 'nullable|string|max:20|unique:assets,serial_number',
         ], [
             'serialNumbers.*.unique' => 'The serial number :input has already been taken.',
         ]);
 
-        // Check for duplicates in current batch
         $this->checkForBatchDuplicates();
 
         if (!empty(array_filter($this->fieldErrors))) {
@@ -72,21 +76,25 @@ class AddSerialNumbers extends Component
         }
 
         try {
+            $updatedCount = 0;
             foreach ($this->assets as $index => $assetData) {
                 if (!empty($this->serialNumbers[$index])) {
                     $asset = Asset::find($assetData['id']);
                     $asset->update(['serial_number' => $this->serialNumbers[$index]]);
+                    $updatedCount++;
                 }
             }
 
-            $this->updateCounts();
+            $this->refreshCount();
             $this->showModal = false;
             
-            if ($this->nullSerialsCount > 0) {
-                $this->showContinueModal = true;
-            } else {
-                Session::flash('message', 'Serial numbers updated successfully!');
-                $this->dispatch('refresh-parent');
+            if ($updatedCount > 0) {
+                if ($this->nullSerialsCount > 0) {
+                    $this->showContinueModal = true;
+                } else {
+                    Session::flash('message', 'Serial numbers updated successfully!');
+                    $this->dispatch('refresh-parent');
+                }
             }
         } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
             $this->addError('databaseDuplicate', 'One or more serial numbers already exist in the system. Please use unique values.');
@@ -99,7 +107,6 @@ class AddSerialNumbers extends Component
     {
         $this->fieldErrors = array_fill(0, count($this->assets), null);
         
-        // Find duplicates in current batch
         $counts = array_count_values(array_filter($this->serialNumbers));
         $duplicates = array_filter($counts, fn($count) => $count > 1);
         
@@ -125,7 +132,7 @@ class AddSerialNumbers extends Component
     public function continueAdding()
     {
         $this->currentPage = 1; 
-        $this->updateCounts();
+        $this->refreshCount();
         $this->loadAssets();
         $this->showContinueModal = false;
         $this->showModal = true;
@@ -135,6 +142,7 @@ class AddSerialNumbers extends Component
 
     public function closeAll()
     {
+        $this->refreshCount();
         $this->resetValidationErrors();
         $this->showModal = false;
         $this->showContinueModal = false;
