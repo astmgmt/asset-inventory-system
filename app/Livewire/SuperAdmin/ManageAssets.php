@@ -372,13 +372,20 @@ class ManageAssets extends Component
         $this->validate([
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
-            'serial_number' => 'nullable|string|max:20|unique:assets,serial_number,'.$this->assetId,
+            'serial_number' => [
+                'nullable',
+                'string',
+                'max:20',
+                Rule::unique('assets', 'serial_number')->ignore($this->assetId),
+            ],
             'model_number' => 'required|string|max:50',
             'category_id' => 'required|exists:asset_categories,id',
             'condition_id' => 'required|exists:asset_conditions,id',
             'location_id' => 'required|exists:asset_locations,id',
             'vendor_id' => 'required|exists:vendors,id',
             'warranty_expiration' => 'required|date',
+        ], [
+            'serial_number.unique' => 'This serial number is already in use by another asset.',
         ]);
 
         $asset = Asset::findOrFail($this->assetId);

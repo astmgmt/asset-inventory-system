@@ -16,6 +16,18 @@
                     
                     <div class="mb-4">
                         <div class="overflow-x-auto">
+                            @error('databaseDuplicate')
+                                <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+                                    <p>{{ $message }}</p>
+                                </div>
+                            @enderror
+
+                            @error('generalError')
+                                <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+                                    <p>{{ $message }}</p>
+                                </div>
+                            @enderror
+                            
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
@@ -36,14 +48,18 @@
                                                     <input 
                                                         type="text" 
                                                         wire:model="serialNumbers.{{ $index }}"
-                                                        class="block w-full bg-gray-50 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm
+                                                            @error("serialNumbers.{$index}") border-red-500 focus:border-red-500 focus:ring-red-500 @enderror
+                                                            @if($fieldErrors[$index] ?? false) border-red-500 focus:border-red-500 focus:ring-red-500 @endif"
                                                         placeholder="Enter serial number"
+                                                        wire:keydown.debounce.500ms="checkForDuplicates"
                                                     >
                                                     @error("serialNumbers.{$index}") 
-                                                        <span class="mt-1 text-sm text-red-600">
-                                                            {{ str_replace("serialNumbers.{$index}", 'serial # ', $message) }}
-                                                        </span> 
+                                                        <span class="mt-1 text-sm text-red-600">{{ $message }}</span> 
                                                     @enderror
+                                                    @if($fieldErrors[$index] ?? false)
+                                                        <span class="mt-1 text-sm text-red-600">{{ $fieldErrors[$index] }}</span>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @endforeach
