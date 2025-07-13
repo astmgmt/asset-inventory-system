@@ -12,6 +12,8 @@ use Livewire\WithPagination;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
+
 
 class ManageAssets extends Component
 {
@@ -358,11 +360,12 @@ class ManageAssets extends Component
             $assetsData = $insertedAssets->toArray();
         });
 
+        $this->closeModals();
         $this->successMessage = $this->quantity > 1 
             ? "{$this->quantity} assets created successfully!" 
-            : "Asset created successfully!";
-            
-        $this->closeModals();
+            : "Asset created successfully!";            
+        
+        $this->dispatch('refresh-serial-count');
         $this->dispatch('clear-message');
         
     }
@@ -417,6 +420,7 @@ class ManageAssets extends Component
 
         $this->successMessage = 'Asset updated successfully!';
         $this->closeModals();
+        $this->dispatch('refresh-serial-count'); 
         $this->dispatch('clear-message');
     }
 

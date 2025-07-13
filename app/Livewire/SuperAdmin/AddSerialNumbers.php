@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Asset;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\Rule;
 
 class AddSerialNumbers extends Component
 {
@@ -21,7 +22,10 @@ class AddSerialNumbers extends Component
     public $totalPages = 1;
     public $fieldErrors = [];
 
-    protected $listeners = ['checkDuplicates' => 'checkForDuplicates'];
+    protected $listeners = [
+        'checkDuplicates' => 'checkForDuplicates',
+        'refresh-serial-count' => 'refreshCount' 
+    ];
 
     public function refreshCount()
     {
