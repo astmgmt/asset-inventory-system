@@ -142,7 +142,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7">No assets found.</td>
+                        <td colspan="8">No assets found.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -184,7 +184,7 @@
                                         class="form-input"
                                     />
                                     @if($showModelDropdown)
-                                        <div class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                                        <div class="absolute z-10 w-full bg-white border border-gray-300 text-gray-700 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
                                             @foreach($modelSuggestions as $model)
                                                 <div 
                                                     wire:click="selectModelNumber('{{ $model }}')"
@@ -210,7 +210,7 @@
                                         class="form-input"
                                     />
                                     @if($showCategoryDropdown)
-                                        <div class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                                        <div class="absolute z-10 w-full bg-white border border-gray-300 text-gray-700 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
                                             @foreach($categorySuggestions as $category)
                                                 <div 
                                                     wire:click="selectCategory('{{ $category }}')"
@@ -253,7 +253,7 @@
                                         class="form-input"
                                     />
                                     @if($showLocationDropdown)
-                                        <div class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                                        <div class="absolute z-10 w-full bg-white border border-gray-300 text-gray-700 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
                                             @foreach($locationSuggestions as $location)
                                                 <div 
                                                     wire:click="selectLocation('{{ $location }}')"
@@ -287,7 +287,7 @@
                                         class="form-input"
                                     />
                                     @if($showVendorDropdown)
-                                        <div class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                                        <div class="absolute z-10 w-full bg-white border border-gray-300 text-gray-700 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
                                             @foreach($vendorSuggestions as $vendor)
                                                 <div 
                                                     wire:click="selectVendor('{{ $vendor }}')"
@@ -411,7 +411,7 @@
                                         class="form-input"
                                     />
                                     @if($showCategoryDropdown)
-                                        <div class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                                        <div class="absolute z-10 w-full bg-white border border-gray-300 text-gray-700 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
                                             @foreach($categorySuggestions as $category)
                                                 <div 
                                                     wire:click="selectCategory('{{ $category }}')"
@@ -490,7 +490,7 @@
                                         class="form-input"
                                     />
                                     @if($showLocationDropdown)
-                                        <div class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                                        <div class="absolute z-10 w-full bg-white border border-gray-300 text-gray-700 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
                                             @foreach($locationSuggestions as $location)
                                                 <div 
                                                     wire:click="selectLocation('{{ $location }}')"
@@ -523,7 +523,7 @@
                                         class="form-input"
                                     />
                                     @if($showVendorDropdown)
-                                        <div class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                                        <div class="absolute z-10 w-full bg-white border border-gray-300 text-gray-700 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
                                             @foreach($vendorSuggestions as $vendor)
                                                 <div 
                                                     wire:click="selectVendor('{{ $vendor }}')"

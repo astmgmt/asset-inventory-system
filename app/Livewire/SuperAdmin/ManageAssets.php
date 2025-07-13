@@ -290,6 +290,8 @@ class ManageAssets extends Component
 
     public function createAsset()
     {
+        $this->model_number = $this->modelInput;
+        
         $this->validate([
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
@@ -307,8 +309,7 @@ class ManageAssets extends Component
             'warranty_expiration' => 'required|date',
         ]);
 
-        try {
-            $this->model_number = $this->modelInput;
+        try {            
 
             $insertedIds = [];
             $assetsData = [];
