@@ -64,9 +64,18 @@ class AddSerialNumbers extends Component
         }
 
         $this->validate([
-            'serialNumbers.*' => 'nullable|string|max:20|unique:assets,serial_number',
+            'serialNumbers.*' => [
+                'nullable',
+                'string',
+                'max:20',
+                function ($attribute, $value, $fail) {
+                    if (!empty($value) && Asset::where('serial_number', $value)->exists()) {
+                        $fail('This serial number has already been taken.');
+                    }
+                },
+            ],
         ], [
-            'serialNumbers.*.unique' => 'The serial number :input has already been taken.',
+            'serialNumbers.*.max' => 'Serial number cannot exceed 20 characters',
         ]);
 
         $this->checkForBatchDuplicates();
@@ -122,7 +131,16 @@ class AddSerialNumbers extends Component
     public function checkForDuplicates()
     {
         $this->validate([
-            'serialNumbers.*' => 'nullable|string|max:20|unique:assets,serial_number',
+            'serialNumbers.*' => [
+                'nullable',
+                'string',
+                'max:20',
+                function ($attribute, $value, $fail) {
+                    if (!empty($value) && Asset::where('serial_number', $value)->exists()) {
+                        $fail('This serial number has already been taken.');
+                    }
+                },
+            ],
         ]);
         
         $this->checkForBatchDuplicates();
