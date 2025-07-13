@@ -12,6 +12,15 @@
             </div>
         @endif
 
+        @if ($errorMessage)
+            <div class="error-message mb-4" 
+                x-data="{ show: true }" 
+                x-show="show"
+                x-init="setTimeout(() => show = false, 5000)">
+                {{ $errorMessage }}
+            </div>
+        @endif
+
         <!-- Action Bar -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <!-- Search Bar with Clear Button -->
@@ -160,7 +169,7 @@
                             
                             <div class="form-group">
                                 <label>Quantity *</label>
-                                <input type="number" wire:model="quantity" min="1" class="form-input">
+                                <input type="number" wire:model="quantity" min="1" max="100" class="form-input">
                                 @error('quantity') <span class="error">{{ $message }}</span> @enderror
                             </div>
                             

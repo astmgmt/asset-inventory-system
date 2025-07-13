@@ -288,16 +288,18 @@ class ManageAssets extends Component
         ];
     }
 
-    
     public function createAsset()
     {
-        $this->model_number = $this->modelInput;
-        
         $this->validate([
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
-            'serial_number' => 'nullable|string|max:20|unique:assets,serial_number',
-            'quantity' => 'required|integer|min:1',
+            'serial_number' => [
+                'nullable',
+                'string',
+                'max:20',
+                Rule::unique('assets', 'serial_number')->ignore($this->assetId),
+            ],
+            'quantity' => 'required|integer|min:1|max:100',
             'model_number' => 'required|string|max:50',
             'category_id' => 'required|exists:asset_categories,id',
             'location_id' => 'required|exists:asset_locations,id',
@@ -305,69 +307,76 @@ class ManageAssets extends Component
             'warranty_expiration' => 'required|date',
         ]);
 
-        $insertedIds = [];
-        $assetsData = [];
-        
-        DB::transaction(function () use (&$insertedIds, &$assetsData) {
-            $lastAsset = Asset::orderBy('id', 'desc')->first();
-            $lastId = $lastAsset ? $lastAsset->id : 0;
-            $lastAssetCode = Asset::withTrashed() 
-                ->where('asset_code', 'like', 'AST-%')
-                ->orderBy('asset_code', 'desc')
-                ->first();
-                
-            $lastNum = $lastAssetCode ? intval(substr($lastAssetCode->asset_code, -8)) : 0;
-            
-            $assets = [];
-            $currentDate = now()->format('mdY');
-            $assetCodes = [];
-            
-            for ($i = 0; $i < $this->quantity; $i++) {
-                $newNum = $lastNum + 1;
-                $formattedNum = str_pad($newNum, 8, '0', STR_PAD_LEFT);
-                $assetCode = "AST-{$currentDate}-{$formattedNum}";
-                $lastNum = $newNum;
-                
-                $serialNumber = ($i === 0) ? $this->serial_number : null;
+        try {
+            $this->model_number = $this->modelInput;
 
-                $assets[] = [
-                    'asset_code' => $assetCode,
-                    'serial_number' => $serialNumber,
-                    'name' => $this->name,
-                    'description' => $this->description,
-                    'quantity' => 1, 
-                    'model_number' => $this->model_number,
-                    'category_id' => $this->category_id,
-                    'condition_id' => $this->condition_id,
-                    'location_id' => $this->location_id,
-                    'vendor_id' => $this->vendor_id,
-                    'warranty_expiration' => $this->warranty_expiration,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-                
-                $assetCodes[] = $assetCode;
-            }
-
-            Asset::insert($assets);
+            $insertedIds = [];
+            $assetsData = [];
             
-            $insertedAssets = Asset::with(['category', 'condition', 'location', 'vendor'])
-                ->whereIn('asset_code', $assetCodes)
-                ->orderBy('id')
-                ->get();
+            DB::transaction(function () use (&$insertedIds, &$assetsData) {
+                $lastAsset = Asset::orderBy('id', 'desc')->first();
+                $lastId = $lastAsset ? $lastAsset->id : 0;
+                $lastAssetCode = Asset::withTrashed() 
+                    ->where('asset_code', 'like', 'AST-%')
+                    ->orderBy('asset_code', 'desc')
+                    ->first();
+                    
+                $lastNum = $lastAssetCode ? intval(substr($lastAssetCode->asset_code, -8)) : 0;
                 
-            $insertedIds = $insertedAssets->pluck('id')->toArray();
-            $assetsData = $insertedAssets->toArray();
-        });
+                $assets = [];
+                $currentDate = now()->format('mdY');
+                $assetCodes = [];
+                
+                for ($i = 0; $i < $this->quantity; $i++) {
+                    $newNum = $lastNum + 1;
+                    $formattedNum = str_pad($newNum, 8, '0', STR_PAD_LEFT);
+                    $assetCode = "AST-{$currentDate}-{$formattedNum}";
+                    $lastNum = $newNum;
+                    
+                    $serialNumber = ($i === 0) ? $this->serial_number : null;
 
-        $this->closeModals();
-        $this->successMessage = $this->quantity > 1 
-            ? "{$this->quantity} assets created successfully!" 
-            : "Asset created successfully!";            
-        
-        $this->dispatch('refresh-serial-count');
-        $this->dispatch('clear-message');
-        
+                    $assets[] = [
+                        'asset_code' => $assetCode,
+                        'serial_number' => $serialNumber,
+                        'name' => $this->name,
+                        'description' => $this->description,
+                        'quantity' => 1, 
+                        'model_number' => $this->model_number,
+                        'category_id' => $this->category_id,
+                        'condition_id' => $this->condition_id,
+                        'location_id' => $this->location_id,
+                        'vendor_id' => $this->vendor_id,
+                        'warranty_expiration' => $this->warranty_expiration,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                    
+                    $assetCodes[] = $assetCode;
+                }
+
+                Asset::insert($assets);
+                
+                $insertedAssets = Asset::with(['category', 'condition', 'location', 'vendor'])
+                    ->whereIn('asset_code', $assetCodes)
+                    ->orderBy('id')
+                    ->get();
+                    
+                $insertedIds = $insertedAssets->pluck('id')->toArray();
+                $assetsData = $insertedAssets->toArray();
+            });
+
+            $this->closeModals();
+            $this->successMessage = $this->quantity > 1 
+                ? "{$this->quantity} assets created successfully!" 
+                : "Asset created successfully!";            
+            
+            $this->dispatch('refresh-serial-count');
+            $this->dispatch('clear-message');
+            
+        } catch (\Exception $e) {
+            $this->errorMessage = "Error creating asset: " . $e->getMessage();
+            $this->dispatch('clear-message');
+        }
     }
 
     public function updateAsset()
@@ -391,47 +400,61 @@ class ManageAssets extends Component
             'serial_number.unique' => 'This serial number is already in use by another asset.',
         ]);
 
-        $asset = Asset::findOrFail($this->assetId);
-        $newCondition = AssetCondition::find($this->condition_id);
-        $isDisposed = $newCondition->condition_name === 'Disposed';
-        
-        $warrantyExpired = Carbon::parse($this->warranty_expiration)->isPast();
-        $expiredCondition = AssetCondition::where('condition_name', 'Expired')->first();
-        
-        if ($warrantyExpired && $newCondition->condition_name !== 'Expired' && $expiredCondition) {
-            $this->condition_id = $expiredCondition->id;
-            $newCondition = $expiredCondition;
+        try {          
+
+            $asset = Asset::findOrFail($this->assetId);
+            $newCondition = AssetCondition::find($this->condition_id);
+            $isDisposed = $newCondition->condition_name === 'Disposed';
+            
+            $warrantyExpired = Carbon::parse($this->warranty_expiration)->isPast();
+            $expiredCondition = AssetCondition::where('condition_name', 'Expired')->first();
+            
+            if ($warrantyExpired && $newCondition->condition_name !== 'Expired' && $expiredCondition) {
+                $this->condition_id = $expiredCondition->id;
+                $newCondition = $expiredCondition;
+            }
+
+            $asset->update([
+                'name' => $this->name,
+                'description' => $this->description,
+                'serial_number' => $this->serial_number,
+                'model_number' => $this->model_number,
+                'category_id' => $this->category_id,
+                'condition_id' => $this->condition_id,
+                'location_id' => $this->location_id,
+                'vendor_id' => $this->vendor_id,
+                'warranty_expiration' => $this->warranty_expiration,
+                'is_disposed' => $isDisposed,
+                'expiry_status' => $warrantyExpired ? 'expired' : 'active',
+                'show_status' => $warrantyExpired ? $asset->show_status : 1,
+            ]);
+
+            $this->successMessage = 'Asset updated successfully!';
+            $this->closeModals();
+            $this->dispatch('refresh-serial-count'); 
+            $this->dispatch('clear-message');
+
+        } catch (\Exception $e) {
+            $this->errorMessage = 'Failed to update asset: ' . $e->getMessage();
+            $this->dispatch('clear-message');
         }
-
-        $asset->update([
-            'name' => $this->name,
-            'description' => $this->description,
-            'serial_number' => $this->serial_number,
-            'model_number' => $this->model_number,
-            'category_id' => $this->category_id,
-            'condition_id' => $this->condition_id,
-            'location_id' => $this->location_id,
-            'vendor_id' => $this->vendor_id,
-            'warranty_expiration' => $this->warranty_expiration,
-            'is_disposed' => $isDisposed,
-            'expiry_status' => $warrantyExpired ? 'expired' : 'active',
-            'show_status' => $warrantyExpired ? $asset->show_status : 1,
-        ]);
-
-        $this->successMessage = 'Asset updated successfully!';
-        $this->closeModals();
-        $this->dispatch('refresh-serial-count'); 
-        $this->dispatch('clear-message');
     }
 
     public function deleteAsset()
     {
-        $asset = Asset::findOrFail($this->assetId);
-        $asset->delete();
-        
-        $this->successMessage = 'Asset deleted successfully!';
-        $this->closeModals();
-        $this->dispatch('clear-message');
+        try {
+            $asset = Asset::findOrFail($this->assetId);
+            $asset->delete();
+            
+            $this->successMessage = 'Asset deleted successfully!';
+            $this->closeModals();
+            $this->dispatch('refresh-serial-count');
+            $this->dispatch('clear-message');
+            
+        } catch (\Exception $e) {
+            $this->errorMessage = 'Failed to delete asset: ' . $e->getMessage();
+            $this->dispatch('clear-message');
+        }
     }
 
     public function clearSuccessMessage()
