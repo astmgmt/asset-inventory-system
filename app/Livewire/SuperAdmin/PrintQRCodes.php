@@ -120,7 +120,7 @@ class PrintQRCodes extends Component
             $end = \Carbon\Carbon::parse($this->dateTo)->endOfDay();
 
             $assets = Asset::with('location')
-                ->whereBetween('created_at', [$start, $end])
+                ->whereBetween('date_acquired', [$start, $end])
                 ->get();
         }
 

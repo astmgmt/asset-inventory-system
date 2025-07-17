@@ -82,7 +82,7 @@ class PrintAssets extends Component
             $end = \Carbon\Carbon::parse($this->dateTo)->endOfDay();
             
             $assets = Asset::with(['category', 'condition', 'location', 'vendor'])
-                ->whereBetween('created_at', [$start, $end])
+                ->whereBetween('date_acquired', [$start, $end])
                 ->get();
         }
 
@@ -103,6 +103,7 @@ class PrintAssets extends Component
                 'location' => $asset->location->location_name,
                 'vendor' => $asset->vendor->vendor_name,
                 'warranty_expiration' => $asset->warranty_expiration,
+                'date_acquired' => $asset->date_acquired,
             ];
         })->toArray();
 

@@ -82,7 +82,7 @@ class PrintSoftwares extends Component
             $end = Carbon::parse($this->dateTo)->endOfDay();
 
             $softwares = Software::with('addedBy')
-                ->whereBetween('created_at', [$start, $end])
+                ->whereBetween('date_acquired', [$start, $end])
                 ->get();
         }
 
@@ -98,6 +98,7 @@ class PrintSoftwares extends Component
                 'description' => $software->description,
                 'license_key' => $software->license_key,
                 'installation_date' => $software->installation_date,
+                'date_acquired' => $software->date_acquired,
                 'expiry_date' => $software->expiry_date,
                 'added_by' => $software->addedBy ? $software->addedBy->name : 'N/A',
             ];

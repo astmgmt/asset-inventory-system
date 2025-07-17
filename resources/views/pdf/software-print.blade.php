@@ -104,11 +104,11 @@
             margin: 2px 0;
         }
         /* Column Widths */
-        .col-code { width: 15%; }
+        .col-code { width: 13%; }
         .col-name { width: 20%; }
         .col-description { width: 25%; }
         .col-license { width: 15%; }
-        .col-install { width: 10%; }
+        .col-date-acquired { width: 12%; }
         .col-expiry { width: 10%; }
         .col-added { width: 10%; }
     </style>
@@ -157,7 +157,7 @@
                     <th class="col-name">Software Name</th>
                     <th class="col-description">Description</th>
                     <th class="col-license">License Key</th>
-                    <th class="col-install">Installation Date</th>
+                    <th class="col-install">Date Acquired</th>
                     <th class="col-expiry">Expiry Date</th>
                     <th class="col-added">Added By</th>
                 </tr>
@@ -169,7 +169,7 @@
                     <td>{{ $software['software_name'] }}</td>
                     <td>{{ $software['description'] }}</td>
                     <td>{{ $software['license_key'] }}</td>
-                    <td>{{ \Carbon\Carbon::parse($software['installation_date'])->format('M d, Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($software['date_acquired'])->format('M d, Y') }}</td>
                     <td>{{ \Carbon\Carbon::parse($software['expiry_date'])->format('M d, Y') }}</td>
                     <td>{{ $software['added_by'] }}</td>
                 </tr>

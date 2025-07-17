@@ -111,14 +111,15 @@
         
         /* Column Widths */
         .col-asset-code { width: 10%; }
-        .col-name { width: 18%; }
-        .col-serial { width: 12%; }
-        .col-model { width: 12%; }
+        .col-name { width: 16%; }
+        .col-serial { width: 10%; }
+        .col-model { width: 10%; }
         .col-category { width: 10%; }
-        .col-condition { width: 10%; }
+        .col-condition { width: 8%; }
         .col-location { width: 10%; }
         .col-vendor { width: 10%; }
-        .col-warranty { width: 8%; }
+        .col-date-acquired { width: 8%; }
+        .col-warranty { width: 8%; }        
     </style>
 </head>
 <body>
@@ -169,7 +170,9 @@
                     <th class="col-condition">Condition</th>
                     <th class="col-location">Location</th>
                     <th class="col-vendor">Vendor</th>
+                    <th class="col-date-acquired">Date Acquired</th>
                     <th class="col-warranty">Warranty Exp.</th>
+                    
                 </tr>
             </thead>            
             <tbody>
@@ -189,6 +192,7 @@
                         <td class="wrap-text">{{ $condition['condition_name'] ?? $asset['condition'] }}</td>
                         <td class="wrap-text">{{ $location['location_name'] ?? $asset['location'] }}</td>
                         <td class="wrap-text">{{ $vendor['vendor_name'] ?? $asset['vendor'] }}</td>
+                        <td>{{ \Carbon\Carbon::parse($asset['date_acquired'])->format('M d, Y') }}</td>
                         <td>{{ \Carbon\Carbon::parse($asset['warranty_expiration'])->format('M d, Y') }}</td>
                     </tr>
                 @endforeach
