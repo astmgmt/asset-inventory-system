@@ -30,6 +30,7 @@ return new class extends Migration
                 'Available',
                 'Unavailable',                
             ])->default('Available');
+            $table->date('date_acquired')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

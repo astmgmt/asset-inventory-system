@@ -48,9 +48,10 @@
                 <tr>
                     <th>Software Code</th>
                     <th>Name</th>
-                    <th>License Key</th>
+                    <th>License Key</th>                    
                     <th>Added By</th>
                     <th>Remarks</th>
+                    <th>Date Acquired</th>
                     <th>Expiry Date</th>
                     <th class="actions-column">Actions</th>
                 </tr>
@@ -60,7 +61,7 @@
                     <tr>
                         <td data-label="Software Code" class="text-center">{{ $software->software_code }}</td>
                         <td data-label="Name" class="text-center">{{ $software->software_name }}</td>
-                        <td data-label="License Key" class="text-center">{{ substr($software->license_key, 0, 8) . '...' }}</td>
+                        <td data-label="License Key" class="text-center">{{ substr($software->license_key, 0, 8) . '...' }}</td>                        
                         <td data-label="Added By" class="text-center">{{ $software->addedBy?->name ?? 'N/A' }}</td>
                         
                         <td data-label="Status" class="text-center">
@@ -77,7 +78,9 @@
                                 {{ $status }}
                             </span>
                         </td>
-
+                        <td data-label="Date Acquired">
+                            {{ $software->date_acquired->format('F d, Y') }}
+                        </td>
                         <td data-label="Expiry Date" class="text-center">
                             {{ $software->expiry_date->format('M d, Y') }}                            
                         </td>
@@ -123,7 +126,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="no-software-row">No software found.</td>
+                        <td colspan="8" class="no-software-row">No software found.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -157,15 +160,16 @@
                             <input type="text" wire:model="license_key"
                                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             @error('license_key') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
+                        </div>                        
+
+                        <!-- Date Acquired -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date Acquired *</label>
+                            <input type="date" wire:model="date_acquired"
+                                class="form-input w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            @error('date_acquired') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
                         </div>
 
-                        <!-- Description -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            <textarea wire:model="description" rows="3"
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>
-                            @error('description') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
-                        </div>
 
                         <!-- Expiry Date -->
                         <div>
@@ -173,6 +177,15 @@
                             <input type="date" wire:model="expiry_date"
                                 class="form-input w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             @error('expiry_date') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
+                        </div>
+
+
+                        <!-- Description -->
+                        <div class="form-group w-full col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <textarea wire:model="description" rows="3"
+                                class="w-full col-span-2 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>
+                            @error('description') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
                         </div>
                     </div>
 
@@ -217,6 +230,14 @@
                             @error('license_key') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
                         </div>
 
+                        <!-- Date Acquired -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date Acquired *</label>
+                            <input type="date" wire:model="date_acquired"
+                                class="form-input w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            @error('date_acquired"') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
+                        </div>
+
                         <!-- Expiry Date -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date *</label>
@@ -226,7 +247,7 @@
                         </div>
 
                         <!-- Description -->
-                        <div>
+                        <div class="form-group w-full col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                             <textarea wire:model="description" rows="3"
                                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>

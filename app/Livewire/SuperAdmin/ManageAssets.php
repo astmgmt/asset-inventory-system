@@ -36,6 +36,7 @@ class ManageAssets extends Component
     public $location_id;
     public $vendor_id;
     public $warranty_expiration;
+    public $date_acquired;
     
     public $modelInput = '';
     public $modelSuggestions = [];
@@ -74,6 +75,7 @@ class ManageAssets extends Component
         $this->condition_id = $newCondition->id ?? null;
         
         $this->warranty_expiration = now()->addYear()->format('Y-m-d');
+        $this->date_acquired = now()->format('Y-m-d');      
     }
 
     public function updatingSearch()
@@ -216,7 +218,9 @@ class ManageAssets extends Component
         $this->vendor_id = $asset->vendor_id;
         $this->vendorSearch = $asset->vendor->vendor_name ?? '';
         
+        $this->date_acquired = $asset->date_acquired->format('Y-m-d');
         $this->warranty_expiration = $asset->warranty_expiration->format('Y-m-d');
+        
 
         $this->showEditModal = true;
     }    
@@ -249,7 +253,7 @@ class ManageAssets extends Component
         $this->reset([
             'assetId', 'name', 'description', 'quantity', 
             'model_number', 'serial_number', 'modelInput', 'category_id', 'condition_id', 
-            'location_id', 'vendor_id', 'warranty_expiration',
+            'location_id', 'vendor_id', 'warranty_expiration', 'date_acquired',
             'modelSuggestions', 'categorySearch', 'categorySuggestions',
             'locationSearch', 'locationSuggestions', 'vendorSearch', 'vendorSuggestions',
             'showModelDropdown', 'showCategoryDropdown', 'showLocationDropdown', 'showVendorDropdown',
@@ -264,6 +268,7 @@ class ManageAssets extends Component
         $this->condition_id = $newCondition->id ?? null;
         
         $this->warranty_expiration = now()->addYear()->format('Y-m-d');
+        $this->date_acquired = now()->format('Y-m-d'); 
     }
 
     private function generateAssetCode($lastNum = null)
@@ -307,6 +312,7 @@ class ManageAssets extends Component
             'location_id' => 'required|exists:asset_locations,id',
             'vendor_id' => 'required|exists:vendors,id',
             'warranty_expiration' => 'required|date',
+            'date_acquired' => 'nullable|date',
         ]);
 
         try {            
@@ -348,6 +354,7 @@ class ManageAssets extends Component
                         'location_id' => $this->location_id,
                         'vendor_id' => $this->vendor_id,
                         'warranty_expiration' => $this->warranty_expiration,
+                        'date_acquired' => $this->date_acquired,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
@@ -397,6 +404,7 @@ class ManageAssets extends Component
             'location_id' => 'required|exists:asset_locations,id',
             'vendor_id' => 'required|exists:vendors,id',
             'warranty_expiration' => 'required|date',
+            'date_acquired' => 'nullable|date',
         ], [
             'serial_number.unique' => 'This serial number is already in use by another asset.',
         ]);
@@ -425,6 +433,7 @@ class ManageAssets extends Component
                 'location_id' => $this->location_id,
                 'vendor_id' => $this->vendor_id,
                 'warranty_expiration' => $this->warranty_expiration,
+                'date_acquired' => $this->date_acquired,
                 'is_disposed' => $isDisposed,
                 'expiry_status' => $warrantyExpired ? 'expired' : 'active',
                 'show_status' => $warrantyExpired ? $asset->show_status : 1,

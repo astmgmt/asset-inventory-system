@@ -41,6 +41,7 @@ class UserBorrowAsset extends Component
     {
         $assets = Asset::query()
             ->join('asset_conditions', 'asset_conditions.id', '=', 'assets.condition_id')
+            ->join('asset_categories', 'asset_categories.id', '=', 'assets.category_id')
             ->whereIn('asset_conditions.condition_name', ['New', 'Available'])
             ->where('assets.is_disposed', false)
             ->whereNotIn('assets.id', array_keys($this->selectedAssets))
@@ -55,6 +56,7 @@ class UserBorrowAsset extends Component
             ->select(
                 'assets.*', 
                 'asset_conditions.condition_name',
+                'asset_categories.category_name',
                 DB::raw('(assets.quantity - assets.reserved_quantity) as available_quantity')
             )
             ->paginate(10);

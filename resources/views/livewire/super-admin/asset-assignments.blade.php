@@ -58,7 +58,7 @@
                     <th>Code</th>
                     <th>Brand</th>
                     <th>Model</th>
-                    <th>Available</th>
+                    <th>Category</th>
                     <th>Condition</th>
                     <th>Actions</th>
                 </tr>
@@ -69,9 +69,7 @@
                         <td data-label="Code" class="text-center">{{ $asset->asset_code }}</td>
                         <td data-label="Name" class="text-center">{{ $asset->name }}</td>
                         <td data-label="Model" class="text-center">{{ $asset->model_number }}</td>
-                        <td data-label="Available" class="text-center">
-                            {{ $asset->available_quantity }} 
-                        </td>
+                        <td data-label="Model" class="text-center">{{ $asset->category_name }}</td>
 
                         <td data-label="Condition" class="text-center">
                             @php

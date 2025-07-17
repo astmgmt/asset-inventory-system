@@ -25,10 +25,12 @@ class Software extends Model
         'last_notified_at',
         'show_status',
         'assign_status',
+        'date_acquired',
     ];
 
     protected $casts = [
         'expiry_date' => 'date',
+        'date_acquired' => 'date',
         'expiry_flag' => 'boolean',
         'last_notified_at' => 'datetime',
     ];

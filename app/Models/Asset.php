@@ -22,6 +22,7 @@ class Asset extends Model
         'location_id',
         'vendor_id',
         'warranty_expiration',
+        'date_acquired',
         'is_disposed',
         'expiry_flag',       
         'expiry_status',     
@@ -31,6 +32,7 @@ class Asset extends Model
 
     protected $casts = [
         'warranty_expiration' => 'date',
+        'date_acquired' => 'date',
     ];
 
     protected function formattedWarranty(): Attribute

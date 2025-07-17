@@ -67,8 +67,9 @@
                     <th>Brand</th>
                     <th>Model</th>
                     <th>Category</th>
-                    <th>Quantity</th>
+                    {{-- <th>Quantity</th> --}}                    
                     <th>Condition</th>
+                    <th>Date Acquired</th>
                     <th>Warranty</th>
                     <th>Actions</th>
                 </tr>
@@ -80,8 +81,8 @@
                         <td data-label="Asset Code">{{ $asset->asset_code }}</td>
                         <td data-label="Name">{{ $asset->name }}</td>
                         <td data-label="Name">{{ $asset->model_number }}</td>
-                        <td data-label="Category">{{ $asset->category->category_name }}</td>
-                        <td data-label="Quantity">{{ $asset->quantity }}</td>
+                        <td data-label="Category">{{ $asset->category->category_name }}</td>                        
+                        {{-- <td data-label="Quantity">{{ $asset->quantity }}</td> --}}
                         <td data-label="Condition">
                             @php
                                 $conditionName = strtolower($asset->condition->condition_name);
@@ -98,6 +99,9 @@
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold {{ $conditionClass }} w-[80px] justify-center">
                                 {{ $displayCondition }}
                             </span>
+                        </td>
+                        <td data-label="Date Acquire">
+                            {{ $asset->created_at ? $asset->date_acquired->format('F d, Y') : 'N/A' }}
                         </td>
 
                         <td data-label="Warranty">
@@ -276,6 +280,20 @@
                                 @error('location_id') <span class="error">{{ $message }}</span> @enderror
                             </div>
                             
+
+                            <div class="form-group">
+                                <label>Serial Number</label>
+                                <input 
+                                    type="text" 
+                                    wire:model="serial_number" 
+                                    class="form-input"
+                                    placeholder="Enter serial number"
+                                >
+                                @error('serial_number') 
+                                    <span class="error">{{ $message }}</span> 
+                                @enderror
+                            </div>
+
                             <!-- Vendor (Live Search) -->
                             <div class="form-group">
                                 <label>Vendor/Supplier *</label>
@@ -309,6 +327,16 @@
                                 </div>
                                 @error('vendor_id') <span class="error">{{ $message }}</span> @enderror
                             </div>
+
+                            <div class="form-group">
+                                <label>Date Acquired *</label>
+                                <input 
+                                    type="date" 
+                                    wire:model="date_acquired" 
+                                    class="form-input"                                    
+                                >
+                                @error('date_acquired') <span class="error">{{ $message }}</span> @enderror
+                            </div>
                             
                             <div class="form-group">
                                 <label>Warranty Expiration *</label>
@@ -321,37 +349,17 @@
                                 @error('warranty_expiration') <span class="error">{{ $message }}</span> @enderror
                             </div>                         
                            
-                            <!-- Serial Number and Description in a single row -->
-                            <div class="flex flex-col md:flex-row gap-4 col-span-2">
-                                <div class="w-full md:w-1/2">
-                                    <div class="form-group">
-                                        <label>Serial Number</label>
-                                        <input 
-                                            type="text" 
-                                            wire:model="serial_number" 
-                                            class="form-input"
-                                            placeholder="Enter serial number"
-                                        >
-                                        @error('serial_number') 
-                                            <span class="error">{{ $message }}</span> 
-                                        @enderror
-                                    </div>
-                                </div>
-                                
-                                <div class="w-full md:w-1/2">
-                                    <div class="form-group">
-                                        <label>Description</label>
-                                        <textarea 
-                                            wire:model="description" 
-                                            rows="3" 
-                                            class="form-input w-full"
-                                        ></textarea>
-                                        @error('description') 
-                                            <span class="error">{{ $message }}</span> 
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
+                            <div class="form-group w-full col-span-2">
+                                <label>Description</label>
+                                <textarea 
+                                    wire:model="description" 
+                                    rows="3" 
+                                    class="form-input"
+                                ></textarea>
+                                @error('description') 
+                                    <span class="error">{{ $message }}</span> 
+                                @enderror
+                            </div>                          
 
                         </div>
                         
@@ -511,56 +519,71 @@
                                     @endif
                                 </div>
                                 @error('location_id') <span class="error">{{ $message }}</span> @enderror
-                            </div>
+                            </div>                         
                             
                             <div class="form-group">
-                                <label>Vendor/Supplier *</label>
-                                <div class="relative">
-                                    <input 
-                                        type="text" 
-                                        wire:model.live="vendorSearch"
-                                        placeholder="Search or add vendor"
-                                        class="form-input"
-                                    />
-                                    @if($showVendorDropdown)
-                                        <div class="absolute z-10 w-full bg-white border border-gray-300 text-gray-700 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
-                                            @foreach($vendorSuggestions as $vendor)
-                                                <div 
-                                                    wire:click="selectVendor('{{ $vendor }}')"
-                                                    class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                >
-                                                    {{ $vendor }}
-                                                </div>
-                                            @endforeach
-                                            @if(!in_array($vendorSearch, $vendorSuggestions) && !empty($vendorSearch))
-                                                <div 
-                                                    wire:click="selectVendor('{{ $vendorSearch }}')"
-                                                    class="px-4 py-2 text-blue-500 hover:bg-blue-100 cursor-pointer"
-                                                >
-                                                    Add "{{ $vendorSearch }}"
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @endif
-                                </div>
-                                @error('vendor_id') <span class="error">{{ $message }}</span> @enderror
+                                <label>Date Acquired *</label>
+                                <input 
+                                    type="date" 
+                                    wire:model="date_acquired" 
+                                    class="form-input"                                   
+                                >
+                                @error('date_acquired') <span class="error">{{ $message }}</span> @enderror
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Warranty Expiration *</label>
                                 <input 
                                     type="date" 
                                     wire:model="warranty_expiration" 
                                     class="form-input"
-                                    {{-- min="{{ now()->format('Y-m-d') }}" --}}
                                 >
                                 @error('warranty_expiration') <span class="error">{{ $message }}</span> @enderror
                             </div>
                             
-                            <div class="form-group col-span-2">
-                                <label>Description</label>
-                                <textarea wire:model="description" rows="3" class="form-input"></textarea>
-                                @error('description') <span class="error">{{ $message }}</span> @enderror
+                            <div class="flex flex-col md:flex-row gap-4 col-span-2">
+                                <div class="w-full md:w-1/2">
+                                    <div class="form-group">
+                                        <label>Vendor/Supplier *</label>
+                                        <div class="relative">
+                                            <input 
+                                                type="text" 
+                                                wire:model.live="vendorSearch"
+                                                placeholder="Search or add vendor"
+                                                class="form-input"
+                                            />
+                                            @if($showVendorDropdown)
+                                                <div class="absolute z-10 w-full bg-white border border-gray-300 text-gray-700 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                                                    @foreach($vendorSuggestions as $vendor)
+                                                        <div 
+                                                            wire:click="selectVendor('{{ $vendor }}')"
+                                                            class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                        >
+                                                            {{ $vendor }}
+                                                        </div>
+                                                    @endforeach
+                                                    @if(!in_array($vendorSearch, $vendorSuggestions) && !empty($vendorSearch))
+                                                        <div 
+                                                            wire:click="selectVendor('{{ $vendorSearch }}')"
+                                                            class="px-4 py-2 text-blue-500 hover:bg-blue-100 cursor-pointer"
+                                                        >
+                                                            Add "{{ $vendorSearch }}"
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endif
+                                        </div>
+                                        @error('vendor_id') <span class="error">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
+                                
+                                <div class="w-full md:w-1/2">
+                                    <div class="form-group col-span-2">
+                                    <label>Description</label>
+                                    <textarea wire:model="description" rows="3" class="form-input"></textarea>
+                                    @error('description') <span class="error">{{ $message }}</span> @enderror
+                                </div>
+                                </div>
                             </div>
                         </div>
                         

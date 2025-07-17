@@ -20,6 +20,7 @@ class ManageSoftwares extends Component
     public $software_name;
     public $description;
     public $license_key;
+    public $date_acquired;
     public $expiry_date;
     public $quantity = 1;
     
@@ -32,6 +33,12 @@ class ManageSoftwares extends Component
     
     public $successMessage = '';
     public $errorMessage = '';
+
+    public function mount()
+    {
+        $this->expiry_date = now()->addYear()->format('Y-m-d');
+        $this->date_acquired = now()->format('Y-m-d');
+    }
 
     public function updatingSearch()
     {
@@ -53,6 +60,8 @@ class ManageSoftwares extends Component
         $this->description = $software->description;
         $this->license_key = $software->license_key;
         $this->expiry_date = $software->expiry_date->format('Y-m-d');
+        $this->date_acquired = $software->date_acquired->format('Y-m-d');
+
         $this->quantity = $software->quantity;
         
         $this->showEditModal = true;
@@ -83,10 +92,13 @@ class ManageSoftwares extends Component
     {
         $this->reset([
             'softwareId', 'software_name', 'description', 'license_key', 
-            'expiry_date', 'quantity'
+            'expiry_date', 'date_acquired', 'quantity'
         ]);
         $this->resetErrorBag();
         $this->viewSoftware = null;
+
+        $this->expiry_date = now()->addYear()->format('Y-m-d');
+        $this->date_acquired = now()->format('Y-m-d');
     }
 
     private function generateSoftwareCode()
@@ -119,6 +131,7 @@ class ManageSoftwares extends Component
             'description' => 'nullable|string',
             'license_key' => 'required|string|max:100',
             'expiry_date' => 'required|date',
+            'date_acquired' => 'nullable|date',
             'quantity' => 'required|integer|min:1',
         ]);
 
@@ -136,6 +149,7 @@ class ManageSoftwares extends Component
                 'description' => $this->description,
                 'license_key' => $this->license_key,
                 'expiry_date' => $this->expiry_date,
+                'date_acquired' => $this->date_acquired ?? now()->format('Y-m-d'),
                 'added_by' => Auth::id(),
                 'quantity' => $this->quantity,
                 'reserved_quantity' => 0,
@@ -159,6 +173,7 @@ class ManageSoftwares extends Component
             'description' => 'nullable|string',
             'license_key' => 'required|string|max:100',
             'expiry_date' => 'required|date',
+            'date_acquired' => 'nullable|date',
             'quantity' => 'required|integer|min:1',
         ]);
 
@@ -178,6 +193,7 @@ class ManageSoftwares extends Component
                 'description' => $this->description,
                 'license_key' => $this->license_key,
                 'expiry_date' => $this->expiry_date,
+                'date_acquired' => $this->date_acquired,
                 'quantity' => $this->quantity,
                 'expiry_flag' => $expiryFlag,
                 'expiry_status' => $expiryStatus,
