@@ -247,7 +247,7 @@
                                     </svg>
                                 </div>
                                 <div class="ml-3 text-sm text-red-800 leading-tight">
-                                    Rejecting this borrow request will notify the borrower and cancel the transaction.
+                                    Rejecting this return request will notify the borrower and cancel the transaction.
                                     <strong class="block font-medium mt-0.5">Please review the items and provide a reason below.</strong>
                                 </div>
                             </div>
